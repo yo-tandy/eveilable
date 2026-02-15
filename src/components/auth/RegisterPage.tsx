@@ -150,7 +150,7 @@ export function RegisterPage() {
           disabled={loading}
           className="w-full py-2.5 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
         >
-          {t('auth.signInWithGoogle')}
+          {t('auth.signUpWithGoogle')}
         </button>
 
         <p className="mt-6 text-center text-sm text-gray-500">
