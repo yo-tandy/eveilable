@@ -1,5 +1,5 @@
 import { callFunction } from './api'
-import type { SummaryScore } from '../types/comprehension'
+import type { SummaryScore, SentenceIssue } from '../types/comprehension'
 import type { SupportedLanguage, LanguageLevel } from '../types/user'
 
 export async function evaluateSummary(
@@ -14,6 +14,7 @@ export async function evaluateSummary(
     grammarScore: number
     overallScore: number
     feedback: string
+    sentenceIssues?: SentenceIssue[]
   }>('evaluateSummary', {
     article: articleText,
     summary,
@@ -29,6 +30,7 @@ export async function evaluateSummary(
     grammarScore: result.grammarScore,
     overallScore: result.overallScore,
     feedback: result.feedback,
+    sentenceIssues: result.sentenceIssues || [],
     readingTimeSeconds: 0,
   }
 }

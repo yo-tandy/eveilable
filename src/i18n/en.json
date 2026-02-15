@@ -37,7 +37,13 @@
     },
     "comprehension": {
       "name": "Comprehension",
-      "description": "Read, understand, and summarize current news"
+      "description": "Read, understand, and summarize current news",
+      "results": {
+        "yourAnswer": "Your answer",
+        "correctAnswer": "Correct answer",
+        "fromArticle": "From the article",
+        "detailedFeedback": "Detailed Feedback"
+      }
     }
   },
   "stats": {

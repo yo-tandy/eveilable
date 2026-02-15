@@ -92,9 +92,10 @@ Requirements:
 - All answers must be directly derivable from the text
 - Questions should test comprehension, not trivia
 - Mix detail questions with inference questions
+- For each question, include a "supportingQuote" field: a short exact quote from the article (1-2 sentences) that directly supports the correct answer
 
 Return ONLY a JSON array (no markdown, no explanation):
-[{"question": "...", "options": ["A", "B", "C", "D"], "correctIndex": 0}, ...]`
+[{"question": "...", "options": ["A", "B", "C", "D"], "correctIndex": 0, "supportingQuote": "exact text from article"}, ...]`
         }],
       })
 
@@ -127,7 +128,7 @@ export const evaluateSummary = onCall(
     try {
       const response = await getClient().messages.create({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 512,
+        max_tokens: 1536,
         messages: [{
           role: 'user',
           content: `Evaluate this summary of the article below.
@@ -147,10 +148,18 @@ Score each dimension from 1-10:
 - grammar: Is the grammar correct for the ${level} level?
 - overall: Overall quality considering all factors
 
-Provide brief constructive feedback.
+Provide brief constructive feedback in the "feedback" field.
+
+Additionally, identify specific sentences in the summary that have issues. For each problematic sentence, provide:
+- "sentence": the exact sentence from the summary that has an issue
+- "issueType": one of "grammar", "vocabulary", or "accuracy"
+- "explanation": a brief explanation of the issue (1 sentence)
+- "suggestion": the corrected version of the sentence
+
+Only include sentences that have clear issues. If the summary is perfect, return an empty array.
 
 Return ONLY a JSON object (no markdown, no explanation):
-{"accuracyScore": N, "vocabularyScore": N, "grammarScore": N, "overallScore": N, "feedback": "..."}`
+{"accuracyScore": N, "vocabularyScore": N, "grammarScore": N, "overallScore": N, "feedback": "...", "sentenceIssues": [{"sentence": "...", "issueType": "grammar|vocabulary|accuracy", "explanation": "...", "suggestion": "..."}]}`
         }],
       })
 
