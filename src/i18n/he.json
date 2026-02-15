@@ -1,0 +1,26 @@
+{
+  "nav": {
+    "games": "משחקים",
+    "progress": "התקדמות",
+    "settings": "הגדרות",
+    "logout": "התנתק",
+    "login": "התחבר",
+    "register": "הרשמה"
+  },
+  "home": {
+    "title": "Eveilable",
+    "subtitle": "שפרו את יכולות עיבוד המחשבה שלכם",
+    "getStarted": "בואו נתחיל",
+    "loginPrompt": "כבר יש לך חשבון?"
+  },
+  "common": {
+    "continue": "המשך",
+    "endSession": "סיום",
+    "playAgain": "שחק שוב",
+    "viewProgress": "צפה בהתקדמות",
+    "loading": "טוען...",
+    "error": "משהו השתבש",
+    "retry": "נסה שוב",
+    "startGame": "התחל משחק"
+  }
+}

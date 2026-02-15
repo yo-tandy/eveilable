@@ -1,0 +1,70 @@
+{
+  "nav": {
+    "games": "Games",
+    "progress": "Progress",
+    "settings": "Settings",
+    "logout": "Log Out",
+    "login": "Log In",
+    "register": "Register"
+  },
+  "home": {
+    "title": "Eveilable",
+    "subtitle": "Boost your thought processing abilities",
+    "getStarted": "Get Started",
+    "loginPrompt": "Already have an account?"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "displayName": "Display Name",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signInWithGoogle": "Sign in with Google",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?"
+  },
+  "games": {
+    "selectGame": "Select a Game",
+    "dividedAttention": {
+      "name": "Divided Attention",
+      "description": "Track central and peripheral objects simultaneously"
+    },
+    "doubleDecision": {
+      "name": "Double Decision",
+      "description": "Quick decisions about direction under time pressure"
+    },
+    "comprehension": {
+      "name": "Comprehension",
+      "description": "Read, understand, and summarize current news"
+    }
+  },
+  "stats": {
+    "sessionComplete": "Session Complete",
+    "accuracy": "Accuracy",
+    "responseTime": "Response Time",
+    "difficulty": "Difficulty Level",
+    "performance": "Performance Rating",
+    "trials": "Trials"
+  },
+  "progress": {
+    "title": "Your Progress",
+    "currentLevel": "Current Level",
+    "trend": "Trend",
+    "improving": "Improving",
+    "stable": "Stable",
+    "declining": "Declining",
+    "lifetimeAccuracy": "Lifetime Accuracy",
+    "noSessions": "No sessions yet. Play a game to see your progress!"
+  },
+  "common": {
+    "continue": "Continue",
+    "endSession": "End Session",
+    "playAgain": "Play Again",
+    "viewProgress": "View Progress",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "startGame": "Start Game"
+  }
+}

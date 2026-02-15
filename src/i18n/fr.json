@@ -1,0 +1,26 @@
+{
+  "nav": {
+    "games": "Jeux",
+    "progress": "Progrès",
+    "settings": "Paramètres",
+    "logout": "Déconnexion",
+    "login": "Connexion",
+    "register": "S'inscrire"
+  },
+  "home": {
+    "title": "Eveilable",
+    "subtitle": "Améliorez vos capacités de traitement mental",
+    "getStarted": "Commencer",
+    "loginPrompt": "Vous avez déjà un compte ?"
+  },
+  "common": {
+    "continue": "Continuer",
+    "endSession": "Terminer",
+    "playAgain": "Rejouer",
+    "viewProgress": "Voir les progrès",
+    "loading": "Chargement...",
+    "error": "Une erreur est survenue",
+    "retry": "Réessayer",
+    "startGame": "Commencer le jeu"
+  }
+}

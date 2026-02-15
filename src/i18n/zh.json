@@ -1,0 +1,26 @@
+{
+  "nav": {
+    "games": "游戏",
+    "progress": "进度",
+    "settings": "设置",
+    "logout": "退出",
+    "login": "登录",
+    "register": "注册"
+  },
+  "home": {
+    "title": "Eveilable",
+    "subtitle": "提升您的思维处理能力",
+    "getStarted": "开始",
+    "loginPrompt": "已有账号？"
+  },
+  "common": {
+    "continue": "继续",
+    "endSession": "结束",
+    "playAgain": "再玩一次",
+    "viewProgress": "查看进度",
+    "loading": "加载中...",
+    "error": "出现错误",
+    "retry": "重试",
+    "startGame": "开始游戏"
+  }
+}
