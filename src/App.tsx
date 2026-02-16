@@ -6,6 +6,7 @@ import { useAuthStore } from './stores/authStore'
 import { useSettingsStore } from './stores/settingsStore'
 import { useTranslation } from 'react-i18next'
 import { Navbar } from './components/common/Navbar'
+import { Footer } from './components/common/Footer'
 import { ProtectedRoute } from './components/common/ProtectedRoute'
 import { LoadingSpinner } from './components/common/LoadingSpinner'
 import { HomePage } from './pages/HomePage'
@@ -26,6 +27,18 @@ const ComprehensionPage = lazy(() =>
 )
 const ProgressPage = lazy(() =>
   import('./pages/ProgressPage').then((m) => ({ default: m.ProgressPage }))
+)
+const AboutPage = lazy(() =>
+  import('./pages/AboutPage').then((m) => ({ default: m.AboutPage }))
+)
+const ContactPage = lazy(() =>
+  import('./pages/ContactPage').then((m) => ({ default: m.ContactPage }))
+)
+const PrivacyPage = lazy(() =>
+  import('./pages/PrivacyPage').then((m) => ({ default: m.PrivacyPage }))
+)
+const TermsPage = lazy(() =>
+  import('./pages/TermsPage').then((m) => ({ default: m.TermsPage }))
 )
 
 function App() {
@@ -48,56 +61,63 @@ function App() {
   }, [uiLanguage, i18n])
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
-      <Suspense fallback={<LoadingSpinner />}>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route
-            path="/games"
-            element={
-              <ProtectedRoute>
-                <GameSelectPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/games/divided-attention"
-            element={
-              <ProtectedRoute>
-                <DividedAttentionPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/games/double-decision"
-            element={
-              <ProtectedRoute>
-                <DoubleDecisionPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/games/comprehension"
-            element={
-              <ProtectedRoute>
-                <ComprehensionPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/progress"
-            element={
-              <ProtectedRoute>
-                <ProgressPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Suspense>
+      <main className="flex-1">
+        <Suspense fallback={<LoadingSpinner />}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route
+              path="/games"
+              element={
+                <ProtectedRoute>
+                  <GameSelectPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/games/divided-attention"
+              element={
+                <ProtectedRoute>
+                  <DividedAttentionPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/games/double-decision"
+              element={
+                <ProtectedRoute>
+                  <DoubleDecisionPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/games/comprehension"
+              element={
+                <ProtectedRoute>
+                  <ComprehensionPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/progress"
+              element={
+                <ProtectedRoute>
+                  <ProgressPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      </main>
+      <Footer />
     </div>
   )
 }

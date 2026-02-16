@@ -10,6 +10,12 @@ function getClient() {
 
 const SECRETS = ['ANTHROPIC_API_KEY'] as const
 
+/** Strip markdown code fences that Claude sometimes wraps around JSON */
+function extractJSON(text: string): string {
+  const match = text.match(/```(?:json)?\s*([\s\S]*?)```/)
+  return match ? match[1].trim() : text.trim()
+}
+
 export const generateArticle = onCall(
   { timeoutSeconds: 60, memory: '256MiB', secrets: [...SECRETS] },
   async (request) => {
@@ -44,8 +50,8 @@ Return ONLY a JSON object with this structure (no markdown, no explanation):
         }],
       })
 
-      const text = response.content[0].type === 'text' ? response.content[0].text : ''
-      const article = JSON.parse(text)
+      const raw = response.content[0].type === 'text' ? response.content[0].text : ''
+      const article = JSON.parse(extractJSON(raw))
       const wordCount = article.paragraphs.join(' ').split(/\s+/).length
 
       return {
@@ -99,8 +105,8 @@ Return ONLY a JSON array (no markdown, no explanation):
         }],
       })
 
-      const text = response.content[0].type === 'text' ? response.content[0].text : ''
-      const questions = JSON.parse(text)
+      const raw = response.content[0].type === 'text' ? response.content[0].text : ''
+      const questions = JSON.parse(extractJSON(raw))
 
       return { questions }
     } catch (error: unknown) {
@@ -163,8 +169,8 @@ Return ONLY a JSON object (no markdown, no explanation):
         }],
       })
 
-      const text = response.content[0].type === 'text' ? response.content[0].text : ''
-      const evaluation = JSON.parse(text)
+      const raw = response.content[0].type === 'text' ? response.content[0].text : ''
+      const evaluation = JSON.parse(extractJSON(raw))
 
       return evaluation
     } catch (error: unknown) {

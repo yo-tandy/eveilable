@@ -73,5 +73,46 @@
     "error": "Something went wrong",
     "retry": "Retry",
     "startGame": "Start Game"
+  },
+  "footer": {
+    "about": "About",
+    "contact": "Contact",
+    "privacy": "Privacy",
+    "terms": "Terms"
+  },
+  "about": {
+    "title": "About Eveilable",
+    "description": "A cognitive training platform with interactive brain games designed to boost thought processing abilities, attention, and language comprehension.",
+    "ourGames": "Our Games",
+    "features": "Key Features",
+    "feature1": "Adaptive difficulty that adjusts to your performance across 20 levels",
+    "feature2": "Detailed progress tracking with charts and statistics",
+    "feature3": "Multilingual support — English, French, Chinese, and Hebrew",
+    "feature4": "AI-powered feedback for reading comprehension summaries",
+    "createdBy": "Created by",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service"
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Have a question, suggestion, or feedback? We'd love to hear from you.",
+    "name": "Name",
+    "namePlaceholder": "Your name",
+    "email": "Email",
+    "emailPlaceholder": "your@email.com",
+    "message": "Message",
+    "messagePlaceholder": "What's on your mind?",
+    "send": "Send Message",
+    "sending": "Sending...",
+    "sendAnother": "Send Another Message",
+    "successTitle": "Message Sent!",
+    "successMessage": "Thank you for reaching out. We'll get back to you soon.",
+    "errorMessage": "Failed to send message. Please try again."
+  },
+  "privacy": {
+    "title": "Privacy Policy"
+  },
+  "terms": {
+    "title": "Terms of Service"
   }
 }

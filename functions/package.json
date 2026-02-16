@@ -6,7 +6,7 @@
     "build": "tsc",
     "serve": "npm run build && firebase emulators:start --only functions",
     "deploy": "firebase deploy --only functions",
-    "postdeploy": "gcloud run services update fetchnews --region us-central1 --no-invoker-iam-check --project eveilable-6bda0 && gcloud run services update generatearticle --region us-central1 --no-invoker-iam-check --project eveilable-6bda0 && gcloud run services update generatequestions --region us-central1 --no-invoker-iam-check --project eveilable-6bda0 && gcloud run services update evaluatesummary --region us-central1 --no-invoker-iam-check --project eveilable-6bda0"
+    "postdeploy": "gcloud run services update fetchnews --region us-central1 --no-invoker-iam-check --project eveilable-6bda0 && gcloud run services update generatearticle --region us-central1 --no-invoker-iam-check --project eveilable-6bda0 && gcloud run services update generatequestions --region us-central1 --no-invoker-iam-check --project eveilable-6bda0 && gcloud run services update evaluatesummary --region us-central1 --no-invoker-iam-check --project eveilable-6bda0 && gcloud run services update submitcontact --region us-central1 --no-invoker-iam-check --project eveilable-6bda0"
   },
   "engines": {
     "node": "20"
