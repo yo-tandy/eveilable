@@ -124,12 +124,15 @@ export const evaluateSummary = onCall(
       throw new HttpsError('unauthenticated', 'Must be logged in')
     }
 
-    const { article, summary, language, level } = request.data as {
+    const { article, summary, language, level, wordLimit } = request.data as {
       article: string
       summary: string
       language: string
       level: string
+      wordLimit?: { min: number; max: number }
     }
+
+    const wl = wordLimit ?? { min: 10, max: 100 }
 
     try {
       const response = await getClient().messages.create({
@@ -147,22 +150,34 @@ ${summary}
 
 Language: ${language === 'en' ? 'English' : language === 'fr' ? 'French' : language === 'zh' ? 'Chinese' : 'Hebrew'}
 Expected CEFR level: ${level}
+Word limit: ${wl.min}–${wl.max} words
+
+IMPORTANT SCORING GUIDELINES:
 
 Score each dimension from 1-10:
-- accuracy: How well does the summary capture the key points?
-- vocabulary: Is the vocabulary appropriate for the ${level} level?
-- grammar: Is the grammar correct for the ${level} level?
-- overall: Overall quality considering all factors
 
-Provide brief constructive feedback in the "feedback" field.
+- accuracy: Does the summary capture the MAIN IDEA or central message of the article? The summary is constrained to only ${wl.min}–${wl.max} words, so it is IMPOSSIBLE to include every detail. Do NOT penalize for omitting specific details like names, cities, statistics, lists, or secondary points. A summary that correctly conveys the core message in ${wl.min}–${wl.max} words should score 8-10 for accuracy.
 
-Additionally, identify specific sentences in the summary that have issues. For each problematic sentence, provide:
-- "sentence": the exact sentence from the summary that has an issue
+- vocabulary: REWARD the use of vocabulary that is MORE ADVANCED than the expected ${level} level. Using words above the expected CEFR level demonstrates strong language skills and should INCREASE the score (8-10). Only lower the score if the vocabulary is significantly BELOW the expected level or if words are used incorrectly. Do NOT penalize for using advanced words correctly.
+
+- grammar: REWARD sophisticated sentence structures (complex sentences, varied syntax, subordinate clauses) that go beyond the expected ${level} level. Only flag actual grammatical ERRORS (wrong tense, subject-verb disagreement, missing articles, etc.). Correct but advanced grammar should INCREASE the score, not decrease it.
+
+- overall: Overall quality considering all factors above, with emphasis on main-idea capture and language sophistication.
+
+Provide brief constructive feedback in the "feedback" field. Focus on what the student did well and any genuine errors. Do not suggest adding details that would exceed the word limit.
+
+Additionally, identify specific sentences that have genuine issues. For each problematic sentence, provide:
+- "sentence": the exact sentence from the summary
 - "issueType": one of "grammar", "vocabulary", or "accuracy"
-- "explanation": a brief explanation of the issue (1 sentence)
-- "suggestion": the corrected version of the sentence
+- "explanation": a brief explanation of the actual error (1 sentence)
+- "suggestion": the corrected version
 
-Only include sentences that have clear issues. If the summary is perfect, return an empty array.
+ONLY flag genuine errors (wrong grammar, incorrect word usage, factual inaccuracies). Do NOT flag:
+- Advanced vocabulary used correctly (this is a positive, not an issue)
+- Missing details that couldn't fit within the word limit
+- Sophisticated grammar structures that are correct
+
+If the summary has no genuine issues, return an empty sentenceIssues array.
 
 Return ONLY a JSON object (no markdown, no explanation):
 {"accuracyScore": N, "vocabularyScore": N, "grammarScore": N, "overallScore": N, "feedback": "...", "sentenceIssues": [{"sentence": "...", "issueType": "grammar|vocabulary|accuracy", "explanation": "...", "suggestion": "..."}]}`

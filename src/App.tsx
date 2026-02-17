@@ -25,6 +25,12 @@ const DoubleDecisionPage = lazy(() =>
 const ComprehensionPage = lazy(() =>
   import('./pages/ComprehensionPage').then((m) => ({ default: m.ComprehensionPage }))
 )
+const SpeedSummaryPage = lazy(() =>
+  import('./pages/SpeedSummaryPage').then((m) => ({ default: m.SpeedSummaryPage }))
+)
+const IconSwapPage = lazy(() =>
+  import('./pages/IconSwapPage').then((m) => ({ default: m.IconSwapPage }))
+)
 const ProgressPage = lazy(() =>
   import('./pages/ProgressPage').then((m) => ({ default: m.ProgressPage }))
 )
@@ -102,6 +108,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ComprehensionPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/games/speed-summary"
+              element={
+                <ProtectedRoute>
+                  <SpeedSummaryPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/games/icon-swap"
+              element={
+                <ProtectedRoute>
+                  <IconSwapPage />
                 </ProtectedRoute>
               }
             />

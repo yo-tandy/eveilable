@@ -22,9 +22,28 @@ const DOUBLE_DECISION_TABLE: DifficultyParams[] = Array.from({ length: 20 }, (_,
   }
 })
 
+const ICON_SWAP_TABLE: DifficultyParams[] = Array.from({ length: 20 }, (_, i) => {
+  const level = i + 1
+  const cardCount = level < 6 ? 4 : level < 10 ? 5 : level < 14 ? 6 : level < 18 ? 7 : 8
+  return {
+    level,
+    flashDurationMs: 0,
+    peripheralDistance: 0,
+    distractorCount: 0,
+    distractorSimilarity: 0,
+    memorizeTimeMs: Math.round(3000 - (level - 1) * (2500 / 19)),   // 3000ms -> 500ms
+    blinkDurationMs: Math.round(400 - (level - 1) * (190 / 19)),    // 400ms -> 210ms
+    cardCount,                                                        // 4 -> 8
+    iconPoolSize: Math.round(12 + (level - 1) * (28 / 19)),         // 12 -> 40
+  }
+})
+
 export function getDifficultyParams(level: number, gameType: GameType): DifficultyParams {
   const clamped = Math.max(1, Math.min(20, level))
-  const table = gameType === 'double-decision' ? DOUBLE_DECISION_TABLE : DIVIDED_ATTENTION_TABLE
+  const table =
+    gameType === 'double-decision' ? DOUBLE_DECISION_TABLE :
+    gameType === 'icon-swap' ? ICON_SWAP_TABLE :
+    DIVIDED_ATTENTION_TABLE
   return table[clamped - 1]
 }
 

@@ -44,6 +44,31 @@
         "fromArticle": "From the article",
         "detailedFeedback": "Detailed Feedback"
       }
+    },
+    "iconSwap": {
+      "name": "Icon Swap",
+      "description": "Spot the icon that changed after a brief blink",
+      "instructions1": "A set of icon cards will appear briefly.",
+      "instructions2": "After a quick blink, one icon will be different.",
+      "instructions3": "Click the card that changed!",
+      "instructions4": "The viewing time gets shorter as you improve."
+    },
+    "speedSummary": {
+      "name": "Speed Summary",
+      "description": "Quickly summarize a news paragraph in 10–20 words",
+      "writeSummary": "Write a summary in 10–20 words",
+      "words": "words",
+      "submit": "Submit Summary",
+      "tooFew": "Too few words (minimum 10)",
+      "tooMany": "Too many words (maximum 20)",
+      "summaryEvaluation": "Summary Evaluation",
+      "writingTime": "Writing Time",
+      "overallScore": "Overall Score",
+      "accuracy": "Accuracy",
+      "vocabulary": "Vocabulary",
+      "grammar": "Grammar",
+      "feedback": "Feedback",
+      "detailedFeedback": "Detailed Feedback"
     }
   },
   "stats": {
@@ -63,6 +88,12 @@
     "declining": "Declining",
     "lifetimeAccuracy": "Lifetime Accuracy",
     "noSessions": "No sessions yet. Play a game to see your progress!"
+  },
+  "categories": {
+    "attention": "Attention Games",
+    "attentionDescription": "Train your focus, reaction speed, and visual processing",
+    "language": "Language Games",
+    "languageDescription": "Boost reading comprehension and summarization skills"
   },
   "common": {
     "continue": "Continue",

@@ -6,14 +6,9 @@ import { TrendChart } from '../components/progress/TrendChart'
 import { GoalTracker } from '../components/progress/GoalTracker'
 import { GameHistoryList } from '../components/progress/GameHistoryList'
 import { LoadingSpinner } from '../components/common/LoadingSpinner'
+import { CATEGORIES, getGamesByCategory, getGameClasses } from '../config/games'
 import type { GameType, GameSession } from '../types/game'
 import type { AggregateStats } from '../types/user'
-
-const GAME_TABS: { key: GameType; labelKey: string }[] = [
-  { key: 'divided-attention', labelKey: 'games.dividedAttention.name' },
-  { key: 'double-decision', labelKey: 'games.doubleDecision.name' },
-  { key: 'comprehension', labelKey: 'games.comprehension.name' },
-]
 
 export function ProgressPage() {
   const { t } = useTranslation()
@@ -33,8 +28,7 @@ export function ProgressPage() {
       setSessions(sessionData)
       setStats(statsData)
       setLoading(false)
-    }).catch((err) => {
-      console.error('Failed to load progress data:', err)
+    }).catch(() => {
       setLoading(false)
     })
   }, [user, activeTab])
@@ -43,21 +37,42 @@ export function ProgressPage() {
     <div className="max-w-3xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">{t('progress.title')}</h1>
 
-      {/* Game type tabs */}
-      <div className="flex border-b mb-6 overflow-x-auto">
-        {GAME_TABS.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`px-4 py-3 font-medium border-b-2 transition-colors whitespace-nowrap ${
-              activeTab === tab.key
-                ? 'border-brand-500 text-brand-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {t(tab.labelKey)}
-          </button>
-        ))}
+      {/* Grouped game tabs */}
+      <div className="mb-6 space-y-3">
+        {CATEGORIES.map((category) => {
+          const games = getGamesByCategory(category.key)
+          const CatIcon = category.icon
+          return (
+            <div key={category.key}>
+              {/* Category label */}
+              <div className="flex items-center gap-1.5 mb-1.5 px-1">
+                <CatIcon size={14} className={category.iconColorLight} />
+                <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+                  {t(category.i18nKey)}
+                </span>
+              </div>
+              {/* Tab buttons */}
+              <div className="flex gap-2 overflow-x-auto">
+                {games.map((game) => {
+                  const cls = getGameClasses(game)
+                  return (
+                    <button
+                      key={game.id}
+                      onClick={() => setActiveTab(game.id)}
+                      className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 ${
+                        activeTab === game.id
+                          ? `${cls.iconBg} ${cls.iconText} shadow-sm`
+                          : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                      }`}
+                    >
+                      {t(`games.${game.key}.name`)}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })}
       </div>
 
       {loading ? (
@@ -69,7 +84,7 @@ export function ProgressPage() {
       ) : (
         <div className="space-y-8">
           {/* Current level and trend */}
-          <div className="bg-gray-50 rounded-2xl p-6 grid grid-cols-3 gap-4 text-center">
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 grid grid-cols-3 gap-4 text-center shadow-playful">
             <div>
               <div className="text-sm text-gray-500">{t('progress.currentLevel')}</div>
               <div className="text-4xl font-bold">{stats.currentDifficultyLevel}</div>
@@ -96,7 +111,7 @@ export function ProgressPage() {
 
           {/* Trend chart */}
           {stats.recentSessions.length >= 2 && (
-            <div className="bg-gray-50 rounded-2xl p-6">
+            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-playful">
               <h3 className="font-bold text-lg mb-4">Performance Over Time</h3>
               <TrendChart sessions={stats.recentSessions} />
             </div>

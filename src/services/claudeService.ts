@@ -7,6 +7,7 @@ export async function evaluateSummary(
   summary: string,
   language: SupportedLanguage,
   level: LanguageLevel,
+  wordLimit?: { min: number; max: number },
 ): Promise<SummaryScore> {
   const result = await callFunction<{
     accuracyScore: number
@@ -20,6 +21,7 @@ export async function evaluateSummary(
     summary,
     language,
     level,
+    wordLimit,
   })
 
   return {

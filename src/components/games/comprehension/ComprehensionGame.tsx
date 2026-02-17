@@ -1,4 +1,8 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
+import { collection, doc, setDoc, Timestamp } from 'firebase/firestore'
+import { db } from '../../../config/firebase'
+import { useAuthStore } from '../../../stores/authStore'
+import { updateAggregateStats } from '../../../services/firestoreService'
 import { fetchAndGenerateArticle } from '../../../services/newsService'
 import { evaluateSummary } from '../../../services/claudeService'
 import { LanguageSelector } from './LanguageSelector'
@@ -10,6 +14,7 @@ import { SummaryWriter } from './SummaryWriter'
 import { EvaluationResult } from './EvaluationResult'
 import { LoadingSpinner } from '../../common/LoadingSpinner'
 import type { Article, ComprehensionQuestion, SummaryScore } from '../../../types/comprehension'
+import type { GameSession } from '../../../types/game'
 import type { SupportedLanguage, LanguageLevel } from '../../../types/user'
 
 type Phase =
@@ -24,6 +29,8 @@ type Phase =
   | 'results'
 
 export function ComprehensionGame() {
+  const { user } = useAuthStore()
+  const sessionStartRef = useRef<Timestamp | null>(null)
   const [phase, setPhase] = useState<Phase>('language-select')
   const [language, setLanguage] = useState<SupportedLanguage>('en')
   const [level, setLevel] = useState<LanguageLevel>('B1')
@@ -52,6 +59,7 @@ export function ComprehensionGame() {
     setMode(selectedMode)
     setPhase('loading')
     setError(null)
+    sessionStartRef.current = Timestamp.now()
 
     try {
       setLoadingMessage('Fetching news and preparing your article...')
@@ -78,20 +86,80 @@ export function ComprehensionGame() {
     setPhase('summary')
   }, [])
 
+  const saveSession = useCallback(async (
+    evaluation: SummaryScore,
+    answers: number[],
+    timesMs: number[],
+  ) => {
+    if (!user) {
+      console.warn('[Comprehension] saveSession: no user, skipping')
+      return
+    }
+    try {
+      console.log('[Comprehension] saveSession: starting, uid=', user.uid, 'answers=', answers.length, 'questions=', questions.length)
+      const correctTrials = answers.filter((a, i) => a === questions[i]?.correctIndex).length
+      const totalTrials = questions.length
+      const accuracy = totalTrials > 0 ? correctTrials / totalTrials : 0
+      const avgResponseTimeMs = timesMs.length > 0
+        ? timesMs.reduce((sum, t) => sum + t, 0) / timesMs.length
+        : 0
+
+      const sessionsRef = collection(db, 'users', user.uid, 'sessions')
+      const sessionDoc = doc(sessionsRef)
+
+      const sessionData: GameSession = {
+        id: sessionDoc.id,
+        gameType: 'comprehension',
+        startedAt: sessionStartRef.current ?? Timestamp.now(),
+        endedAt: Timestamp.now(),
+        totalTrials,
+        correctTrials,
+        accuracy,
+        averageResponseTimeMs: avgResponseTimeMs,
+        finalDifficulty: 1,
+        difficultyProgression: [],
+        performanceRating: evaluation.overallScore / 10,
+        language,
+        level,
+        readingTimeSeconds,
+        questionsCorrect: correctTrials,
+        questionsTotal: totalTrials,
+        summaryScore: {
+          accuracyScore: evaluation.accuracyScore,
+          vocabularyScore: evaluation.vocabularyScore,
+          grammarScore: evaluation.grammarScore,
+          overallScore: evaluation.overallScore,
+          feedback: evaluation.feedback,
+        },
+      }
+
+      console.log('[Comprehension] saveSession: writing to Firestore...')
+      await setDoc(sessionDoc, sessionData)
+      console.log('[Comprehension] saveSession: session saved, updating aggregate stats...')
+      await updateAggregateStats(user.uid, 'comprehension', sessionData)
+      console.log('[Comprehension] saveSession: done!')
+    } catch (err) {
+      console.error('[Comprehension] Failed to save session:', err)
+    }
+  }, [user, questions, language, level, readingTimeSeconds])
+
   const handleSummarySubmit = useCallback(async (summaryText: string, summaryWritingTimeMs: number) => {
     setWritingTimeMs(summaryWritingTimeMs)
     setPhase('evaluating')
     try {
       const articleText = article!.paragraphs.join('\n\n')
-      const evaluation = await evaluateSummary(articleText, summaryText, language, level)
+      const evaluation = await evaluateSummary(articleText, summaryText, language, level, { min: 30, max: 60 })
       evaluation.readingTimeSeconds = readingTimeSeconds
       setSummaryEvaluation(evaluation)
+      console.log('[Comprehension] handleSummarySubmit: calling saveSession with', questionAnswers.length, 'answers')
+      await saveSession(evaluation, questionAnswers, questionTimesMs)
+      console.log('[Comprehension] handleSummarySubmit: saveSession complete')
       setPhase('results')
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to evaluate summary')
       setPhase('summary')
     }
-  }, [article, language, level, readingTimeSeconds])
+  }, [article, language, level, readingTimeSeconds, saveSession, questionAnswers, questionTimesMs])
 
   switch (phase) {
     case 'language-select':
