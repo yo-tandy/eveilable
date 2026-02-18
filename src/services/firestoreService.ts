@@ -89,6 +89,33 @@ export async function getStartingDifficulty(uid: string, gameType: GameType): Pr
   return Math.max(1, stats.currentDifficultyLevel - 1)
 }
 
+export async function fetchRecentLanguageScores(
+  uid: string,
+  gameType: GameType,
+  language: string,
+  level: string,
+  subLevel: string,
+  maxResults: number = 5,
+): Promise<number[]> {
+  const sessionsRef = collection(db, 'users', uid, 'sessions')
+  const q = query(
+    sessionsRef,
+    where('gameType', '==', gameType),
+    limit(50),
+  )
+  const snap = await getDocs(q)
+  const sessions = snap.docs
+    .map((d) => d.data() as GameSession)
+    .filter((s) => s.language === language && s.level === level && s.subLevel === subLevel)
+    .sort((a, b) => b.startedAt.toMillis() - a.startedAt.toMillis())
+    .slice(0, maxResults)
+
+  // Return oldest-first so slice(-N) on the caller side gives most recent
+  return sessions
+    .map((s) => s.summaryScore?.overallScore ?? 0)
+    .reverse()
+}
+
 export async function fetchSessionHistory(
   uid: string,
   gameType: GameType,

@@ -13,6 +13,22 @@
     "getStarted": "Commencer",
     "loginPrompt": "Vous avez déjà un compte ?"
   },
+  "games": {
+    "tenseRewrite": {
+      "name": "Réécriture de Temps",
+      "description": "Réécrivez des phrases avec des transformations grammaticales",
+      "yourRewrite": "Votre réécriture...",
+      "next": "Suivant",
+      "submitAll": "Tout soumettre",
+      "results": "Résultats",
+      "yourAnswer": "Votre réponse",
+      "suggestion": "Suggestion",
+      "overallScore": "Score global",
+      "avgTime": "Temps moy.",
+      "correct": "Correct",
+      "of": "sur"
+    }
+  },
   "common": {
     "continue": "Continuer",
     "endSession": "Terminer",

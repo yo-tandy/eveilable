@@ -1,6 +1,6 @@
 import { callFunction } from './api'
 import type { SummaryScore, SentenceIssue } from '../types/comprehension'
-import type { SupportedLanguage, LanguageLevel } from '../types/user'
+import type { SupportedLanguage, LanguageLevel, LanguageSubLevel } from '../types/user'
 
 export async function evaluateSummary(
   articleText: string,
@@ -8,6 +8,7 @@ export async function evaluateSummary(
   language: SupportedLanguage,
   level: LanguageLevel,
   wordLimit?: { min: number; max: number },
+  subLevel?: LanguageSubLevel,
 ): Promise<SummaryScore> {
   const result = await callFunction<{
     accuracyScore: number
@@ -22,6 +23,7 @@ export async function evaluateSummary(
     language,
     level,
     wordLimit,
+    subLevel,
   })
 
   return {

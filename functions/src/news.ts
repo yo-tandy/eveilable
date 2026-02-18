@@ -10,6 +10,8 @@ const LANGUAGE_MAP: Record<string, string> = {
   fr: 'fr',
   zh: 'zh',
   he: 'he',
+  de: 'de',
+  it: 'it',
 }
 
 // Fallback headlines when NEWS_API_KEY is not configured
@@ -41,6 +43,20 @@ const FALLBACK_HEADLINES: Record<string, { title: string; description: string; s
     { title: 'מחקר חדש: פעילות גופנית מסייעת בשיפור הזיכרון', description: 'אימון קבוע מראה שיפור משמעותי בתפקוד הקוגניטיבי.', source: 'ידיעות אחרונות' },
     { title: 'חינוך דיגיטלי: בתי ספר אומצים כלים טכנולוגיים חדשים', description: 'מערכת החינוך עוברת שינוי משמעותי עם שילוב בינה מלאכותית.', source: 'מעריב' },
     { title: 'ממצא ארכיאולוגי חשוב נחשף בחפירות בנגב', description: 'שרידים בני אלפי שנים שופכים אור חדש על ההיסטוריה של האזור.', source: 'כאן' },
+  ],
+  de: [
+    { title: 'Durchbruch in der Batterietechnologie verspricht längere Laufzeiten', description: 'Forscher haben eine neue Festkörperbatterie entwickelt, die doppelt so lange hält wie herkömmliche Lithium-Ionen-Akkus.', source: 'Der Spiegel' },
+    { title: 'Europäische Städte setzen verstärkt auf autofreie Innenstädte', description: 'Immer mehr Großstädte schränken den Autoverkehr im Zentrum ein und fördern den öffentlichen Nahverkehr.', source: 'Die Zeit' },
+    { title: 'Neue Studie zeigt Vorteile von mehrsprachiger Erziehung', description: 'Kinder, die mit mehreren Sprachen aufwachsen, zeigen bessere kognitive Fähigkeiten und Problemlösungskompetenz.', source: 'Süddeutsche Zeitung' },
+    { title: 'Künstliche Intelligenz revolutioniert die medizinische Diagnostik', description: 'KI-Systeme können bestimmte Krankheiten schneller und genauer erkennen als erfahrene Ärzte.', source: 'FAZ' },
+    { title: 'Rekordinvestitionen in erneuerbare Energien in Deutschland', description: 'Die Bundesregierung hat neue Förderprogramme für Solar- und Windenergie angekündigt.', source: 'Handelsblatt' },
+  ],
+  it: [
+    { title: 'Scoperta archeologica rivoluzionaria a Pompei', description: 'Gli scavi hanno rivelato un intero quartiere residenziale perfettamente conservato sotto la cenere vulcanica.', source: 'Corriere della Sera' },
+    { title: 'L\'Italia guida la transizione verso l\'energia solare in Europa', description: 'Il paese ha installato più pannelli solari pro capite di qualsiasi altra nazione europea quest\'anno.', source: 'La Repubblica' },
+    { title: 'Nuovo studio collega la dieta mediterranea alla longevità', description: 'I ricercatori confermano che l\'alimentazione tradizionale italiana riduce il rischio di malattie cardiovascolari.', source: 'La Stampa' },
+    { title: 'Le città italiane adottano sistemi di trasporto intelligente', description: 'Milano e Roma implementano tecnologie avanzate per ridurre il traffico e l\'inquinamento.', source: 'Il Sole 24 Ore' },
+    { title: 'Innovazione nel settore agroalimentare italiano', description: 'Le startup agricole utilizzano droni e intelligenza artificiale per migliorare la produzione sostenibile.', source: 'ANSA' },
   ],
 }
 

@@ -2,9 +2,12 @@ import { useState, useCallback, useRef } from 'react'
 import { collection, doc, setDoc, Timestamp } from 'firebase/firestore'
 import { db } from '../../../config/firebase'
 import { useAuthStore } from '../../../stores/authStore'
+import { useSettingsStore } from '../../../stores/settingsStore'
 import { updateAggregateStats } from '../../../services/firestoreService'
 import { fetchAndGenerateArticle } from '../../../services/newsService'
 import { evaluateSummary } from '../../../services/claudeService'
+import { checkLevelProgression } from '../../../utils/levelProgression'
+import { fetchRecentLanguageScores } from '../../../services/firestoreService'
 import { LanguageSelector } from './LanguageSelector'
 import { ModeSelector } from './ModeSelector'
 import { KeyboardCheck } from './KeyboardCheck'
@@ -15,7 +18,7 @@ import { EvaluationResult } from './EvaluationResult'
 import { LoadingSpinner } from '../../common/LoadingSpinner'
 import type { Article, ComprehensionQuestion, SummaryScore } from '../../../types/comprehension'
 import type { GameSession } from '../../../types/game'
-import type { SupportedLanguage, LanguageLevel } from '../../../types/user'
+import type { SupportedLanguage, LanguageLevel, LanguageSubLevel } from '../../../types/user'
 
 type Phase =
   | 'language-select'
@@ -30,10 +33,12 @@ type Phase =
 
 export function ComprehensionGame() {
   const { user } = useAuthStore()
+  const { setLanguageLevel } = useSettingsStore()
   const sessionStartRef = useRef<Timestamp | null>(null)
   const [phase, setPhase] = useState<Phase>('language-select')
   const [language, setLanguage] = useState<SupportedLanguage>('en')
   const [level, setLevel] = useState<LanguageLevel>('B1')
+  const [subLevel, setSubLevel] = useState<LanguageSubLevel>('well-placed')
   const [mode, setMode] = useState<'complete' | 'race'>('complete')
   const [article, setArticle] = useState<Article | null>(null)
   const [questions, setQuestions] = useState<ComprehensionQuestion[]>([])
@@ -44,16 +49,20 @@ export function ComprehensionGame() {
   const [summaryEvaluation, setSummaryEvaluation] = useState<SummaryScore | null>(null)
   const [loadingMessage, setLoadingMessage] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [levelNotification, setLevelNotification] = useState<{ direction: 'up' | 'down'; newLabel: string } | null>(null)
 
-  const handleLanguageSelected = useCallback((lang: SupportedLanguage, lvl: LanguageLevel) => {
+  const handleLanguageSelected = useCallback((lang: SupportedLanguage, lvl: LanguageLevel, sub: LanguageSubLevel) => {
     setLanguage(lang)
     setLevel(lvl)
+    setSubLevel(sub)
+    // Persist to settings store
+    setLanguageLevel(lang, { cefr: lvl, sub })
     if (lang === 'zh' || lang === 'he') {
       setPhase('keyboard-check')
     } else {
       setPhase('mode-select')
     }
-  }, [])
+  }, [setLanguageLevel])
 
   const handleModeSelected = useCallback(async (selectedMode: 'complete' | 'race') => {
     setMode(selectedMode)
@@ -64,7 +73,7 @@ export function ComprehensionGame() {
     try {
       setLoadingMessage('Fetching news and preparing your article...')
       const { article: fetchedArticle, questions: fetchedQuestions } =
-        await fetchAndGenerateArticle(language, level)
+        await fetchAndGenerateArticle(language, level, subLevel)
 
       setArticle(fetchedArticle)
       setQuestions(fetchedQuestions)
@@ -73,7 +82,7 @@ export function ComprehensionGame() {
       setError(err instanceof Error ? err.message : 'Failed to prepare article')
       setPhase('mode-select')
     }
-  }, [language, level])
+  }, [language, level, subLevel])
 
   const handleDoneReading = useCallback((timeSeconds: number) => {
     setReadingTimeSeconds(timeSeconds)
@@ -121,6 +130,7 @@ export function ComprehensionGame() {
         performanceRating: evaluation.overallScore / 10,
         language,
         level,
+        subLevel,
         readingTimeSeconds,
         questionsCorrect: correctTrials,
         questionsTotal: totalTrials,
@@ -138,17 +148,32 @@ export function ComprehensionGame() {
       console.log('[Comprehension] saveSession: session saved, updating aggregate stats...')
       await updateAggregateStats(user.uid, 'comprehension', sessionData)
       console.log('[Comprehension] saveSession: done!')
+
+      // Check level progression
+      try {
+        const recentScores = await fetchRecentLanguageScores(user.uid, 'comprehension', language, level, subLevel)
+        const result = checkLevelProgression({ cefr: level, sub: subLevel }, recentScores)
+        if (result.changed) {
+          setLanguageLevel(language, result.newConfig)
+          setLevelNotification({
+            direction: result.direction!,
+            newLabel: `${result.newConfig.cefr} ${result.newConfig.sub}`,
+          })
+        }
+      } catch (err) {
+        console.error('[Comprehension] Level progression check failed:', err)
+      }
     } catch (err) {
       console.error('[Comprehension] Failed to save session:', err)
     }
-  }, [user, questions, language, level, readingTimeSeconds])
+  }, [user, questions, language, level, subLevel, readingTimeSeconds, setLanguageLevel])
 
   const handleSummarySubmit = useCallback(async (summaryText: string, summaryWritingTimeMs: number) => {
     setWritingTimeMs(summaryWritingTimeMs)
     setPhase('evaluating')
     try {
       const articleText = article!.paragraphs.join('\n\n')
-      const evaluation = await evaluateSummary(articleText, summaryText, language, level, { min: 30, max: 60 })
+      const evaluation = await evaluateSummary(articleText, summaryText, language, level, { min: 30, max: 60 }, subLevel)
       evaluation.readingTimeSeconds = readingTimeSeconds
       setSummaryEvaluation(evaluation)
       console.log('[Comprehension] handleSummarySubmit: calling saveSession with', questionAnswers.length, 'answers')
@@ -159,7 +184,7 @@ export function ComprehensionGame() {
       setError(err instanceof Error ? err.message : 'Failed to evaluate summary')
       setPhase('summary')
     }
-  }, [article, language, level, readingTimeSeconds, saveSession, questionAnswers, questionTimesMs])
+  }, [article, language, level, subLevel, readingTimeSeconds, saveSession, questionAnswers, questionTimesMs])
 
   switch (phase) {
     case 'language-select':
@@ -176,6 +201,7 @@ export function ComprehensionGame() {
           article={article!}
           mode={mode}
           level={level}
+          subLevel={subLevel}
           onDoneReading={handleDoneReading}
         />
       )
@@ -208,6 +234,7 @@ export function ComprehensionGame() {
           summaryScore={summaryEvaluation!}
           readingTimeSeconds={readingTimeSeconds}
           writingTimeMs={writingTimeMs}
+          levelNotification={levelNotification}
         />
       )
   }

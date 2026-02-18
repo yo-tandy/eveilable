@@ -1,6 +1,6 @@
 import type { Timestamp } from 'firebase/firestore'
 
-export type GameType = 'divided-attention' | 'double-decision' | 'comprehension' | 'speed-summary' | 'icon-swap'
+export type GameType = 'divided-attention' | 'double-decision' | 'comprehension' | 'speed-summary' | 'icon-swap' | 'tense-rewrite'
 
 export type GamePhase =
   | 'idle'
@@ -53,6 +53,7 @@ export interface GameSession {
   // comprehension-specific
   language?: string
   level?: string
+  subLevel?: string
   readingTimeSeconds?: number
   questionsCorrect?: number
   questionsTotal?: number

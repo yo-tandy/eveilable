@@ -1,6 +1,6 @@
 import { callFunction } from './api'
 import type { Article, ComprehensionQuestion } from '../types/comprehension'
-import type { SupportedLanguage, LanguageLevel } from '../types/user'
+import type { SupportedLanguage, LanguageLevel, LanguageSubLevel } from '../types/user'
 
 interface Headline {
   title: string
@@ -11,6 +11,7 @@ interface Headline {
 export async function fetchAndGenerateArticle(
   language: SupportedLanguage,
   level: LanguageLevel,
+  subLevel?: LanguageSubLevel,
 ): Promise<{ article: Article; questions: ComprehensionQuestion[] }> {
   // Step 1: Fetch news headlines
   const { headlines } = await callFunction<{ headlines: Headline[] }>(
@@ -28,7 +29,7 @@ export async function fetchAndGenerateArticle(
   // Step 2: Generate article
   const article = await callFunction<Article>(
     'generateArticle',
-    { headline: headline.title, language, level }
+    { headline: headline.title, language, level, subLevel }
   )
 
   // Step 3: Generate questions

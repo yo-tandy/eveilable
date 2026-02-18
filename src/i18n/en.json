@@ -69,6 +69,20 @@
       "grammar": "Grammar",
       "feedback": "Feedback",
       "detailedFeedback": "Detailed Feedback"
+    },
+    "tenseRewrite": {
+      "name": "Tense Rewrite",
+      "description": "Rewrite sentences with grammatical transformations",
+      "yourRewrite": "Your rewrite...",
+      "next": "Next",
+      "submitAll": "Submit All",
+      "results": "Rewrite Results",
+      "yourAnswer": "Your answer",
+      "suggestion": "Suggested",
+      "overallScore": "Overall Score",
+      "avgTime": "Avg. Time",
+      "correct": "Correct",
+      "of": "of"
     }
   },
   "stats": {

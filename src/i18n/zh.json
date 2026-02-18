@@ -13,6 +13,22 @@
     "getStarted": "开始",
     "loginPrompt": "已有账号？"
   },
+  "games": {
+    "tenseRewrite": {
+      "name": "时态改写",
+      "description": "用语法变换重写句子",
+      "yourRewrite": "你的改写...",
+      "next": "下一题",
+      "submitAll": "全部提交",
+      "results": "改写结果",
+      "yourAnswer": "你的答案",
+      "suggestion": "建议",
+      "overallScore": "总分",
+      "avgTime": "平均时间",
+      "correct": "正确",
+      "of": "/"
+    }
+  },
   "common": {
     "continue": "继续",
     "endSession": "结束",

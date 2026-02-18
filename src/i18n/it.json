@@ -1,0 +1,42 @@
+{
+  "nav": {
+    "games": "Giochi",
+    "progress": "Progressi",
+    "settings": "Impostazioni",
+    "logout": "Esci",
+    "login": "Accedi",
+    "register": "Registrati"
+  },
+  "home": {
+    "title": "Eveilable",
+    "subtitle": "Migliora le tue capacità cognitive",
+    "getStarted": "Inizia",
+    "loginPrompt": "Hai già un account?"
+  },
+  "games": {
+    "tenseRewrite": {
+      "name": "Riscrittura dei Tempi",
+      "description": "Riscrivi frasi con trasformazioni grammaticali",
+      "yourRewrite": "La tua riscrittura...",
+      "next": "Avanti",
+      "submitAll": "Invia tutto",
+      "results": "Risultati",
+      "yourAnswer": "La tua risposta",
+      "suggestion": "Suggerimento",
+      "overallScore": "Punteggio totale",
+      "avgTime": "Tempo medio",
+      "correct": "Corretto",
+      "of": "di"
+    }
+  },
+  "common": {
+    "continue": "Continua",
+    "endSession": "Termina",
+    "playAgain": "Gioca ancora",
+    "viewProgress": "Vedi progressi",
+    "loading": "Caricamento...",
+    "error": "Si è verificato un errore",
+    "retry": "Riprova",
+    "startGame": "Inizia gioco"
+  }
+}

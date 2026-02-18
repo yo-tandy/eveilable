@@ -4,17 +4,15 @@ import { db } from '../../../config/firebase'
 import { useAuthStore } from '../../../stores/authStore'
 import { useSettingsStore } from '../../../stores/settingsStore'
 import { updateAggregateStats } from '../../../services/firestoreService'
-import { fetchAndGenerateParagraph } from '../../../services/paragraphService'
-import type { ParagraphResult } from '../../../services/paragraphService'
-import { evaluateSummary } from '../../../services/claudeService'
+import { fetchTenseExercises, submitTenseRewrites } from '../../../services/tenseRewriteService'
 import { checkLevelProgression } from '../../../utils/levelProgression'
 import { fetchRecentLanguageScores } from '../../../services/firestoreService'
 import { LanguageSelector } from '../comprehension/LanguageSelector'
 import { KeyboardCheck } from '../comprehension/KeyboardCheck'
 import { PlayingPhase } from './PlayingPhase'
-import { SpeedSummaryResult } from './SpeedSummaryResult'
+import { TenseRewriteResult } from './TenseRewriteResult'
 import { LoadingSpinner } from '../../common/LoadingSpinner'
-import type { SummaryScore } from '../../../types/comprehension'
+import type { TenseExercise, TenseRewriteEvaluation } from '../../../types/tenseRewrite'
 import type { GameSession } from '../../../types/game'
 import type { SupportedLanguage, LanguageLevel, LanguageSubLevel } from '../../../types/user'
 
@@ -26,7 +24,7 @@ type Phase =
   | 'evaluating'
   | 'results'
 
-export function SpeedSummaryGame() {
+export function TenseRewriteGame() {
   const { user } = useAuthStore()
   const { setLanguageLevel } = useSettingsStore()
   const sessionStartRef = useRef<Timestamp | null>(null)
@@ -34,9 +32,10 @@ export function SpeedSummaryGame() {
   const [language, setLanguage] = useState<SupportedLanguage>('en')
   const [level, setLevel] = useState<LanguageLevel>('B1')
   const [subLevel, setSubLevel] = useState<LanguageSubLevel>('well-placed')
-  const [paragraph, setParagraph] = useState<ParagraphResult | null>(null)
-  const [writingTimeMs, setWritingTimeMs] = useState(0)
-  const [summaryEvaluation, setSummaryEvaluation] = useState<SummaryScore | null>(null)
+  const [exercises, setExercises] = useState<TenseExercise[]>([])
+  const [userRewrites, setUserRewrites] = useState<string[]>([])
+  const [timesMs, setTimesMs] = useState<number[]>([])
+  const [evaluation, setEvaluation] = useState<TenseRewriteEvaluation | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [levelNotification, setLevelNotification] = useState<{ direction: 'up' | 'down'; newLabel: string } | null>(null)
 
@@ -44,70 +43,71 @@ export function SpeedSummaryGame() {
     setLanguage(lang)
     setLevel(lvl)
     setSubLevel(sub)
-    // Persist to settings store
     setLanguageLevel(lang, { cefr: lvl, sub })
     if (lang === 'zh' || lang === 'he') {
       setPhase('keyboard-check')
     } else {
-      loadParagraph(lang, lvl, sub)
+      loadExercises(lang, lvl, sub)
     }
   }, [setLanguageLevel])
 
-  const loadParagraph = useCallback(async (lang: SupportedLanguage, lvl: LanguageLevel, sub: LanguageSubLevel) => {
+  const loadExercises = useCallback(async (lang: SupportedLanguage, lvl: LanguageLevel, sub: LanguageSubLevel) => {
     setPhase('loading')
     setError(null)
     sessionStartRef.current = Timestamp.now()
 
     try {
-      const result = await fetchAndGenerateParagraph(lang, lvl, sub)
-      setParagraph(result)
+      const result = await fetchTenseExercises(lang, lvl, sub)
+      setExercises(result)
       setPhase('playing')
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to load paragraph')
+      setError(err instanceof Error ? err.message : 'Failed to generate exercises')
       setPhase('language-select')
     }
   }, [])
 
   const handleKeyboardConfirm = useCallback(() => {
-    loadParagraph(language, level, subLevel)
-  }, [language, level, subLevel, loadParagraph])
+    loadExercises(language, level, subLevel)
+  }, [language, level, subLevel, loadExercises])
 
-  const saveSession = useCallback(async (evaluation: SummaryScore, totalWritingTimeMs: number) => {
+  const saveSession = useCallback(async (eval_: TenseRewriteEvaluation, avgTimeMs: number) => {
     if (!user) return
     try {
       const sessionsRef = collection(db, 'users', user.uid, 'sessions')
       const sessionDoc = doc(sessionsRef)
 
+      const correctCount = eval_.sentenceScores.filter((s) => s.correct).length
+
       const sessionData: GameSession = {
         id: sessionDoc.id,
-        gameType: 'speed-summary',
+        gameType: 'tense-rewrite',
         startedAt: sessionStartRef.current ?? Timestamp.now(),
         endedAt: Timestamp.now(),
-        totalTrials: 1,
-        correctTrials: evaluation.overallScore >= 5 ? 1 : 0,
-        accuracy: evaluation.overallScore / 10,
-        averageResponseTimeMs: totalWritingTimeMs,
+        totalTrials: 10,
+        correctTrials: correctCount,
+        accuracy: correctCount / 10,
+        averageResponseTimeMs: avgTimeMs,
         finalDifficulty: 1,
         difficultyProgression: [],
-        performanceRating: evaluation.overallScore / 10,
+        performanceRating: eval_.overallScore / 10,
         language,
         level,
         subLevel,
         summaryScore: {
-          accuracyScore: evaluation.accuracyScore,
-          vocabularyScore: evaluation.vocabularyScore,
-          grammarScore: evaluation.grammarScore,
-          overallScore: evaluation.overallScore,
-          feedback: evaluation.feedback,
+          accuracyScore: eval_.overallScore,
+          vocabularyScore: eval_.overallScore,
+          grammarScore: eval_.overallScore,
+          overallScore: eval_.overallScore,
+          feedback: eval_.feedback,
         },
       }
 
       await setDoc(sessionDoc, sessionData)
-      await updateAggregateStats(user.uid, 'speed-summary', sessionData)
+      await updateAggregateStats(user.uid, 'tense-rewrite', sessionData)
 
       // Check level progression
       try {
-        const recentScores = await fetchRecentLanguageScores(user.uid, 'speed-summary', language, level, subLevel)
+        const recentScores = await fetchRecentLanguageScores(user.uid, 'tense-rewrite', language, level, subLevel)
         const result = checkLevelProgression({ cefr: level, sub: subLevel }, recentScores)
         if (result.changed) {
           setLanguageLevel(language, result.newConfig)
@@ -117,33 +117,32 @@ export function SpeedSummaryGame() {
           })
         }
       } catch (err) {
-        console.error('[SpeedSummary] Level progression check failed:', err)
+        console.error('[TenseRewrite] Level progression check failed:', err)
       }
     } catch (err) {
-      console.error('[SpeedSummary] Failed to save session:', err)
+      console.error('[TenseRewrite] Failed to save session:', err)
     }
   }, [user, language, level, subLevel, setLanguageLevel])
 
-  const handleSummarySubmit = useCallback(async (summaryText: string, summaryWritingTimeMs: number) => {
-    setWritingTimeMs(summaryWritingTimeMs)
+  const handlePlayingComplete = useCallback(async (rewrites: string[], times: number[]) => {
+    setUserRewrites(rewrites)
+    setTimesMs(times)
     setPhase('evaluating')
+
     try {
-      const evaluation = await evaluateSummary(
-        paragraph!.paragraph,
-        summaryText,
-        language,
-        level,
-        { min: 10, max: 20 },
-        subLevel,
-      )
-      setSummaryEvaluation(evaluation)
-      await saveSession(evaluation, summaryWritingTimeMs)
+      const eval_ = await submitTenseRewrites(exercises, rewrites, language, level, subLevel)
+      setEvaluation(eval_)
+
+      const avgTimeMs = times.length > 0
+        ? Math.round(times.reduce((a, b) => a + b, 0) / times.length)
+        : 0
+      await saveSession(eval_, avgTimeMs)
       setPhase('results')
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to evaluate summary')
+      setError(err instanceof Error ? err.message : 'Failed to evaluate rewrites')
       setPhase('playing')
     }
-  }, [paragraph, language, level, subLevel, saveSession])
+  }, [exercises, language, level, subLevel, saveSession])
 
   switch (phase) {
     case 'language-select':
@@ -160,22 +159,25 @@ export function SpeedSummaryGame() {
     case 'keyboard-check':
       return <KeyboardCheck language={language} onConfirm={handleKeyboardConfirm} />
     case 'loading':
-      return <LoadingSpinner message="Fetching news and generating paragraph..." />
+      return <LoadingSpinner message="Generating exercises..." />
     case 'playing':
       return (
         <PlayingPhase
-          paragraph={paragraph!}
+          exercises={exercises}
           language={language}
-          onSubmit={handleSummarySubmit}
+          onComplete={handlePlayingComplete}
         />
       )
     case 'evaluating':
-      return <LoadingSpinner message="Evaluating your summary..." />
+      return <LoadingSpinner message="Evaluating your rewrites..." />
     case 'results':
       return (
-        <SpeedSummaryResult
-          summaryScore={summaryEvaluation!}
-          writingTimeMs={writingTimeMs}
+        <TenseRewriteResult
+          exercises={exercises}
+          userRewrites={userRewrites}
+          evaluation={evaluation!}
+          timesMs={timesMs}
+          language={language}
           levelNotification={levelNotification}
         />
       )

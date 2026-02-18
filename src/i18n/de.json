@@ -1,0 +1,42 @@
+{
+  "nav": {
+    "games": "Spiele",
+    "progress": "Fortschritt",
+    "settings": "Einstellungen",
+    "logout": "Abmelden",
+    "login": "Anmelden",
+    "register": "Registrieren"
+  },
+  "home": {
+    "title": "Eveilable",
+    "subtitle": "Verbessern Sie Ihre geistigen Fähigkeiten",
+    "getStarted": "Loslegen",
+    "loginPrompt": "Bereits ein Konto?"
+  },
+  "games": {
+    "tenseRewrite": {
+      "name": "Zeitform-Umschreibung",
+      "description": "Schreiben Sie Sätze mit grammatischen Änderungen um",
+      "yourRewrite": "Ihre Umschreibung...",
+      "next": "Weiter",
+      "submitAll": "Alle absenden",
+      "results": "Ergebnisse",
+      "yourAnswer": "Ihre Antwort",
+      "suggestion": "Vorschlag",
+      "overallScore": "Gesamtpunktzahl",
+      "avgTime": "Durchschn. Zeit",
+      "correct": "Richtig",
+      "of": "von"
+    }
+  },
+  "common": {
+    "continue": "Weiter",
+    "endSession": "Beenden",
+    "playAgain": "Nochmal spielen",
+    "viewProgress": "Fortschritt ansehen",
+    "loading": "Laden...",
+    "error": "Ein Fehler ist aufgetreten",
+    "retry": "Erneut versuchen",
+    "startGame": "Spiel starten"
+  }
+}

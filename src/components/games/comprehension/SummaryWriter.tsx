@@ -35,7 +35,7 @@ export function SummaryWriter({ language, onSubmit, error }: SummaryWriterProps)
       </p>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-700 text-sm">
           {error}. Edit your summary and try again.
         </div>
       )}
@@ -44,7 +44,7 @@ export function SummaryWriter({ language, onSubmit, error }: SummaryWriterProps)
         value={text}
         onChange={(e) => setText(e.target.value)}
         dir={language === 'he' ? 'rtl' : 'ltr'}
-        className="w-full h-48 p-4 border-2 border-gray-300 rounded-xl resize-none focus:border-brand-500 focus:outline-none text-lg leading-relaxed"
+        className="glass-input w-full h-48 p-4 rounded-xl resize-none text-lg leading-relaxed"
         placeholder="Write your summary here..."
       />
 
@@ -58,7 +58,7 @@ export function SummaryWriter({ language, onSubmit, error }: SummaryWriterProps)
       <button
         onClick={() => onSubmit(text.trim(), preciseNow() - startRef.current)}
         disabled={!isValid}
-        className="mt-6 w-full py-3 bg-brand-600 text-white rounded-xl font-medium hover:bg-brand-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="mt-6 w-full py-3 bg-black/75 backdrop-blur-sm text-white rounded-xl font-semibold hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
       >
         Submit Summary
       </button>

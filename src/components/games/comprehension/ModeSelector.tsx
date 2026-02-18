@@ -11,7 +11,7 @@ export function ModeSelector({ onSelect, error }: ModeSelectorProps) {
       <h2 className="text-2xl font-bold mb-6 text-center">Choose Your Mode</h2>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-700 text-sm">
           {error}. Tap a mode to retry.
         </div>
       )}
@@ -19,9 +19,9 @@ export function ModeSelector({ onSelect, error }: ModeSelectorProps) {
       <div className="grid grid-cols-1 gap-4">
         <button
           onClick={() => onSelect('complete')}
-          className="p-6 rounded-2xl border-2 border-gray-200 hover:border-brand-500 hover:bg-brand-50 transition-colors text-left"
+          className="p-6 rounded-2xl glass hover:bg-white/50 transition-all text-left"
         >
-          <BookOpen size={32} className="text-brand-600 mb-3" />
+          <BookOpen size={32} className="mb-3" />
           <h3 className="text-lg font-bold">Complete the Tasks</h3>
           <p className="text-gray-500 mt-1">
             Work at your own pace. Time is recorded but not enforced.
@@ -30,7 +30,7 @@ export function ModeSelector({ onSelect, error }: ModeSelectorProps) {
 
         <button
           onClick={() => onSelect('race')}
-          className="p-6 rounded-2xl border-2 border-gray-200 hover:border-orange-500 hover:bg-orange-50 transition-colors text-left"
+          className="p-6 rounded-2xl glass hover:bg-white/50 transition-all text-left"
         >
           <Timer size={32} className="text-orange-600 mb-3" />
           <h3 className="text-lg font-bold">Race the Clock</h3>

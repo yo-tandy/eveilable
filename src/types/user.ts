@@ -1,8 +1,14 @@
 import type { Timestamp } from 'firebase/firestore'
 import type { GameType } from './game'
 
-export type SupportedLanguage = 'en' | 'fr' | 'zh' | 'he'
+export type SupportedLanguage = 'en' | 'fr' | 'zh' | 'he' | 'de' | 'it'
 export type LanguageLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
+export type LanguageSubLevel = 'novice' | 'well-placed' | 'advanced'
+
+export interface LanguageLevelConfig {
+  cefr: LanguageLevel
+  sub: LanguageSubLevel
+}
 
 export interface UserProfile {
   uid: string

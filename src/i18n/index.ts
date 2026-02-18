@@ -5,6 +5,8 @@ import en from './en.json'
 import fr from './fr.json'
 import zh from './zh.json'
 import he from './he.json'
+import de from './de.json'
+import it from './it.json'
 
 i18n
   .use(LanguageDetector)
@@ -15,6 +17,8 @@ i18n
       fr: { translation: fr },
       zh: { translation: zh },
       he: { translation: he },
+      de: { translation: de },
+      it: { translation: it },
     },
     fallbackLng: 'en',
     interpolation: {

@@ -1,5 +1,5 @@
 import { callFunction } from './api'
-import type { SupportedLanguage, LanguageLevel } from '../types/user'
+import type { SupportedLanguage, LanguageLevel, LanguageSubLevel } from '../types/user'
 
 interface Headline {
   title: string
@@ -18,6 +18,7 @@ export interface ParagraphResult {
 export async function fetchAndGenerateParagraph(
   language: SupportedLanguage,
   level: LanguageLevel,
+  subLevel?: LanguageSubLevel,
 ): Promise<ParagraphResult> {
   // Step 1: Fetch news headlines
   const { headlines } = await callFunction<{ headlines: Headline[] }>(
@@ -35,7 +36,7 @@ export async function fetchAndGenerateParagraph(
   // Step 2: Generate a single paragraph
   const result = await callFunction<ParagraphResult>(
     'generateParagraph',
-    { headline: headline.title, language, level }
+    { headline: headline.title, language, level, subLevel }
   )
 
   return result

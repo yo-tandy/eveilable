@@ -48,10 +48,11 @@ export function GameCanvas({ children }: GameCanvasProps) {
       >
         {dimensions.size > 0 && (
           <div
-            className="absolute inset-0 m-auto bg-white rounded-2xl border border-gray-200 overflow-hidden"
+            className="absolute inset-0 m-auto bg-white rounded-2xl overflow-hidden"
             style={{
               width: dimensions.size,
               height: dimensions.size,
+              boxShadow: '0 2px 20px rgba(0,0,0,0.06)',
             }}
           >
             {children}

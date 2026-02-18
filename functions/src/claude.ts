@@ -10,6 +10,25 @@ function getClient() {
 
 const SECRETS = ['ANTHROPIC_API_KEY'] as const
 
+const LANGUAGE_NAMES: Record<string, string> = {
+  en: 'English',
+  fr: 'French',
+  zh: 'Chinese (Simplified)',
+  he: 'Hebrew',
+  de: 'German',
+  it: 'Italian',
+}
+
+function langName(code: string): string {
+  return LANGUAGE_NAMES[code] || 'English'
+}
+
+function subLevelDescription(level: string, subLevel?: string): string {
+  if (!subLevel) return level
+  const desc = subLevel === 'novice' ? 'lower range' : subLevel === 'advanced' ? 'upper range' : 'mid range'
+  return `${level} (${desc})`
+}
+
 /** Strip markdown code fences that Claude sometimes wraps around JSON */
 function extractJSON(text: string): string {
   const match = text.match(/```(?:json)?\s*([\s\S]*?)```/)
@@ -23,10 +42,11 @@ export const generateArticle = onCall(
       throw new HttpsError('unauthenticated', 'Must be logged in')
     }
 
-    const { headline, language, level } = request.data as {
+    const { headline, language, level, subLevel } = request.data as {
       headline: string
       language: string
       level: string
+      subLevel?: string
     }
 
     try {
@@ -38,8 +58,8 @@ export const generateArticle = onCall(
           content: `Write a news article based on this headline: "${headline}"
 
 Requirements:
-- Language: ${language === 'en' ? 'English' : language === 'fr' ? 'French' : language === 'zh' ? 'Chinese (Simplified)' : 'Hebrew'}
-- CEFR language level: ${level} (adjust vocabulary and sentence complexity accordingly)
+- Language: ${langName(language)}
+- CEFR language level: ${subLevelDescription(level, subLevel)} (adjust vocabulary and sentence complexity accordingly)
 - Exactly 3 paragraphs
 - Approximately 350 words total
 - Factual and informative tone
@@ -93,7 +113,7 @@ Article:
 ${article}
 
 Requirements:
-- Language: ${language === 'en' ? 'English' : language === 'fr' ? 'French' : language === 'zh' ? 'Chinese' : 'Hebrew'}
+- Language: ${langName(language)}
 - Each question should have exactly 4 options
 - All answers must be directly derivable from the text
 - Questions should test comprehension, not trivia
@@ -124,15 +144,17 @@ export const evaluateSummary = onCall(
       throw new HttpsError('unauthenticated', 'Must be logged in')
     }
 
-    const { article, summary, language, level, wordLimit } = request.data as {
+    const { article, summary, language, level, wordLimit, subLevel } = request.data as {
       article: string
       summary: string
       language: string
       level: string
       wordLimit?: { min: number; max: number }
+      subLevel?: string
     }
 
     const wl = wordLimit ?? { min: 10, max: 100 }
+    const levelLabel = subLevelDescription(level, subLevel)
 
     try {
       const response = await getClient().messages.create({
@@ -148,8 +170,8 @@ ${article}
 Summary:
 ${summary}
 
-Language: ${language === 'en' ? 'English' : language === 'fr' ? 'French' : language === 'zh' ? 'Chinese' : 'Hebrew'}
-Expected CEFR level: ${level}
+Language: ${langName(language)}
+Expected CEFR level: ${levelLabel}
 Word limit: ${wl.min}–${wl.max} words
 
 IMPORTANT SCORING GUIDELINES:
@@ -158,9 +180,9 @@ Score each dimension from 1-10:
 
 - accuracy: Does the summary capture the MAIN IDEA or central message of the article? The summary is constrained to only ${wl.min}–${wl.max} words, so it is IMPOSSIBLE to include every detail. Do NOT penalize for omitting specific details like names, cities, statistics, lists, or secondary points. A summary that correctly conveys the core message in ${wl.min}–${wl.max} words should score 8-10 for accuracy.
 
-- vocabulary: REWARD the use of vocabulary that is MORE ADVANCED than the expected ${level} level. Using words above the expected CEFR level demonstrates strong language skills and should INCREASE the score (8-10). Only lower the score if the vocabulary is significantly BELOW the expected level or if words are used incorrectly. Do NOT penalize for using advanced words correctly.
+- vocabulary: REWARD the use of vocabulary that is MORE ADVANCED than the expected ${levelLabel} level. Using words above the expected CEFR level demonstrates strong language skills and should INCREASE the score (8-10). Only lower the score if the vocabulary is significantly BELOW the expected level or if words are used incorrectly. Do NOT penalize for using advanced words correctly.
 
-- grammar: REWARD sophisticated sentence structures (complex sentences, varied syntax, subordinate clauses) that go beyond the expected ${level} level. Only flag actual grammatical ERRORS (wrong tense, subject-verb disagreement, missing articles, etc.). Correct but advanced grammar should INCREASE the score, not decrease it.
+- grammar: REWARD sophisticated sentence structures (complex sentences, varied syntax, subordinate clauses) that go beyond the expected ${levelLabel} level. Only flag actual grammatical ERRORS (wrong tense, subject-verb disagreement, missing articles, etc.). Correct but advanced grammar should INCREASE the score, not decrease it.
 
 - overall: Overall quality considering all factors above, with emphasis on main-idea capture and language sophistication.
 

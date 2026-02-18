@@ -2,12 +2,13 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { preciseNow } from '../../../utils/timing'
 import { Timer } from '../../common/Timer'
 import type { Article } from '../../../types/comprehension'
-import type { LanguageLevel } from '../../../types/user'
+import type { LanguageLevel, LanguageSubLevel } from '../../../types/user'
 
 interface ArticleReaderProps {
   article: Article
   mode: 'complete' | 'race'
   level: LanguageLevel
+  subLevel?: LanguageSubLevel
   onDoneReading: (timeSeconds: number) => void
 }
 
@@ -20,12 +21,31 @@ const READING_TIME_PER_100_WORDS: Record<string, number> = {
   C2: 25,
 }
 
-export function ArticleReader({ article, mode, level, onDoneReading }: ArticleReaderProps) {
+const LEVEL_ORDER: LanguageLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
+
+function getInterpolatedReadingTime(level: LanguageLevel, subLevel?: LanguageSubLevel): number {
+  const baseTime = READING_TIME_PER_100_WORDS[level]
+  if (!subLevel || subLevel === 'well-placed') return baseTime
+
+  const idx = LEVEL_ORDER.indexOf(level)
+  if (subLevel === 'novice') {
+    // 30% toward the easier (higher time) level
+    const easierTime = idx > 0 ? READING_TIME_PER_100_WORDS[LEVEL_ORDER[idx - 1]] : baseTime * 1.3
+    return Math.round(baseTime + (easierTime - baseTime) * 0.3)
+  } else {
+    // advanced: 30% toward the harder (lower time) level
+    const harderTime = idx < LEVEL_ORDER.length - 1 ? READING_TIME_PER_100_WORDS[LEVEL_ORDER[idx + 1]] : baseTime * 0.7
+    return Math.round(baseTime + (harderTime - baseTime) * 0.3)
+  }
+}
+
+export function ArticleReader({ article, mode, level, subLevel, onDoneReading }: ArticleReaderProps) {
   const startTimeRef = useRef(preciseNow())
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
 
+  const readingTimePer100 = getInterpolatedReadingTime(level, subLevel)
   const timeBudgetSeconds = Math.ceil(
-    (article.wordCount / 100) * READING_TIME_PER_100_WORDS[level]
+    (article.wordCount / 100) * readingTimePer100
   )
 
   useEffect(() => {
@@ -72,7 +92,7 @@ export function ArticleReader({ article, mode, level, onDoneReading }: ArticleRe
 
       <button
         onClick={handleDone}
-        className="mt-8 w-full py-3 bg-brand-600 text-white rounded-xl font-medium hover:bg-brand-700 transition-colors"
+        className="mt-8 w-full py-3 bg-black/75 backdrop-blur-sm text-white rounded-xl font-semibold hover:scale-[1.02] transition-transform"
       >
         Done Reading
       </button>

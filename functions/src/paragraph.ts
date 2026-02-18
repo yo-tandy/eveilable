@@ -9,6 +9,25 @@ function getClient() {
 
 const SECRETS = ['ANTHROPIC_API_KEY'] as const
 
+const LANGUAGE_NAMES: Record<string, string> = {
+  en: 'English',
+  fr: 'French',
+  zh: 'Chinese (Simplified)',
+  he: 'Hebrew',
+  de: 'German',
+  it: 'Italian',
+}
+
+function langName(code: string): string {
+  return LANGUAGE_NAMES[code] || 'English'
+}
+
+function subLevelDescription(level: string, subLevel?: string): string {
+  if (!subLevel) return level
+  const desc = subLevel === 'novice' ? 'lower range' : subLevel === 'advanced' ? 'upper range' : 'mid range'
+  return `${level} (${desc})`
+}
+
 /** Strip markdown code fences that Claude sometimes wraps around JSON */
 function extractJSON(text: string): string {
   const match = text.match(/```(?:json)?\s*([\s\S]*?)```/)
@@ -22,10 +41,11 @@ export const generateParagraph = onCall(
       throw new HttpsError('unauthenticated', 'Must be logged in')
     }
 
-    const { headline, language, level } = request.data as {
+    const { headline, language, level, subLevel } = request.data as {
       headline: string
       language: string
       level: string
+      subLevel?: string
     }
 
     try {
@@ -37,8 +57,8 @@ export const generateParagraph = onCall(
           content: `Write a single news paragraph based on this headline: "${headline}"
 
 Requirements:
-- Language: ${language === 'en' ? 'English' : language === 'fr' ? 'French' : language === 'zh' ? 'Chinese (Simplified)' : 'Hebrew'}
-- CEFR language level: ${level} (adjust vocabulary and sentence complexity accordingly)
+- Language: ${langName(language)}
+- CEFR language level: ${subLevelDescription(level, subLevel)} (adjust vocabulary and sentence complexity accordingly)
 - Exactly ONE paragraph, 80-120 words
 - Dense and informative — pack in key facts
 - The paragraph should be self-contained and understandable without prior knowledge

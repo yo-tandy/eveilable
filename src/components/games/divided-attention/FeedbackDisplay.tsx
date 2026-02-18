@@ -7,7 +7,7 @@ interface FeedbackDisplayProps {
 
 export function FeedbackDisplay({ trial }: FeedbackDisplayProps) {
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-white/90 z-10">
+    <div className="absolute inset-0 flex items-center justify-center z-10" style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' }}>
       <div className="text-center">
         {trial.correct ? (
           <CheckCircle size={64} className="mx-auto text-correct mb-2" />

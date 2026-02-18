@@ -31,6 +31,9 @@ const SpeedSummaryPage = lazy(() =>
 const IconSwapPage = lazy(() =>
   import('./pages/IconSwapPage').then((m) => ({ default: m.IconSwapPage }))
 )
+const TenseRewritePage = lazy(() =>
+  import('./pages/TenseRewritePage').then((m) => ({ default: m.TenseRewritePage }))
+)
 const ProgressPage = lazy(() =>
   import('./pages/ProgressPage').then((m) => ({ default: m.ProgressPage }))
 )
@@ -124,6 +127,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <IconSwapPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/games/tense-rewrite"
+              element={
+                <ProtectedRoute>
+                  <TenseRewritePage />
                 </ProtectedRoute>
               }
             />

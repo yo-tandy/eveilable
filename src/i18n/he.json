@@ -13,6 +13,22 @@
     "getStarted": "בואו נתחיל",
     "loginPrompt": "כבר יש לך חשבון?"
   },
+  "games": {
+    "tenseRewrite": {
+      "name": "שכתוב זמנים",
+      "description": "שכתבו משפטים עם שינויים דקדוקיים",
+      "yourRewrite": "השכתוב שלך...",
+      "next": "הבא",
+      "submitAll": "שלח הכל",
+      "results": "תוצאות השכתוב",
+      "yourAnswer": "התשובה שלך",
+      "suggestion": "הצעה",
+      "overallScore": "ציון כולל",
+      "avgTime": "זמן ממוצע",
+      "correct": "נכון",
+      "of": "מתוך"
+    }
+  },
   "common": {
     "continue": "המשך",
     "endSession": "סיום",

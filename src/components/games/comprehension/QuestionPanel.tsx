@@ -50,8 +50,8 @@ export function QuestionPanel({ questions, onComplete }: QuestionPanelProps) {
             <div
               key={i}
               className={`w-2.5 h-2.5 rounded-full ${
-                i < currentIndex ? 'bg-brand-500' :
-                i === currentIndex ? 'bg-brand-300' : 'bg-gray-200'
+                i < currentIndex ? 'bg-black/60' :
+                i === currentIndex ? 'bg-black/30' : 'bg-white/30'
               }`}
             />
           ))}
@@ -65,13 +65,14 @@ export function QuestionPanel({ questions, onComplete }: QuestionPanelProps) {
           <button
             key={i}
             onClick={() => setSelectedOption(i)}
-            className={`w-full p-4 text-left rounded-xl border-2 transition-colors ${
+            className={`w-full p-4 text-left rounded-xl transition-all ${
               selectedOption === i
-                ? 'border-brand-500 bg-brand-50'
-                : 'border-gray-200 hover:border-gray-300'
+                ? 'glass-strong shadow-sm'
+                : 'glass hover:bg-white/50'
             }`}
+            style={selectedOption === i ? { borderColor: 'rgba(0,0,0,0.2)' } : undefined}
           >
-            <span className="font-bold text-brand-600 mr-3">{OPTION_LABELS[i]}</span>
+            <span className="font-bold mr-3">{OPTION_LABELS[i]}</span>
             {option}
           </button>
         ))}
@@ -80,7 +81,7 @@ export function QuestionPanel({ questions, onComplete }: QuestionPanelProps) {
       <button
         onClick={handleNext}
         disabled={selectedOption === null}
-        className="w-full py-3 bg-brand-600 text-white rounded-xl font-medium hover:bg-brand-700 transition-colors disabled:opacity-50"
+        className="w-full py-3 bg-black/75 backdrop-blur-sm text-white rounded-xl font-semibold hover:scale-[1.02] transition-transform disabled:opacity-50"
       >
         {isLastQuestion ? 'Finish Questions' : 'Next Question'}
       </button>

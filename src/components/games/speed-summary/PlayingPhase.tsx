@@ -50,7 +50,7 @@ export function PlayingPhase({ paragraph, language, onSubmit }: PlayingPhaseProp
       </div>
 
       {/* Paragraph */}
-      <div className="bg-gray-50 rounded-2xl p-6">
+      <div className="glass rounded-2xl p-6">
         <h3 className="font-bold text-lg mb-3">{paragraph.title}</h3>
         <p
           className="text-gray-700 leading-relaxed text-lg"
@@ -70,7 +70,7 @@ export function PlayingPhase({ paragraph, language, onSubmit }: PlayingPhaseProp
           onChange={(e) => setSummary(e.target.value)}
           dir={isRTL ? 'rtl' : 'ltr'}
           rows={3}
-          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-brand-500 focus:outline-none resize-none text-lg"
+          className="glass-input w-full px-4 py-3 rounded-xl resize-none text-lg"
           autoFocus
         />
 
@@ -99,10 +99,10 @@ export function PlayingPhase({ paragraph, language, onSubmit }: PlayingPhaseProp
       <button
         onClick={handleSubmit}
         disabled={!isValid}
-        className={`w-full py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors ${
+        className={`w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-transform ${
           isValid
-            ? 'bg-brand-600 text-white hover:bg-brand-700'
-            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+            ? 'bg-black/75 backdrop-blur-sm text-white hover:scale-[1.02]'
+            : 'bg-white/30 text-gray-400 cursor-not-allowed'
         }`}
       >
         <Send size={18} />

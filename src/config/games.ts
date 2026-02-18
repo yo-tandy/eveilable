@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
-import { Eye, Car, BookOpen, Zap, Shuffle, Focus, Languages } from 'lucide-react'
+import { Eye, Car, BookOpen, Zap, Shuffle, RefreshCw, Focus, Languages } from 'lucide-react'
 import type { GameType } from '../types/game'
 
 export type GameCategory = 'attention' | 'language'
@@ -73,6 +73,7 @@ export const GAMES: GameConfig[] = [
   { id: 'icon-swap',         key: 'iconSwap',         icon: Shuffle,  color: 'teal',    category: 'attention', emoji: '🔀', skillLabel: 'Memory',  cardGradient: 'linear-gradient(135deg, #14b8a6, #2dd4bf)' },
   { id: 'comprehension',     key: 'comprehension',    icon: BookOpen, color: 'emerald', category: 'language',  emoji: '📖', skillLabel: 'Reading', cardGradient: 'linear-gradient(135deg, #10b981, #34d399)' },
   { id: 'speed-summary',     key: 'speedSummary',     icon: Zap,      color: 'purple',  category: 'language',  emoji: '⚡', skillLabel: 'Writing', cardGradient: 'linear-gradient(135deg, #8b5cf6, #a78bfa)' },
+  { id: 'tense-rewrite',    key: 'tenseRewrite',     icon: RefreshCw, color: 'rose',   category: 'language',  emoji: '🔄', skillLabel: 'Grammar', cardGradient: 'linear-gradient(135deg, #f43f5e, #fb7185)' },
 ]
 
 export interface GameClassSet {
@@ -89,6 +90,7 @@ const GAME_CLASS_MAP: Record<string, GameClassSet> = {
   teal:    { iconBg: 'bg-teal-100',    iconText: 'text-teal-600',    border: 'border-teal-200',    hoverBorder: 'hover:border-teal-400',    gradientFrom: 'from-teal-50' },
   emerald: { iconBg: 'bg-emerald-100', iconText: 'text-emerald-600', border: 'border-emerald-200', hoverBorder: 'hover:border-emerald-400', gradientFrom: 'from-emerald-50' },
   purple:  { iconBg: 'bg-purple-100',  iconText: 'text-purple-600',  border: 'border-purple-200',  hoverBorder: 'hover:border-purple-400',  gradientFrom: 'from-purple-50' },
+  rose:    { iconBg: 'bg-rose-100',    iconText: 'text-rose-600',    border: 'border-rose-200',    hoverBorder: 'hover:border-rose-400',    gradientFrom: 'from-rose-50' },
 }
 
 export function getGamesByCategory(category: GameCategory): GameConfig[] {

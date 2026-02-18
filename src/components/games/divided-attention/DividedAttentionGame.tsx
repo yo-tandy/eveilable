@@ -116,7 +116,7 @@ export function DividedAttentionGame() {
         <Eye size={48} className="mx-auto text-blue-600 mb-4" />
         <h2 className="text-2xl font-bold mb-2">{t('games.dividedAttention.name')}</h2>
         <p className="text-gray-500 mb-6">{t('games.dividedAttention.description')}</p>
-        <div className="bg-gray-50 rounded-xl p-4 text-sm text-gray-600 mb-6 text-left space-y-2">
+        <div className="glass rounded-xl p-4 text-sm text-gray-600 mb-6 text-left space-y-2">
           <p>A symbol will flash in the center while a target appears at the periphery.</p>
           <p>1. Identify the central object (Car or Truck)</p>
           <p>2. Tap where the peripheral target appeared</p>
@@ -124,7 +124,7 @@ export function DividedAttentionGame() {
         </div>
         <button
           onClick={() => beginGame()}
-          className="px-8 py-3 bg-brand-600 text-white rounded-xl font-medium hover:bg-brand-700 transition-colors"
+          className="px-8 py-3 bg-black/75 backdrop-blur-sm text-white rounded-xl font-semibold hover:scale-[1.02] transition-transform"
         >
           {t('common.startGame')}
         </button>
@@ -141,11 +141,11 @@ export function DividedAttentionGame() {
       <div className="max-w-md mx-auto text-center py-12">
         <h2 className="text-2xl font-bold mb-4">{t('stats.sessionComplete')}</h2>
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-gray-50 rounded-xl p-4">
+          <div className="glass rounded-xl p-4">
             <div className="text-3xl font-bold">{trials.length}</div>
             <div className="text-sm text-gray-500">{t('stats.trials')}</div>
           </div>
-          <div className="bg-gray-50 rounded-xl p-4">
+          <div className="glass rounded-xl p-4">
             <div className="text-3xl font-bold">{Math.round(accuracy * 100)}%</div>
             <div className="text-sm text-gray-500">{t('stats.accuracy')}</div>
           </div>
@@ -153,7 +153,7 @@ export function DividedAttentionGame() {
         <div className="flex gap-3 justify-center">
           <button
             onClick={() => resetGame()}
-            className="px-6 py-2.5 border-2 border-gray-300 rounded-xl font-medium hover:bg-gray-50"
+            className="px-6 py-2.5 glass rounded-xl font-medium hover:bg-white/50 transition-all"
           >
             {t('common.playAgain')}
           </button>
