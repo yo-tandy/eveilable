@@ -10,6 +10,9 @@ export interface GameConfig {
   icon: LucideIcon
   color: string
   category: GameCategory
+  emoji: string
+  skillLabel: string
+  cardGradient: string
 }
 
 export interface CategoryConfig {
@@ -17,6 +20,10 @@ export interface CategoryConfig {
   i18nKey: string
   descriptionKey: string
   icon: LucideIcon
+  emoji: string
+  pillBg: string
+  pillBorder: string
+  pillText: string
   gradientFrom: string
   gradientTo: string
   labelBg: string
@@ -31,6 +38,10 @@ export const CATEGORIES: CategoryConfig[] = [
     i18nKey: 'categories.attention',
     descriptionKey: 'categories.attentionDescription',
     icon: Focus,
+    emoji: '🎯',
+    pillBg: 'rgba(251, 191, 36, 0.12)',
+    pillBorder: 'rgba(251, 191, 36, 0.3)',
+    pillText: '#b45309',
     gradientFrom: 'from-amber-50',
     gradientTo: 'to-orange-50',
     labelBg: 'bg-amber-200',
@@ -43,6 +54,10 @@ export const CATEGORIES: CategoryConfig[] = [
     i18nKey: 'categories.language',
     descriptionKey: 'categories.languageDescription',
     icon: Languages,
+    emoji: '📚',
+    pillBg: 'rgba(99, 102, 241, 0.12)',
+    pillBorder: 'rgba(99, 102, 241, 0.3)',
+    pillText: '#4338ca',
     gradientFrom: 'from-indigo-50',
     gradientTo: 'to-purple-50',
     labelBg: 'bg-indigo-200',
@@ -53,11 +68,11 @@ export const CATEGORIES: CategoryConfig[] = [
 ]
 
 export const GAMES: GameConfig[] = [
-  { id: 'divided-attention', key: 'dividedAttention', icon: Eye,      color: 'blue',    category: 'attention' },
-  { id: 'double-decision',   key: 'doubleDecision',   icon: Car,      color: 'orange',  category: 'attention' },
-  { id: 'icon-swap',         key: 'iconSwap',         icon: Shuffle,  color: 'teal',    category: 'attention' },
-  { id: 'comprehension',     key: 'comprehension',    icon: BookOpen, color: 'emerald', category: 'language'  },
-  { id: 'speed-summary',     key: 'speedSummary',     icon: Zap,      color: 'purple',  category: 'language'  },
+  { id: 'divided-attention', key: 'dividedAttention', icon: Eye,      color: 'blue',    category: 'attention', emoji: '👁️', skillLabel: 'Focus',   cardGradient: 'linear-gradient(135deg, #3b82f6, #60a5fa)' },
+  { id: 'double-decision',   key: 'doubleDecision',   icon: Car,      color: 'orange',  category: 'attention', emoji: '🚗', skillLabel: 'Speed',   cardGradient: 'linear-gradient(135deg, #f97316, #fb923c)' },
+  { id: 'icon-swap',         key: 'iconSwap',         icon: Shuffle,  color: 'teal',    category: 'attention', emoji: '🔀', skillLabel: 'Memory',  cardGradient: 'linear-gradient(135deg, #14b8a6, #2dd4bf)' },
+  { id: 'comprehension',     key: 'comprehension',    icon: BookOpen, color: 'emerald', category: 'language',  emoji: '📖', skillLabel: 'Reading', cardGradient: 'linear-gradient(135deg, #10b981, #34d399)' },
+  { id: 'speed-summary',     key: 'speedSummary',     icon: Zap,      color: 'purple',  category: 'language',  emoji: '⚡', skillLabel: 'Writing', cardGradient: 'linear-gradient(135deg, #8b5cf6, #a78bfa)' },
 ]
 
 export interface GameClassSet {

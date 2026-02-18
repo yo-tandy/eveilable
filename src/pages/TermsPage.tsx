@@ -5,6 +5,7 @@ export function TermsPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
+      <div className="glass rounded-2xl p-8">
       <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('terms.title')}</h1>
       <p className="text-sm text-gray-400 mb-8">Effective Date: February 15, 2026</p>
 
@@ -139,6 +140,7 @@ export function TermsPage() {
             <a href="mailto:legal@eveilable.com" className="text-brand-600 hover:underline">legal@eveilable.com</a>
           </p>
         </section>
+      </div>
       </div>
     </div>
   )

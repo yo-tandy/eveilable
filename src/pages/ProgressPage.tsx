@@ -41,12 +41,11 @@ export function ProgressPage() {
       <div className="mb-6 space-y-3">
         {CATEGORIES.map((category) => {
           const games = getGamesByCategory(category.key)
-          const CatIcon = category.icon
           return (
             <div key={category.key}>
               {/* Category label */}
               <div className="flex items-center gap-1.5 mb-1.5 px-1">
-                <CatIcon size={14} className={category.iconColorLight} />
+                <span className="text-sm">{category.emoji}</span>
                 <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">
                   {t(category.i18nKey)}
                 </span>
@@ -62,7 +61,7 @@ export function ProgressPage() {
                       className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 ${
                         activeTab === game.id
                           ? `${cls.iconBg} ${cls.iconText} shadow-sm`
-                          : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                          : 'bg-white/30 text-gray-500 hover:bg-white/50'
                       }`}
                     >
                       {t(`games.${game.key}.name`)}
@@ -84,7 +83,7 @@ export function ProgressPage() {
       ) : (
         <div className="space-y-8">
           {/* Current level and trend */}
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 grid grid-cols-3 gap-4 text-center shadow-playful">
+          <div className="glass rounded-2xl p-6 grid grid-cols-3 gap-4 text-center">
             <div>
               <div className="text-sm text-gray-500">{t('progress.currentLevel')}</div>
               <div className="text-4xl font-bold">{stats.currentDifficultyLevel}</div>
@@ -111,7 +110,7 @@ export function ProgressPage() {
 
           {/* Trend chart */}
           {stats.recentSessions.length >= 2 && (
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-playful">
+            <div className="glass rounded-2xl p-6">
               <h3 className="font-bold text-lg mb-4">Performance Over Time</h3>
               <TrendChart sessions={stats.recentSessions} />
             </div>

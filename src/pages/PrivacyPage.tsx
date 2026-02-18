@@ -5,6 +5,7 @@ export function PrivacyPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
+      <div className="glass rounded-2xl p-8">
       <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('privacy.title')}</h1>
       <p className="text-sm text-gray-400 mb-8">Effective Date: February 15, 2026</p>
 
@@ -136,6 +137,7 @@ export function PrivacyPage() {
             <a href="mailto:privacy@eveilable.com" className="text-brand-600 hover:underline">privacy@eveilable.com</a>
           </p>
         </section>
+      </div>
       </div>
     </div>
   )

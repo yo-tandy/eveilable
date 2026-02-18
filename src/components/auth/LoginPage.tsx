@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
 import { auth } from '../../config/firebase'
-import { LogIn } from 'lucide-react'
 
 export function LoginPage() {
   const { t } = useTranslation()
@@ -41,15 +40,15 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="max-w-sm w-full">
+    <div className="min-h-[80vh] flex items-center justify-center px-4">
+      <div className="max-w-sm w-full glass-strong rounded-3xl p-8 specular-top">
         <div className="text-center mb-8">
-          <LogIn size={40} className="mx-auto text-brand-600 mb-3" />
+          <div className="text-4xl mb-3">🧠</div>
           <h1 className="text-2xl font-bold">{t('auth.signIn')}</h1>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-700 text-sm">
             {error}
           </div>
         )}
@@ -64,7 +63,7 @@ export function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-brand-500"
+              className="glass-input w-full px-4 py-2.5 rounded-xl"
             />
           </div>
           <div>
@@ -76,35 +75,35 @@ export function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-brand-500"
+              className="glass-input w-full px-4 py-2.5 rounded-xl"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-brand-600 text-white rounded-lg font-medium hover:bg-brand-700 transition-colors disabled:opacity-50"
+            className="w-full py-3 bg-black/75 backdrop-blur-sm text-white rounded-xl font-semibold hover:scale-[1.02] transition-transform disabled:opacity-50"
           >
             {t('auth.signIn')}
           </button>
         </form>
 
-        <div className="my-4 flex items-center gap-3">
-          <div className="flex-1 h-px bg-gray-200" />
+        <div className="my-5 flex items-center gap-3">
+          <div className="flex-1 h-px bg-white/40" />
           <span className="text-sm text-gray-400">or</span>
-          <div className="flex-1 h-px bg-gray-200" />
+          <div className="flex-1 h-px bg-white/40" />
         </div>
 
         <button
           onClick={handleGoogleLogin}
           disabled={loading}
-          className="w-full py-2.5 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+          className="w-full py-3 glass rounded-xl font-medium hover:bg-white/50 transition-all disabled:opacity-50"
         >
           {t('auth.signInWithGoogle')}
         </button>
 
         <p className="mt-6 text-center text-sm text-gray-500">
           {t('auth.noAccount')}{' '}
-          <Link to="/register" className="text-brand-600 font-medium hover:underline">
+          <Link to="/register" className="text-gray-800 font-medium hover:underline">
             {t('auth.signUp')}
           </Link>
         </p>

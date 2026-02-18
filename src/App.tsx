@@ -67,7 +67,7 @@ function App() {
   }, [uiLanguage, i18n])
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-1">
         <Suspense fallback={<LoadingSpinner />}>

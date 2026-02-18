@@ -21,10 +21,10 @@ export function CountdownOverlay({ onComplete }: CountdownOverlayProps) {
   }, [count, onComplete])
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-white/90 z-10">
+    <div className="absolute inset-0 flex items-center justify-center z-10" style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' }}>
       <span
         key={count}
-        className="text-7xl font-bold text-brand-600 animate-pulse"
+        className="text-7xl font-bold text-gray-800 animate-pulse"
       >
         {count === 0 ? 'Go!' : count}
       </span>
