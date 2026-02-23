@@ -1,5 +1,6 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import Anthropic from '@anthropic-ai/sdk'
+import { getLanguageProfile } from './learningProfile.js'
 
 function getClient() {
   return new Anthropic({
@@ -48,6 +49,13 @@ export const generateParagraph = onCall(
       subLevel?: string
     }
 
+    const uid = request.auth!.uid
+    const langProfile = await getLanguageProfile(uid, language)
+
+    const profileSection = langProfile
+      ? `\nLearner Profile for ${langName(language)}:\n"${langProfile.summary}"\n\nIncorporate vocabulary and sentence structures that gently challenge the learner's known weak areas while remaining at the appropriate CEFR level.\n`
+      : ''
+
     try {
       const response = await getClient().messages.create({
         model: 'claude-sonnet-4-20250514',
@@ -62,7 +70,7 @@ Requirements:
 - Exactly ONE paragraph, 80-120 words
 - Dense and informative — pack in key facts
 - The paragraph should be self-contained and understandable without prior knowledge
-
+${profileSection}
 Return ONLY a JSON object with this structure (no markdown, no explanation):
 {"title": "...", "paragraph": "..."}`
         }],

@@ -27,6 +27,17 @@
       "avgTime": "זמן ממוצע",
       "correct": "נכון",
       "of": "מתוך"
+    },
+    "verbFill": {
+      "name": "הטיית פעלים",
+      "description": "השלימו את הטיות הפעלים הנכונות בהקשר",
+      "submitAll": "שלח הכל",
+      "results": "תוצאות הטיית פעלים",
+      "overallScore": "ציון כולל",
+      "correct": "נכון",
+      "avgTime": "ממוצע לפועל",
+      "filled": "מולאו",
+      "corrections": "תיקונים"
     }
   },
   "common": {

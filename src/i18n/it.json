@@ -27,6 +27,17 @@
       "avgTime": "Tempo medio",
       "correct": "Corretto",
       "of": "di"
+    },
+    "verbFill": {
+      "name": "Coniugazione Verbale",
+      "description": "Inserisci le coniugazioni verbali corrette nel contesto",
+      "submitAll": "Invia tutto",
+      "results": "Risultati coniugazione",
+      "overallScore": "Punteggio totale",
+      "correct": "Corretto",
+      "avgTime": "Media per verbo",
+      "filled": "compilati",
+      "corrections": "Correzioni"
     }
   },
   "common": {

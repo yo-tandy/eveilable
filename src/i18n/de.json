@@ -27,6 +27,17 @@
       "avgTime": "Durchschn. Zeit",
       "correct": "Richtig",
       "of": "von"
+    },
+    "verbFill": {
+      "name": "Verbkonjugation",
+      "description": "Ergänzen Sie die richtigen Verbkonjugationen im Kontext",
+      "submitAll": "Alle absenden",
+      "results": "Konjugationsergebnisse",
+      "overallScore": "Gesamtpunktzahl",
+      "correct": "Richtig",
+      "avgTime": "Durchschn. pro Verb",
+      "filled": "ausgefüllt",
+      "corrections": "Korrekturen"
     }
   },
   "common": {

@@ -27,6 +27,17 @@
       "avgTime": "Temps moy.",
       "correct": "Correct",
       "of": "sur"
+    },
+    "verbFill": {
+      "name": "Conjugaison",
+      "description": "Complétez les conjugaisons des verbes en contexte",
+      "submitAll": "Tout soumettre",
+      "results": "Résultats de conjugaison",
+      "overallScore": "Score global",
+      "correct": "Correct",
+      "avgTime": "Temps moy. par verbe",
+      "filled": "remplis",
+      "corrections": "Corrections"
     }
   },
   "common": {

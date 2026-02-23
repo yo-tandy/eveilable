@@ -27,6 +27,17 @@
       "avgTime": "平均时间",
       "correct": "正确",
       "of": "/"
+    },
+    "verbFill": {
+      "name": "动词填空",
+      "description": "在语境中填写正确的动词变位",
+      "submitAll": "全部提交",
+      "results": "动词填空结果",
+      "overallScore": "总分",
+      "correct": "正确",
+      "avgTime": "每词平均时间",
+      "filled": "已填",
+      "corrections": "纠正"
     }
   },
   "common": {

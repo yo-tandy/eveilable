@@ -3,3 +3,4 @@ export { generateArticle, generateQuestions, evaluateSummary } from './claude.js
 export { generateParagraph } from './paragraph.js'
 export { submitContact } from './contact.js'
 export { generateTenseExercises, evaluateTenseRewrites } from './tenseRewrite.js'
+export { generateVerbFillExercise, evaluateVerbFill } from './verbFill.js'

@@ -34,6 +34,9 @@ const IconSwapPage = lazy(() =>
 const TenseRewritePage = lazy(() =>
   import('./pages/TenseRewritePage').then((m) => ({ default: m.TenseRewritePage }))
 )
+const VerbFillPage = lazy(() =>
+  import('./pages/VerbFillPage').then((m) => ({ default: m.VerbFillPage }))
+)
 const ProgressPage = lazy(() =>
   import('./pages/ProgressPage').then((m) => ({ default: m.ProgressPage }))
 )
@@ -135,6 +138,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <TenseRewritePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/games/verb-fill"
+              element={
+                <ProtectedRoute>
+                  <VerbFillPage />
                 </ProtectedRoute>
               }
             />

@@ -1,5 +1,6 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import Anthropic from '@anthropic-ai/sdk'
+import { getLanguageProfile, updateLanguageProfile } from './learningProfile.js'
 
 // Lazy-initialize: secret is only available at request time, not module load
 function getClient() {
@@ -49,6 +50,13 @@ export const generateArticle = onCall(
       subLevel?: string
     }
 
+    const uid = request.auth!.uid
+    const langProfile = await getLanguageProfile(uid, language)
+
+    const profileSection = langProfile
+      ? `\nLearner Profile for ${langName(language)}:\n"${langProfile.summary}"\n\nIncorporate vocabulary and sentence structures that gently stretch the learner's weak areas. Use constructions they've been struggling with so they encounter them in reading context.\n`
+      : ''
+
     try {
       const response = await getClient().messages.create({
         model: 'claude-sonnet-4-20250514',
@@ -64,7 +72,7 @@ Requirements:
 - Approximately 350 words total
 - Factual and informative tone
 - The article should be self-contained and understandable without prior knowledge
-
+${profileSection}
 Return ONLY a JSON object with this structure (no markdown, no explanation):
 {"title": "...", "paragraphs": ["paragraph1", "paragraph2", "paragraph3"]}`
         }],
@@ -153,13 +161,19 @@ export const evaluateSummary = onCall(
       subLevel?: string
     }
 
+    const uid = request.auth!.uid
     const wl = wordLimit ?? { min: 10, max: 100 }
     const levelLabel = subLevelDescription(level, subLevel)
+    const langProfile = await getLanguageProfile(uid, language)
+
+    const profileContext = langProfile
+      ? `\nCurrent learner profile for ${langName(language)} (built over ${langProfile.sessionCount} session${langProfile.sessionCount === 1 ? '' : 's'}):\n"${langProfile.summary}"`
+      : `\nNo learner profile exists yet for this user in ${langName(language)}. This is the first session being profiled.`
 
     try {
       const response = await getClient().messages.create({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1536,
+        max_tokens: 2048,
         messages: [{
           role: 'user',
           content: `Evaluate this summary of the article below.
@@ -201,15 +215,32 @@ ONLY flag genuine errors (wrong grammar, incorrect word usage, factual inaccurac
 
 If the summary has no genuine issues, return an empty sentenceIssues array.
 
+--- LEARNER PROFILE UPDATE ---
+${profileContext}
+
+Based on this evaluation session${langProfile ? ' and the existing profile' : ''}, produce an updated learner profile summary for ${langName(language)}. The summary should be 100-180 words describing the learner's strengths, weaknesses, and trends. Focus on writing ability: grammar accuracy, vocabulary range, summarization skill, sentence structure quality, and common error patterns. ${langProfile ? 'Refine and update the existing profile rather than rewriting from scratch — incorporate new observations while preserving past insights that are still relevant.' : 'Create an initial profile based on this first session.'}
+
 Return ONLY a JSON object (no markdown, no explanation):
-{"accuracyScore": N, "vocabularyScore": N, "grammarScore": N, "overallScore": N, "feedback": "...", "sentenceIssues": [{"sentence": "...", "issueType": "grammar|vocabulary|accuracy", "explanation": "...", "suggestion": "..."}]}`
+{"accuracyScore": N, "vocabularyScore": N, "grammarScore": N, "overallScore": N, "feedback": "...", "sentenceIssues": [{"sentence": "...", "issueType": "grammar|vocabulary|accuracy", "explanation": "...", "suggestion": "..."}], "profileUpdate": "The updated learner profile summary..."}`
         }],
       })
 
       const raw = response.content[0].type === 'text' ? response.content[0].text : ''
       const evaluation = JSON.parse(extractJSON(raw))
 
-      return evaluation
+      // Fire-and-forget: write the updated profile to Firestore
+      if (evaluation.profileUpdate) {
+        updateLanguageProfile(
+          uid,
+          language,
+          evaluation.profileUpdate,
+          langProfile?.sessionCount ?? 0,
+        ).catch(err => console.error('Profile update failed:', err))
+      }
+
+      // Strip profileUpdate from the response sent to the frontend
+      const { profileUpdate: _, ...clientEvaluation } = evaluation
+      return clientEvaluation
     } catch (error: unknown) {
       console.error('Function error:', error)
       const message = error instanceof Error ? error.message : 'Unknown error'

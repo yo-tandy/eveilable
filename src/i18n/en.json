@@ -83,6 +83,17 @@
       "avgTime": "Avg. Time",
       "correct": "Correct",
       "of": "of"
+    },
+    "verbFill": {
+      "name": "Verb Fill",
+      "description": "Fill in the correct verb conjugations in context",
+      "submitAll": "Submit All",
+      "results": "Verb Fill Results",
+      "overallScore": "Overall Score",
+      "correct": "Correct",
+      "avgTime": "Avg. per Verb",
+      "filled": "filled",
+      "corrections": "Corrections"
     }
   },
   "stats": {

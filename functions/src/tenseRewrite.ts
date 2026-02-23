@@ -1,5 +1,6 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import Anthropic from '@anthropic-ai/sdk'
+import { getLanguageProfile, updateLanguageProfile } from './learningProfile.js'
 
 function getClient() {
   return new Anthropic({
@@ -60,8 +61,14 @@ export const generateTenseExercises = onCall(
       subLevel?: string
     }
 
+    const uid = request.auth!.uid
     const allowedTypes = getTransformationTypes(level)
     const levelLabel = subLevelDescription(level, subLevel)
+    const langProfile = await getLanguageProfile(uid, language)
+
+    const profileSection = langProfile
+      ? `\nLearner Profile for ${langName(language)}:\n"${langProfile.summary}"\n\nTailor the exercises to this learner: include MORE transformation types they struggle with (roughly 60% of exercises), while still including some of their stronger areas (roughly 40%). If they struggle with a specific grammar area, create sentences that naturally require that transformation.\n`
+      : ''
 
     try {
       const response = await getClient().messages.create({
@@ -80,7 +87,7 @@ Requirements:
 - The original sentence should be written so the transformation is natural and meaningful
 - Include a reference solution showing the correct transformation
 - The task description should be a short, clear instruction in ${langName(language)} (e.g., "Rewrite in the future tense", "Rewrite as a question", "Rewrite in the passive voice")
-
+${profileSection}
 Return ONLY a JSON object (no markdown, no explanation):
 {"exercises": [
   {
@@ -126,7 +133,9 @@ export const evaluateTenseRewrites = onCall(
       subLevel?: string
     }
 
+    const uid = request.auth!.uid
     const levelLabel = subLevelDescription(level, subLevel)
+    const langProfile = await getLanguageProfile(uid, language)
 
     const exerciseList = exercises.map((ex, i) => (
       `Exercise ${i + 1}:
@@ -136,10 +145,14 @@ Reference solution: "${ex.referenceSolution}"
 User's rewrite: "${userRewrites[i]}"`
     )).join('\n\n')
 
+    const profileContext = langProfile
+      ? `\nCurrent learner profile for ${langName(language)} (built over ${langProfile.sessionCount} session${langProfile.sessionCount === 1 ? '' : 's'}):\n"${langProfile.summary}"`
+      : `\nNo learner profile exists yet for this user in ${langName(language)}. This is the first session being profiled.`
+
     try {
       const response = await getClient().messages.create({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 4096,
+        max_tokens: 5000,
         messages: [{
           role: 'user',
           content: `Evaluate these 10 sentence transformation exercises.
@@ -173,15 +186,32 @@ Also provide:
 - "overallScore": weighted average of all sentence scores (1-10)
 - "feedback": overall constructive feedback (2-3 sentences)
 
+--- LEARNER PROFILE UPDATE ---
+${profileContext}
+
+Based on this evaluation session${langProfile ? ' and the existing profile' : ''}, produce an updated learner profile summary for ${langName(language)}. The summary should be 100-180 words describing the learner's strengths, weaknesses, and trends. Focus on grammar patterns, tense usage, transformation abilities, and recurring error types. ${langProfile ? 'Refine and update the existing profile rather than rewriting from scratch — incorporate new observations while preserving past insights that are still relevant.' : 'Create an initial profile based on this first session.'}
+
 Return ONLY a JSON object (no markdown, no explanation):
-{"sentenceScores": [{"index": 0, "score": N, "correct": true/false, "feedback": "...", "suggestion": "..."}, ...], "overallScore": N, "feedback": "..."}`
+{"sentenceScores": [{"index": 0, "score": N, "correct": true/false, "feedback": "...", "suggestion": "..."}, ...], "overallScore": N, "feedback": "...", "profileUpdate": "The updated learner profile summary..."}`
         }],
       })
 
       const raw = response.content[0].type === 'text' ? response.content[0].text : ''
       const evaluation = JSON.parse(extractJSON(raw))
 
-      return evaluation
+      // Fire-and-forget: write the updated profile to Firestore
+      if (evaluation.profileUpdate) {
+        updateLanguageProfile(
+          uid,
+          language,
+          evaluation.profileUpdate,
+          langProfile?.sessionCount ?? 0,
+        ).catch(err => console.error('Profile update failed:', err))
+      }
+
+      // Strip profileUpdate from the response sent to the frontend
+      const { profileUpdate: _, ...clientEvaluation } = evaluation
+      return clientEvaluation
     } catch (error: unknown) {
       console.error('evaluateTenseRewrites error:', error)
       const message = error instanceof Error ? error.message : 'Unknown error'
