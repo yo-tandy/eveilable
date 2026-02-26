@@ -1,6 +1,7 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import Anthropic from '@anthropic-ai/sdk'
 import { getLanguageProfile } from './learningProfile.js'
+import { callClaudeStructured } from './jsonUtils.js'
 
 function getClient() {
   return new Anthropic({
@@ -29,12 +30,6 @@ function subLevelDescription(level: string, subLevel?: string): string {
   return `${level} (${desc})`
 }
 
-/** Strip markdown code fences that Claude sometimes wraps around JSON */
-function extractJSON(text: string): string {
-  const match = text.match(/```(?:json)?\s*([\s\S]*?)```/)
-  return match ? match[1].trim() : text.trim()
-}
-
 export const generateParagraph = onCall(
   { timeoutSeconds: 60, memory: '256MiB', secrets: [...SECRETS] },
   async (request) => {
@@ -57,12 +52,9 @@ export const generateParagraph = onCall(
       : ''
 
     try {
-      const response = await getClient().messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 512,
-        messages: [{
-          role: 'user',
-          content: `Write a single news paragraph based on this headline: "${headline}"
+      const result = await callClaudeStructured(
+        getClient(),
+        `Write a single news paragraph based on this headline: "${headline}"
 
 Requirements:
 - Language: ${langName(language)}
@@ -70,14 +62,18 @@ Requirements:
 - Exactly ONE paragraph, 80-120 words
 - Dense and informative — pack in key facts
 - The paragraph should be self-contained and understandable without prior knowledge
-${profileSection}
-Return ONLY a JSON object with this structure (no markdown, no explanation):
-{"title": "...", "paragraph": "..."}`
-        }],
-      })
+${profileSection}`,
+        {
+          type: 'object',
+          properties: {
+            title: { type: 'string', description: 'The paragraph title' },
+            paragraph: { type: 'string', description: 'The news paragraph (80-120 words)' },
+          },
+          required: ['title', 'paragraph'],
+        },
+        { maxTokens: 1024 },
+      )
 
-      const raw = response.content[0].type === 'text' ? response.content[0].text : ''
-      const result = JSON.parse(extractJSON(raw))
       const wordCount = result.paragraph.split(/\s+/).length
 
       return {

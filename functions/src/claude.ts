@@ -1,6 +1,7 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import Anthropic from '@anthropic-ai/sdk'
 import { getLanguageProfile, updateLanguageProfile } from './learningProfile.js'
+import { callClaudeStructured } from './jsonUtils.js'
 
 // Lazy-initialize: secret is only available at request time, not module load
 function getClient() {
@@ -30,11 +31,6 @@ function subLevelDescription(level: string, subLevel?: string): string {
   return `${level} (${desc})`
 }
 
-/** Strip markdown code fences that Claude sometimes wraps around JSON */
-function extractJSON(text: string): string {
-  const match = text.match(/```(?:json)?\s*([\s\S]*?)```/)
-  return match ? match[1].trim() : text.trim()
-}
 
 export const generateArticle = onCall(
   { timeoutSeconds: 60, memory: '256MiB', secrets: [...SECRETS] },
@@ -58,12 +54,9 @@ export const generateArticle = onCall(
       : ''
 
     try {
-      const response = await getClient().messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1024,
-        messages: [{
-          role: 'user',
-          content: `Write a news article based on this headline: "${headline}"
+      const article = await callClaudeStructured(
+        getClient(),
+        `Write a news article based on this headline: "${headline}"
 
 Requirements:
 - Language: ${langName(language)}
@@ -72,19 +65,54 @@ Requirements:
 - Approximately 350 words total
 - Factual and informative tone
 - The article should be self-contained and understandable without prior knowledge
-${profileSection}
-Return ONLY a JSON object with this structure (no markdown, no explanation):
-{"title": "...", "paragraphs": ["paragraph1", "paragraph2", "paragraph3"]}`
-        }],
-      })
+${profileSection}`,
+        {
+          type: 'object',
+          properties: {
+            title: { type: 'string', description: 'The article title' },
+            paragraphs: {
+              type: 'array',
+              items: { type: 'string' },
+              minItems: 3,
+              maxItems: 3,
+              description: 'Exactly 3 paragraphs',
+            },
+          },
+          required: ['title', 'paragraphs'],
+        },
+        { maxTokens: 2048 },
+      )
 
-      const raw = response.content[0].type === 'text' ? response.content[0].text : ''
-      const article = JSON.parse(extractJSON(raw))
-      const wordCount = article.paragraphs.join(' ').split(/\s+/).length
+      // Robust extraction: handle all possible shapes from tool_use
+      const rawParas = article.paragraphs
+      let paragraphs: string[]
+
+      if (Array.isArray(rawParas)) {
+        paragraphs = rawParas.map((p: unknown) => String(p))
+      } else if (typeof rawParas === 'string') {
+        // Could be a JSON-stringified array or a plain string with paragraphs
+        try {
+          const parsed = JSON.parse(rawParas)
+          paragraphs = Array.isArray(parsed) ? parsed.map(String) : rawParas.split('\n\n').filter(Boolean)
+        } catch {
+          paragraphs = rawParas.split('\n\n').filter(Boolean)
+        }
+      } else {
+        // Last resort: stringify and log for debugging
+        console.warn('Unexpected paragraphs type:', typeof rawParas, JSON.stringify(rawParas).slice(0, 200))
+        paragraphs = [String(rawParas)]
+      }
+
+      // Ensure we have at least 1 paragraph
+      if (paragraphs.length === 0) {
+        paragraphs = [String(rawParas)]
+      }
+
+      const wordCount = paragraphs.join(' ').split(/\s+/).length
 
       return {
-        title: article.title,
-        paragraphs: article.paragraphs,
+        title: article.title || '',
+        paragraphs,
         wordCount,
         language,
         level,
@@ -110,12 +138,9 @@ export const generateQuestions = onCall(
     }
 
     try {
-      const response = await getClient().messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 2048,
-        messages: [{
-          role: 'user',
-          content: `Based on this article, create 10 multiple-choice questions.
+      const result = await callClaudeStructured(
+        getClient(),
+        `Based on this article, create 10 multiple-choice questions.
 
 Article:
 ${article}
@@ -126,17 +151,30 @@ Requirements:
 - All answers must be directly derivable from the text
 - Questions should test comprehension, not trivia
 - Mix detail questions with inference questions
-- For each question, include a "supportingQuote" field: a short exact quote from the article (1-2 sentences) that directly supports the correct answer
+- For each question, include a "supportingQuote" field: a short exact quote from the article (1-2 sentences) that directly supports the correct answer`,
+        {
+          type: 'object',
+          properties: {
+            questions: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  question: { type: 'string' },
+                  options: { type: 'array', items: { type: 'string' }, minItems: 4, maxItems: 4 },
+                  correctIndex: { type: 'integer', minimum: 0, maximum: 3 },
+                  supportingQuote: { type: 'string' },
+                },
+                required: ['question', 'options', 'correctIndex', 'supportingQuote'],
+              },
+            },
+          },
+          required: ['questions'],
+        },
+        { maxTokens: 4096 },
+      )
 
-Return ONLY a JSON array (no markdown, no explanation):
-[{"question": "...", "options": ["A", "B", "C", "D"], "correctIndex": 0, "supportingQuote": "exact text from article"}, ...]`
-        }],
-      })
-
-      const raw = response.content[0].type === 'text' ? response.content[0].text : ''
-      const questions = JSON.parse(extractJSON(raw))
-
-      return { questions }
+      return { questions: result.questions }
     } catch (error: unknown) {
       console.error('Function error:', error)
       const message = error instanceof Error ? error.message : 'Unknown error'
@@ -171,12 +209,9 @@ export const evaluateSummary = onCall(
       : `\nNo learner profile exists yet for this user in ${langName(language)}. This is the first session being profiled.`
 
     try {
-      const response = await getClient().messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 2048,
-        messages: [{
-          role: 'user',
-          content: `Evaluate this summary of the article below.
+      const evaluation = await callClaudeStructured(
+        getClient(),
+        `Evaluate this summary of the article below.
 
 Article:
 ${article}
@@ -218,15 +253,34 @@ If the summary has no genuine issues, return an empty sentenceIssues array.
 --- LEARNER PROFILE UPDATE ---
 ${profileContext}
 
-Based on this evaluation session${langProfile ? ' and the existing profile' : ''}, produce an updated learner profile summary for ${langName(language)}. The summary should be 100-180 words describing the learner's strengths, weaknesses, and trends. Focus on writing ability: grammar accuracy, vocabulary range, summarization skill, sentence structure quality, and common error patterns. ${langProfile ? 'Refine and update the existing profile rather than rewriting from scratch — incorporate new observations while preserving past insights that are still relevant.' : 'Create an initial profile based on this first session.'}
-
-Return ONLY a JSON object (no markdown, no explanation):
-{"accuracyScore": N, "vocabularyScore": N, "grammarScore": N, "overallScore": N, "feedback": "...", "sentenceIssues": [{"sentence": "...", "issueType": "grammar|vocabulary|accuracy", "explanation": "...", "suggestion": "..."}], "profileUpdate": "The updated learner profile summary..."}`
-        }],
-      })
-
-      const raw = response.content[0].type === 'text' ? response.content[0].text : ''
-      const evaluation = JSON.parse(extractJSON(raw))
+Based on this evaluation session${langProfile ? ' and the existing profile' : ''}, produce an updated learner profile summary for ${langName(language)}. The summary should be 100-180 words describing the learner's strengths, weaknesses, and trends. Focus on writing ability: grammar accuracy, vocabulary range, summarization skill, sentence structure quality, and common error patterns. ${langProfile ? 'Refine and update the existing profile rather than rewriting from scratch — incorporate new observations while preserving past insights that are still relevant.' : 'Create an initial profile based on this first session.'}`,
+        {
+          type: 'object',
+          properties: {
+            accuracyScore: { type: 'integer', minimum: 1, maximum: 10 },
+            vocabularyScore: { type: 'integer', minimum: 1, maximum: 10 },
+            grammarScore: { type: 'integer', minimum: 1, maximum: 10 },
+            overallScore: { type: 'integer', minimum: 1, maximum: 10 },
+            feedback: { type: 'string' },
+            sentenceIssues: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  sentence: { type: 'string' },
+                  issueType: { type: 'string', enum: ['grammar', 'vocabulary', 'accuracy'] },
+                  explanation: { type: 'string' },
+                  suggestion: { type: 'string' },
+                },
+                required: ['sentence', 'issueType', 'explanation', 'suggestion'],
+              },
+            },
+            profileUpdate: { type: 'string', description: 'Updated learner profile summary (100-180 words)' },
+          },
+          required: ['accuracyScore', 'vocabularyScore', 'grammarScore', 'overallScore', 'feedback', 'sentenceIssues', 'profileUpdate'],
+        },
+        { maxTokens: 2048 },
+      )
 
       // Fire-and-forget: write the updated profile to Firestore
       if (evaluation.profileUpdate) {

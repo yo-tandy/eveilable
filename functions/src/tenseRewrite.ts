@@ -1,6 +1,7 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import Anthropic from '@anthropic-ai/sdk'
 import { getLanguageProfile, updateLanguageProfile } from './learningProfile.js'
+import { callClaudeStructured } from './jsonUtils.js'
 
 function getClient() {
   return new Anthropic({
@@ -27,12 +28,6 @@ function subLevelDescription(level: string, subLevel?: string): string {
   if (!subLevel) return level
   const desc = subLevel === 'novice' ? 'lower range' : subLevel === 'advanced' ? 'upper range' : 'mid range'
   return `${level} (${desc})`
-}
-
-/** Strip markdown code fences that Claude sometimes wraps around JSON */
-function extractJSON(text: string): string {
-  const match = text.match(/```(?:json)?\s*([\s\S]*?)```/)
-  return match ? match[1].trim() : text.trim()
 }
 
 function getTransformationTypes(level: string): string {
@@ -71,12 +66,9 @@ export const generateTenseExercises = onCall(
       : ''
 
     try {
-      const response = await getClient().messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4096,
-        messages: [{
-          role: 'user',
-          content: `Generate 10 sentence transformation exercises for a language learner.
+      const result = await callClaudeStructured(
+        getClient(),
+        `Generate 10 sentence transformation exercises for a language learner.
 
 Requirements:
 - Language: ${langName(language)}
@@ -87,22 +79,28 @@ Requirements:
 - The original sentence should be written so the transformation is natural and meaningful
 - Include a reference solution showing the correct transformation
 - The task description should be a short, clear instruction in ${langName(language)} (e.g., "Rewrite in the future tense", "Rewrite as a question", "Rewrite in the passive voice")
-${profileSection}
-Return ONLY a JSON object (no markdown, no explanation):
-{"exercises": [
-  {
-    "original": "The original sentence...",
-    "taskDescription": "Rewrite in the future tense",
-    "transformationType": "future-tense",
-    "referenceSolution": "The transformed sentence..."
-  },
-  ...
-]}`
-        }],
-      })
-
-      const raw = response.content[0].type === 'text' ? response.content[0].text : ''
-      const result = JSON.parse(extractJSON(raw))
+${profileSection}`,
+        {
+          type: 'object',
+          properties: {
+            exercises: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  original: { type: 'string', description: 'The original sentence' },
+                  taskDescription: { type: 'string', description: 'Short instruction in target language' },
+                  transformationType: { type: 'string', description: 'Type of transformation' },
+                  referenceSolution: { type: 'string', description: 'The correctly transformed sentence' },
+                },
+                required: ['original', 'taskDescription', 'transformationType', 'referenceSolution'],
+              },
+            },
+          },
+          required: ['exercises'],
+        },
+        { maxTokens: 4096 },
+      )
 
       return { exercises: result.exercises }
     } catch (error: unknown) {
@@ -150,12 +148,9 @@ User's rewrite: "${userRewrites[i]}"`
       : `\nNo learner profile exists yet for this user in ${langName(language)}. This is the first session being profiled.`
 
     try {
-      const response = await getClient().messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 5000,
-        messages: [{
-          role: 'user',
-          content: `Evaluate these 10 sentence transformation exercises.
+      const evaluation = await callClaudeStructured(
+        getClient(),
+        `Evaluate these 10 sentence transformation exercises.
 
 Language: ${langName(language)}
 Expected CEFR level: ${levelLabel}
@@ -189,15 +184,32 @@ Also provide:
 --- LEARNER PROFILE UPDATE ---
 ${profileContext}
 
-Based on this evaluation session${langProfile ? ' and the existing profile' : ''}, produce an updated learner profile summary for ${langName(language)}. The summary should be 100-180 words describing the learner's strengths, weaknesses, and trends. Focus on grammar patterns, tense usage, transformation abilities, and recurring error types. ${langProfile ? 'Refine and update the existing profile rather than rewriting from scratch — incorporate new observations while preserving past insights that are still relevant.' : 'Create an initial profile based on this first session.'}
-
-Return ONLY a JSON object (no markdown, no explanation):
-{"sentenceScores": [{"index": 0, "score": N, "correct": true/false, "feedback": "...", "suggestion": "..."}, ...], "overallScore": N, "feedback": "...", "profileUpdate": "The updated learner profile summary..."}`
-        }],
-      })
-
-      const raw = response.content[0].type === 'text' ? response.content[0].text : ''
-      const evaluation = JSON.parse(extractJSON(raw))
+Based on this evaluation session${langProfile ? ' and the existing profile' : ''}, produce an updated learner profile summary for ${langName(language)}. The summary should be 100-180 words describing the learner's strengths, weaknesses, and trends. Focus on grammar patterns, tense usage, transformation abilities, and recurring error types. ${langProfile ? 'Refine and update the existing profile rather than rewriting from scratch — incorporate new observations while preserving past insights that are still relevant.' : 'Create an initial profile based on this first session.'}`,
+        {
+          type: 'object',
+          properties: {
+            sentenceScores: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  index: { type: 'integer' },
+                  score: { type: 'integer', minimum: 1, maximum: 10 },
+                  correct: { type: 'boolean' },
+                  feedback: { type: 'string' },
+                  suggestion: { type: 'string' },
+                },
+                required: ['index', 'score', 'correct', 'feedback', 'suggestion'],
+              },
+            },
+            overallScore: { type: 'number', minimum: 1, maximum: 10 },
+            feedback: { type: 'string' },
+            profileUpdate: { type: 'string', description: 'Updated learner profile summary (100-180 words)' },
+          },
+          required: ['sentenceScores', 'overallScore', 'feedback', 'profileUpdate'],
+        },
+        { maxTokens: 5000 },
+      )
 
       // Fire-and-forget: write the updated profile to Firestore
       if (evaluation.profileUpdate) {

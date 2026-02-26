@@ -1,6 +1,7 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import Anthropic from '@anthropic-ai/sdk'
 import { getLanguageProfile, updateLanguageProfile } from './learningProfile.js'
+import { callClaudeStructured } from './jsonUtils.js'
 
 function getClient() {
   return new Anthropic({
@@ -27,11 +28,6 @@ function subLevelDescription(level: string, subLevel?: string): string {
   if (!subLevel) return level
   const desc = subLevel === 'novice' ? 'lower range' : subLevel === 'advanced' ? 'upper range' : 'mid range'
   return `${level} (${desc})`
-}
-
-function extractJSON(text: string): string {
-  const match = text.match(/```(?:json)?\s*([\s\S]*?)```/)
-  return match ? match[1].trim() : text.trim()
 }
 
 function getTenseGuidance(level: string): string {
@@ -67,12 +63,9 @@ export const generateVerbFillExercise = onCall(
       : ''
 
     try {
-      const response = await getClient().messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4096,
-        messages: [{
-          role: 'user',
-          content: `Generate a verb conjugation fill-in-the-blank exercise for a language learner.
+      const result = await callClaudeStructured(
+        getClient(),
+        `Generate a verb conjugation fill-in-the-blank exercise for a language learner.
 
 Requirements:
 - Language: ${langName(language)}
@@ -93,25 +86,32 @@ CRITICAL formatting rules:
 - Text segments must include ALL spacing and punctuation
 - The segments must reconstruct the complete text when concatenated
 - Verb segments replace ONLY the conjugated verb form, not surrounding spaces
-- Include spaces in the adjacent text segments
+- Include spaces in the adjacent text segments`,
+        {
+          type: 'object',
+          properties: {
+            title: { type: 'string', description: 'A short title for the text' },
+            segments: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  type: { type: 'string', enum: ['text', 'verb'] },
+                  content: { type: 'string', description: 'For text segments: the text content' },
+                  infinitive: { type: 'string', description: 'For verb segments: dictionary form' },
+                  correctForm: { type: 'string', description: 'For verb segments: conjugated form' },
+                  index: { type: 'integer', description: 'For verb segments: sequential number' },
+                },
+                required: ['type'],
+              },
+            },
+            verbCount: { type: 'integer', description: 'Total number of verb blanks' },
+          },
+          required: ['title', 'segments', 'verbCount'],
+        },
+        { maxTokens: 4096 },
+      )
 
-Return ONLY a JSON object (no markdown, no explanation):
-{
-  "title": "A short title for the text",
-  "segments": [
-    { "type": "text", "content": "Yesterday, Marie " },
-    { "type": "verb", "infinitive": "to go", "correctForm": "went", "index": 0 },
-    { "type": "text", "content": " to the beach. They " },
-    { "type": "verb", "infinitive": "to decide", "correctForm": "decided", "index": 1 },
-    { "type": "text", "content": " to swim." }
-  ],
-  "verbCount": 2
-}`
-        }],
-      })
-
-      const raw = response.content[0].type === 'text' ? response.content[0].text : ''
-      const result = JSON.parse(extractJSON(raw))
       return result
     } catch (error: unknown) {
       console.error('generateVerbFillExercise error:', error)
@@ -160,12 +160,9 @@ export const evaluateVerbFill = onCall(
       : `\nNo learner profile exists yet for this user in ${langName(language)}. This is the first session being profiled.`
 
     try {
-      const response = await getClient().messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 5000,
-        messages: [{
-          role: 'user',
-          content: `Evaluate verb conjugation answers for a fill-in-the-blank exercise.
+      const evaluation = await callClaudeStructured(
+        getClient(),
+        `Evaluate verb conjugation answers for a fill-in-the-blank exercise.
 
 Language: ${langName(language)}
 Expected CEFR level: ${levelLabel}
@@ -204,15 +201,33 @@ Also provide:
 --- LEARNER PROFILE UPDATE ---
 ${profileContext}
 
-Based on this evaluation session${langProfile ? ' and the existing profile' : ''}, produce an updated learner profile summary for ${langName(language)}. The summary should be 100-180 words describing the learner's strengths, weaknesses, and trends. Focus on verb conjugation patterns, tense mastery, spelling/accent accuracy, and which verb types or tenses are problematic. ${langProfile ? 'Refine and update the existing profile rather than rewriting from scratch — incorporate new observations while preserving past insights that are still relevant.' : 'Create an initial profile based on this first session.'}
-
-Return ONLY a JSON object (no markdown, no explanation):
-{"verbScores": [{"index": 0, "score": 10, "correct": true, "feedback": "...", "correctForm": "...", "userAnswer": "..."}], "overallScore": 8.5, "feedback": "...", "profileUpdate": "The updated learner profile summary..."}`
-        }],
-      })
-
-      const raw = response.content[0].type === 'text' ? response.content[0].text : ''
-      const evaluation = JSON.parse(extractJSON(raw))
+Based on this evaluation session${langProfile ? ' and the existing profile' : ''}, produce an updated learner profile summary for ${langName(language)}. The summary should be 100-180 words describing the learner's strengths, weaknesses, and trends. Focus on verb conjugation patterns, tense mastery, spelling/accent accuracy, and which verb types or tenses are problematic. ${langProfile ? 'Refine and update the existing profile rather than rewriting from scratch — incorporate new observations while preserving past insights that are still relevant.' : 'Create an initial profile based on this first session.'}`,
+        {
+          type: 'object',
+          properties: {
+            verbScores: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  index: { type: 'integer' },
+                  score: { type: 'number', minimum: 0, maximum: 10 },
+                  correct: { type: 'boolean' },
+                  feedback: { type: 'string' },
+                  correctForm: { type: 'string' },
+                  userAnswer: { type: 'string' },
+                },
+                required: ['index', 'score', 'correct', 'feedback', 'correctForm', 'userAnswer'],
+              },
+            },
+            overallScore: { type: 'number', minimum: 0, maximum: 10 },
+            feedback: { type: 'string' },
+            profileUpdate: { type: 'string', description: 'Updated learner profile summary (100-180 words)' },
+          },
+          required: ['verbScores', 'overallScore', 'feedback', 'profileUpdate'],
+        },
+        { maxTokens: 5000 },
+      )
 
       // Fire-and-forget: write the updated profile to Firestore
       if (evaluation.profileUpdate) {
