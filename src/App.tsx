@@ -40,6 +40,9 @@ const VerbFillPage = lazy(() =>
 const CardRecallPage = lazy(() =>
   import('./pages/CardRecallPage').then((m) => ({ default: m.CardRecallPage }))
 )
+const SentenceMemoryPage = lazy(() =>
+  import('./pages/SentenceMemoryPage').then((m) => ({ default: m.SentenceMemoryPage }))
+)
 const ProgressPage = lazy(() =>
   import('./pages/ProgressPage').then((m) => ({ default: m.ProgressPage }))
 )
@@ -157,6 +160,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <CardRecallPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/games/sentence-memory"
+              element={
+                <ProtectedRoute>
+                  <SentenceMemoryPage />
                 </ProtectedRoute>
               }
             />

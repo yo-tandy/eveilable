@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
-import { Eye, Car, BookOpen, Zap, Shuffle, RefreshCw, PenLine, Focus, Languages, Layers } from 'lucide-react'
+import { Eye, Car, BookOpen, Zap, Shuffle, RefreshCw, PenLine, Focus, Languages, Layers, Type } from 'lucide-react'
 import type { GameType } from '../types/game'
 
 export type GameCategory = 'attention' | 'language'
@@ -76,6 +76,7 @@ export const GAMES: GameConfig[] = [
   { id: 'tense-rewrite',    key: 'tenseRewrite',     icon: RefreshCw, color: 'rose',   category: 'language',  emoji: '🔄', skillLabel: 'Grammar', cardGradient: 'linear-gradient(135deg, #f43f5e, #fb7185)' },
   { id: 'verb-fill',        key: 'verbFill',         icon: PenLine,   color: 'amber',  category: 'language',  emoji: '✏️', skillLabel: 'Conjugation', cardGradient: 'linear-gradient(135deg, #f59e0b, #fbbf24)' },
   { id: 'card-recall',      key: 'cardRecall',       icon: Layers,    color: 'violet', category: 'attention', emoji: '🃏', skillLabel: 'Recall',      cardGradient: 'linear-gradient(135deg, #8b5cf6, #c084fc)' },
+  { id: 'sentence-memory',  key: 'sentenceMemory',   icon: Type,      color: 'cyan',   category: 'language',  emoji: '💬', skillLabel: 'Memory',      cardGradient: 'linear-gradient(135deg, #06b6d4, #22d3ee)' },
 ]
 
 export interface GameClassSet {
@@ -95,6 +96,7 @@ const GAME_CLASS_MAP: Record<string, GameClassSet> = {
   rose:    { iconBg: 'bg-rose-100',    iconText: 'text-rose-600',    border: 'border-rose-200',    hoverBorder: 'hover:border-rose-400',    gradientFrom: 'from-rose-50' },
   amber:   { iconBg: 'bg-amber-100',   iconText: 'text-amber-600',   border: 'border-amber-200',   hoverBorder: 'hover:border-amber-400',   gradientFrom: 'from-amber-50' },
   violet:  { iconBg: 'bg-violet-100',  iconText: 'text-violet-600',  border: 'border-violet-200',  hoverBorder: 'hover:border-violet-400',  gradientFrom: 'from-violet-50' },
+  cyan:    { iconBg: 'bg-cyan-100',    iconText: 'text-cyan-600',    border: 'border-cyan-200',    hoverBorder: 'hover:border-cyan-400',    gradientFrom: 'from-cyan-50' },
 }
 
 export function getGamesByCategory(category: GameCategory): GameConfig[] {

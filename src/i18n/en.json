@@ -102,6 +102,21 @@
       "instructions2": "Memorize the entire sequence carefully.",
       "instructions3": "Then recall them in REVERSE order by tapping the cards.",
       "instructions4": "Sequences get longer as you improve."
+    },
+    "sentenceMemory": {
+      "name": "Sentence Memory",
+      "description": "Memorize and reproduce sentences with exact spelling and punctuation",
+      "memorize": "Memorize this sentence",
+      "typeFromMemory": "Type from memory",
+      "placeholder": "Type the sentence exactly as you remember it...",
+      "next": "Next",
+      "submitAll": "Submit All",
+      "results": "Sentence Memory Results",
+      "correct": "Exact Match",
+      "avgSimilarity": "Avg. Similarity",
+      "avgTime": "Avg. Time",
+      "original": "Original",
+      "yourInput": "Your input"
     }
   },
   "stats": {

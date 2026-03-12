@@ -1,6 +1,6 @@
 import type { Timestamp } from 'firebase/firestore'
 
-export type GameType = 'divided-attention' | 'double-decision' | 'comprehension' | 'speed-summary' | 'icon-swap' | 'tense-rewrite' | 'verb-fill' | 'card-recall'
+export type GameType = 'divided-attention' | 'double-decision' | 'comprehension' | 'speed-summary' | 'icon-swap' | 'tense-rewrite' | 'verb-fill' | 'card-recall' | 'sentence-memory'
 
 export type GamePhase =
   | 'idle'
