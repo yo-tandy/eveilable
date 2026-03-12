@@ -22,7 +22,7 @@ i18n
     },
     fallbackLng: 'en',
     interpolation: {
-      escapeValue: false,
+      escapeValue: true,
     },
     detection: {
       order: ['localStorage', 'navigator'],

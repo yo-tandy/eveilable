@@ -1,5 +1,6 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import { initializeApp } from 'firebase-admin/app'
+import { validateLanguage } from './validate.js'
 
 initializeApp()
 
@@ -67,7 +68,7 @@ export const fetchNews = onCall(
       throw new HttpsError('unauthenticated', 'Must be logged in')
     }
 
-    const { language = 'en' } = request.data as { language?: string }
+    const language = validateLanguage(request.data.language ?? 'en')
 
     // If no NEWS_API_KEY, return fallback headlines
     if (!NEWS_API_KEY) {
@@ -79,19 +80,25 @@ export const fetchNews = onCall(
     const apiLang = LANGUAGE_MAP[language] || 'en'
     const url = `https://newsapi.org/v2/top-headlines?language=${apiLang}&pageSize=5&apiKey=${NEWS_API_KEY}`
 
-    const response = await fetch(url)
-    const data = await response.json()
+    try {
+      const response = await fetch(url)
+      const data = await response.json()
 
-    if (data.status !== 'ok') {
-      throw new HttpsError('internal', data.message || 'News API error')
+      if (data.status !== 'ok') {
+        throw new Error('News API returned error status')
+      }
+
+      const headlines = data.articles.map((article: { title: string; description: string; source: { name: string } }) => ({
+        title: article.title,
+        description: article.description,
+        source: article.source?.name,
+      }))
+
+      return { headlines }
+    } catch (error: unknown) {
+      if (error instanceof HttpsError) throw error
+      console.error('fetchNews error:', error)
+      throw new HttpsError('internal', 'Failed to fetch news')
     }
-
-    const headlines = data.articles.map((article: { title: string; description: string; source: { name: string } }) => ({
-      title: article.title,
-      description: article.description,
-      source: article.source?.name,
-    }))
-
-    return { headlines }
   }
 )

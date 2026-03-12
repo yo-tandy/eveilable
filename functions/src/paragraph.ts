@@ -2,6 +2,10 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import Anthropic from '@anthropic-ai/sdk'
 import { getLanguageProfile } from './learningProfile.js'
 import { callClaudeStructured } from './jsonUtils.js'
+import {
+  validateLanguage, validateLevel, validateSubLevel, validateString,
+  checkRateLimit, langName, subLevelDescription,
+} from './validate.js'
 
 function getClient() {
   return new Anthropic({
@@ -11,25 +15,6 @@ function getClient() {
 
 const SECRETS = ['ANTHROPIC_API_KEY'] as const
 
-const LANGUAGE_NAMES: Record<string, string> = {
-  en: 'English',
-  fr: 'French',
-  zh: 'Chinese (Simplified)',
-  he: 'Hebrew',
-  de: 'German',
-  it: 'Italian',
-}
-
-function langName(code: string): string {
-  return LANGUAGE_NAMES[code] || 'English'
-}
-
-function subLevelDescription(level: string, subLevel?: string): string {
-  if (!subLevel) return level
-  const desc = subLevel === 'novice' ? 'lower range' : subLevel === 'advanced' ? 'upper range' : 'mid range'
-  return `${level} (${desc})`
-}
-
 export const generateParagraph = onCall(
   { timeoutSeconds: 60, memory: '256MiB', secrets: [...SECRETS] },
   async (request) => {
@@ -37,14 +22,14 @@ export const generateParagraph = onCall(
       throw new HttpsError('unauthenticated', 'Must be logged in')
     }
 
-    const { headline, language, level, subLevel } = request.data as {
-      headline: string
-      language: string
-      level: string
-      subLevel?: string
-    }
+    const uid = request.auth.uid
+    const headline = validateString(request.data.headline, 'headline', 500)
+    const language = validateLanguage(request.data.language)
+    const level = validateLevel(request.data.level)
+    const subLevel = validateSubLevel(request.data.subLevel)
 
-    const uid = request.auth!.uid
+    await checkRateLimit(uid)
+
     const langProfile = await getLanguageProfile(uid, language)
 
     const profileSection = langProfile
@@ -84,9 +69,9 @@ ${profileSection}`,
         level,
       }
     } catch (error: unknown) {
-      console.error('Function error:', error)
-      const message = error instanceof Error ? error.message : 'Unknown error'
-      throw new HttpsError('internal', message)
+      if (error instanceof HttpsError) throw error
+      console.error('generateParagraph error:', error)
+      throw new HttpsError('internal', 'Failed to generate paragraph')
     }
   }
 )

@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
-import { Eye, Car, BookOpen, Zap, Shuffle, RefreshCw, PenLine, Focus, Languages } from 'lucide-react'
+import { Eye, Car, BookOpen, Zap, Shuffle, RefreshCw, PenLine, Focus, Languages, Layers } from 'lucide-react'
 import type { GameType } from '../types/game'
 
 export type GameCategory = 'attention' | 'language'
@@ -75,6 +75,7 @@ export const GAMES: GameConfig[] = [
   { id: 'speed-summary',     key: 'speedSummary',     icon: Zap,      color: 'purple',  category: 'language',  emoji: '⚡', skillLabel: 'Writing', cardGradient: 'linear-gradient(135deg, #8b5cf6, #a78bfa)' },
   { id: 'tense-rewrite',    key: 'tenseRewrite',     icon: RefreshCw, color: 'rose',   category: 'language',  emoji: '🔄', skillLabel: 'Grammar', cardGradient: 'linear-gradient(135deg, #f43f5e, #fb7185)' },
   { id: 'verb-fill',        key: 'verbFill',         icon: PenLine,   color: 'amber',  category: 'language',  emoji: '✏️', skillLabel: 'Conjugation', cardGradient: 'linear-gradient(135deg, #f59e0b, #fbbf24)' },
+  { id: 'card-recall',      key: 'cardRecall',       icon: Layers,    color: 'violet', category: 'attention', emoji: '🃏', skillLabel: 'Recall',      cardGradient: 'linear-gradient(135deg, #8b5cf6, #c084fc)' },
 ]
 
 export interface GameClassSet {
@@ -93,6 +94,7 @@ const GAME_CLASS_MAP: Record<string, GameClassSet> = {
   purple:  { iconBg: 'bg-purple-100',  iconText: 'text-purple-600',  border: 'border-purple-200',  hoverBorder: 'hover:border-purple-400',  gradientFrom: 'from-purple-50' },
   rose:    { iconBg: 'bg-rose-100',    iconText: 'text-rose-600',    border: 'border-rose-200',    hoverBorder: 'hover:border-rose-400',    gradientFrom: 'from-rose-50' },
   amber:   { iconBg: 'bg-amber-100',   iconText: 'text-amber-600',   border: 'border-amber-200',   hoverBorder: 'hover:border-amber-400',   gradientFrom: 'from-amber-50' },
+  violet:  { iconBg: 'bg-violet-100',  iconText: 'text-violet-600',  border: 'border-violet-200',  hoverBorder: 'hover:border-violet-400',  gradientFrom: 'from-violet-50' },
 }
 
 export function getGamesByCategory(category: GameCategory): GameConfig[] {

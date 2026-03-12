@@ -1,6 +1,6 @@
 import type { Timestamp } from 'firebase/firestore'
 
-export type GameType = 'divided-attention' | 'double-decision' | 'comprehension' | 'speed-summary' | 'icon-swap' | 'tense-rewrite' | 'verb-fill'
+export type GameType = 'divided-attention' | 'double-decision' | 'comprehension' | 'speed-summary' | 'icon-swap' | 'tense-rewrite' | 'verb-fill' | 'card-recall'
 
 export type GamePhase =
   | 'idle'
@@ -23,6 +23,10 @@ export interface DifficultyParams {
   blinkDurationMs?: number
   cardCount?: number
   iconPoolSize?: number
+  // card-recall specific
+  sequenceLength?: number
+  cardDisplayTimeMs?: number
+  distractorCardCount?: number
 }
 
 export interface Trial {

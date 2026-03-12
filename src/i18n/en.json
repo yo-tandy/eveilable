@@ -94,6 +94,14 @@
       "avgTime": "Avg. per Verb",
       "filled": "filled",
       "corrections": "Corrections"
+    },
+    "cardRecall": {
+      "name": "Card Recall",
+      "description": "Memorize a sequence of playing cards and recall them in reverse",
+      "instructions1": "Playing cards will appear one at a time.",
+      "instructions2": "Memorize the entire sequence carefully.",
+      "instructions3": "Then recall them in REVERSE order by tapping the cards.",
+      "instructions4": "Sequences get longer as you improve."
     }
   },
   "stats": {

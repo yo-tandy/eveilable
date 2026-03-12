@@ -2,6 +2,10 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import Anthropic from '@anthropic-ai/sdk'
 import { getLanguageProfile, updateLanguageProfile } from './learningProfile.js'
 import { callClaudeStructured } from './jsonUtils.js'
+import {
+  validateLanguage, validateLevel, validateSubLevel, validateString, validateArray,
+  checkRateLimit, langName, subLevelDescription,
+} from './validate.js'
 
 function getClient() {
   return new Anthropic({
@@ -10,25 +14,6 @@ function getClient() {
 }
 
 const SECRETS = ['ANTHROPIC_API_KEY'] as const
-
-const LANGUAGE_NAMES: Record<string, string> = {
-  en: 'English',
-  fr: 'French',
-  zh: 'Chinese (Simplified)',
-  he: 'Hebrew',
-  de: 'German',
-  it: 'Italian',
-}
-
-function langName(code: string): string {
-  return LANGUAGE_NAMES[code] || 'English'
-}
-
-function subLevelDescription(level: string, subLevel?: string): string {
-  if (!subLevel) return level
-  const desc = subLevel === 'novice' ? 'lower range' : subLevel === 'advanced' ? 'upper range' : 'mid range'
-  return `${level} (${desc})`
-}
 
 function getTenseGuidance(level: string): string {
   if (level === 'A1' || level === 'A2') {
@@ -47,13 +32,13 @@ export const generateVerbFillExercise = onCall(
       throw new HttpsError('unauthenticated', 'Must be logged in')
     }
 
-    const { language, level, subLevel } = request.data as {
-      language: string
-      level: string
-      subLevel?: string
-    }
+    const uid = request.auth.uid
+    const language = validateLanguage(request.data.language)
+    const level = validateLevel(request.data.level)
+    const subLevel = validateSubLevel(request.data.subLevel)
 
-    const uid = request.auth!.uid
+    await checkRateLimit(uid)
+
     const levelLabel = subLevelDescription(level, subLevel)
     const tenseGuidance = getTenseGuidance(level)
     const langProfile = await getLanguageProfile(uid, language)
@@ -74,11 +59,13 @@ Requirements:
 - The text should contain 8-12 conjugated verbs in various tenses
 - Tense guidance for this level: ${tenseGuidance}
 - Each verb should appear naturally in context
+- CRITICAL: Every verb MUST be conjugated in the tense that is grammatically correct for its sentence context. If a sentence uses a past-time marker (e.g., "yesterday", "last week", "hier"), the verb MUST be in past tense. If a sentence uses a future marker, the verb MUST be in future tense. Do NOT use present tense for past events.
+- Use a MIX of time contexts (some sentences about the past, some present, some future) to create variety in tenses.
 ${profileSection}
 
 Return the text as an array of segments alternating between plain text and verb blanks.
 For each verb blank, provide:
-- "infinitive": the dictionary/infinitive form in ${langName(language)} (e.g., "aller" in French, "to go" in English, "gehen" in German, "ללכת" in Hebrew)
+- "infinitive": the dictionary/infinitive form of THE ACTUAL VERB being conjugated in ${langName(language)} (e.g., "aller" in French, "to go" in English, "gehen" in German, "ללכת" in Hebrew). CRITICAL: Double-check that the infinitive is the correct base form of the conjugated verb. For example, in French "ai" comes from "avoir" (not "être"), "suis allé" uses "aller" as the main verb, "est" comes from "être".
 - "correctForm": the exact conjugated form as it appears in the text
 - "index": sequential number starting from 0
 
@@ -114,9 +101,9 @@ CRITICAL formatting rules:
 
       return result
     } catch (error: unknown) {
+      if (error instanceof HttpsError) throw error
       console.error('generateVerbFillExercise error:', error)
-      const message = error instanceof Error ? error.message : 'Unknown error'
-      throw new HttpsError('internal', message)
+      throw new HttpsError('internal', 'Failed to generate exercise')
     }
   }
 )
@@ -128,16 +115,18 @@ export const evaluateVerbFill = onCall(
       throw new HttpsError('unauthenticated', 'Must be logged in')
     }
 
-    const { title, segments, userAnswers, language, level, subLevel } = request.data as {
-      title: string
-      segments: Array<{ type: string; content?: string; infinitive?: string; correctForm?: string; index?: number }>
-      userAnswers: string[]
-      language: string
-      level: string
-      subLevel?: string
-    }
+    const uid = request.auth.uid
+    const title = validateString(request.data.title, 'title', 500)
+    const language = validateLanguage(request.data.language)
+    const level = validateLevel(request.data.level)
+    const subLevel = validateSubLevel(request.data.subLevel)
+    const segments = validateArray(request.data.segments, 'segments', 100) as Array<{
+      type: string; content?: string; infinitive?: string; correctForm?: string; index?: number
+    }>
+    const userAnswers = validateArray(request.data.userAnswers, 'userAnswers', 20) as string[]
 
-    const uid = request.auth!.uid
+    await checkRateLimit(uid)
+
     const levelLabel = subLevelDescription(level, subLevel)
     const langProfile = await getLanguageProfile(uid, language)
 
@@ -243,9 +232,9 @@ Based on this evaluation session${langProfile ? ' and the existing profile' : ''
       const { profileUpdate: _, ...clientEvaluation } = evaluation
       return clientEvaluation
     } catch (error: unknown) {
+      if (error instanceof HttpsError) throw error
       console.error('evaluateVerbFill error:', error)
-      const message = error instanceof Error ? error.message : 'Unknown error'
-      throw new HttpsError('internal', message)
+      throw new HttpsError('internal', 'Failed to evaluate answers')
     }
   }
 )

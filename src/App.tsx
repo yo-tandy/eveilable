@@ -37,6 +37,9 @@ const TenseRewritePage = lazy(() =>
 const VerbFillPage = lazy(() =>
   import('./pages/VerbFillPage').then((m) => ({ default: m.VerbFillPage }))
 )
+const CardRecallPage = lazy(() =>
+  import('./pages/CardRecallPage').then((m) => ({ default: m.CardRecallPage }))
+)
 const ProgressPage = lazy(() =>
   import('./pages/ProgressPage').then((m) => ({ default: m.ProgressPage }))
 )
@@ -146,6 +149,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <VerbFillPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/games/card-recall"
+              element={
+                <ProtectedRoute>
+                  <CardRecallPage />
                 </ProtectedRoute>
               }
             />

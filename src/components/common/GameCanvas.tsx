@@ -19,6 +19,20 @@ interface GameCanvasProps {
 export function GameCanvas({ children }: GameCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState<GameDimensions>({ width: 0, height: 0, size: 0 })
+  const [maxSize, setMaxSize] = useState(800)
+
+  // Track viewport height to cap canvas size
+  useEffect(() => {
+    function updateMaxSize() {
+      // Leave room for header/controls (~160px) above/below the canvas
+      const vh = window.innerHeight
+      const vw = window.innerWidth
+      setMaxSize(Math.min(800, vh - 160, vw))
+    }
+    updateMaxSize()
+    window.addEventListener('resize', updateMaxSize)
+    return () => window.removeEventListener('resize', updateMaxSize)
+  }, [])
 
   useEffect(() => {
     const el = containerRef.current
@@ -42,7 +56,7 @@ export function GameCanvas({ children }: GameCanvasProps) {
         ref={containerRef}
         className="relative w-full mx-auto"
         style={{
-          maxWidth: '800px',
+          maxWidth: `${maxSize}px`,
           aspectRatio: '1',
         }}
       >

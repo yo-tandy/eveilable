@@ -2,6 +2,10 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import Anthropic from '@anthropic-ai/sdk'
 import { getLanguageProfile, updateLanguageProfile } from './learningProfile.js'
 import { callClaudeStructured } from './jsonUtils.js'
+import {
+  validateLanguage, validateLevel, validateSubLevel, validateString,
+  checkRateLimit, langName, subLevelDescription,
+} from './validate.js'
 
 // Lazy-initialize: secret is only available at request time, not module load
 function getClient() {
@@ -12,25 +16,6 @@ function getClient() {
 
 const SECRETS = ['ANTHROPIC_API_KEY'] as const
 
-const LANGUAGE_NAMES: Record<string, string> = {
-  en: 'English',
-  fr: 'French',
-  zh: 'Chinese (Simplified)',
-  he: 'Hebrew',
-  de: 'German',
-  it: 'Italian',
-}
-
-function langName(code: string): string {
-  return LANGUAGE_NAMES[code] || 'English'
-}
-
-function subLevelDescription(level: string, subLevel?: string): string {
-  if (!subLevel) return level
-  const desc = subLevel === 'novice' ? 'lower range' : subLevel === 'advanced' ? 'upper range' : 'mid range'
-  return `${level} (${desc})`
-}
-
 
 export const generateArticle = onCall(
   { timeoutSeconds: 60, memory: '256MiB', secrets: [...SECRETS] },
@@ -39,14 +24,14 @@ export const generateArticle = onCall(
       throw new HttpsError('unauthenticated', 'Must be logged in')
     }
 
-    const { headline, language, level, subLevel } = request.data as {
-      headline: string
-      language: string
-      level: string
-      subLevel?: string
-    }
+    const uid = request.auth.uid
+    const headline = validateString(request.data.headline, 'headline', 500)
+    const language = validateLanguage(request.data.language)
+    const level = validateLevel(request.data.level)
+    const subLevel = validateSubLevel(request.data.subLevel)
 
-    const uid = request.auth!.uid
+    await checkRateLimit(uid)
+
     const langProfile = await getLanguageProfile(uid, language)
 
     const profileSection = langProfile
@@ -118,9 +103,9 @@ ${profileSection}`,
         level,
       }
     } catch (error: unknown) {
-      console.error('Function error:', error)
-      const message = error instanceof Error ? error.message : 'Unknown error'
-      throw new HttpsError('internal', message)
+      if (error instanceof HttpsError) throw error
+      console.error('generateArticle error:', error)
+      throw new HttpsError('internal', 'Failed to generate article')
     }
   }
 )
@@ -132,10 +117,11 @@ export const generateQuestions = onCall(
       throw new HttpsError('unauthenticated', 'Must be logged in')
     }
 
-    const { article, language } = request.data as {
-      article: string
-      language: string
-    }
+    const uid = request.auth.uid
+    const article = validateString(request.data.article, 'article', 10000)
+    const language = validateLanguage(request.data.language)
+
+    await checkRateLimit(uid)
 
     try {
       const result = await callClaudeStructured(
@@ -176,9 +162,9 @@ Requirements:
 
       return { questions: result.questions }
     } catch (error: unknown) {
-      console.error('Function error:', error)
-      const message = error instanceof Error ? error.message : 'Unknown error'
-      throw new HttpsError('internal', message)
+      if (error instanceof HttpsError) throw error
+      console.error('generateQuestions error:', error)
+      throw new HttpsError('internal', 'Failed to generate questions')
     }
   }
 )
@@ -190,17 +176,16 @@ export const evaluateSummary = onCall(
       throw new HttpsError('unauthenticated', 'Must be logged in')
     }
 
-    const { article, summary, language, level, wordLimit, subLevel } = request.data as {
-      article: string
-      summary: string
-      language: string
-      level: string
-      wordLimit?: { min: number; max: number }
-      subLevel?: string
-    }
+    const uid = request.auth.uid
+    const article = validateString(request.data.article, 'article', 10000)
+    const summary = validateString(request.data.summary, 'summary', 1000)
+    const language = validateLanguage(request.data.language)
+    const level = validateLevel(request.data.level)
+    const subLevel = validateSubLevel(request.data.subLevel)
 
-    const uid = request.auth!.uid
-    const wl = wordLimit ?? { min: 10, max: 100 }
+    await checkRateLimit(uid)
+
+    const wl = request.data.wordLimit ?? { min: 10, max: 100 }
     const levelLabel = subLevelDescription(level, subLevel)
     const langProfile = await getLanguageProfile(uid, language)
 
@@ -296,9 +281,9 @@ Based on this evaluation session${langProfile ? ' and the existing profile' : ''
       const { profileUpdate: _, ...clientEvaluation } = evaluation
       return clientEvaluation
     } catch (error: unknown) {
-      console.error('Function error:', error)
-      const message = error instanceof Error ? error.message : 'Unknown error'
-      throw new HttpsError('internal', message)
+      if (error instanceof HttpsError) throw error
+      console.error('evaluateSummary error:', error)
+      throw new HttpsError('internal', 'Failed to evaluate summary')
     }
   }
 )

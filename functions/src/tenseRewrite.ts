@@ -2,6 +2,10 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import Anthropic from '@anthropic-ai/sdk'
 import { getLanguageProfile, updateLanguageProfile } from './learningProfile.js'
 import { callClaudeStructured } from './jsonUtils.js'
+import {
+  validateLanguage, validateLevel, validateSubLevel, validateArray,
+  checkRateLimit, langName, subLevelDescription,
+} from './validate.js'
 
 function getClient() {
   return new Anthropic({
@@ -10,25 +14,6 @@ function getClient() {
 }
 
 const SECRETS = ['ANTHROPIC_API_KEY'] as const
-
-const LANGUAGE_NAMES: Record<string, string> = {
-  en: 'English',
-  fr: 'French',
-  zh: 'Chinese (Simplified)',
-  he: 'Hebrew',
-  de: 'German',
-  it: 'Italian',
-}
-
-function langName(code: string): string {
-  return LANGUAGE_NAMES[code] || 'English'
-}
-
-function subLevelDescription(level: string, subLevel?: string): string {
-  if (!subLevel) return level
-  const desc = subLevel === 'novice' ? 'lower range' : subLevel === 'advanced' ? 'upper range' : 'mid range'
-  return `${level} (${desc})`
-}
 
 function getTransformationTypes(level: string): string {
   const base = 'future-tense, past-tense, present-tense, negation, question-form'
@@ -50,13 +35,13 @@ export const generateTenseExercises = onCall(
       throw new HttpsError('unauthenticated', 'Must be logged in')
     }
 
-    const { language, level, subLevel } = request.data as {
-      language: string
-      level: string
-      subLevel?: string
-    }
+    const uid = request.auth.uid
+    const language = validateLanguage(request.data.language)
+    const level = validateLevel(request.data.level)
+    const subLevel = validateSubLevel(request.data.subLevel)
 
-    const uid = request.auth!.uid
+    await checkRateLimit(uid)
+
     const allowedTypes = getTransformationTypes(level)
     const levelLabel = subLevelDescription(level, subLevel)
     const langProfile = await getLanguageProfile(uid, language)
@@ -104,9 +89,9 @@ ${profileSection}`,
 
       return { exercises: result.exercises }
     } catch (error: unknown) {
+      if (error instanceof HttpsError) throw error
       console.error('generateTenseExercises error:', error)
-      const message = error instanceof Error ? error.message : 'Unknown error'
-      throw new HttpsError('internal', message)
+      throw new HttpsError('internal', 'Failed to generate exercises')
     }
   }
 )
@@ -118,20 +103,20 @@ export const evaluateTenseRewrites = onCall(
       throw new HttpsError('unauthenticated', 'Must be logged in')
     }
 
-    const { exercises, userRewrites, language, level, subLevel } = request.data as {
-      exercises: Array<{
-        original: string
-        taskDescription: string
-        transformationType: string
-        referenceSolution: string
-      }>
-      userRewrites: string[]
-      language: string
-      level: string
-      subLevel?: string
-    }
+    const uid = request.auth.uid
+    const language = validateLanguage(request.data.language)
+    const level = validateLevel(request.data.level)
+    const subLevel = validateSubLevel(request.data.subLevel)
+    const exercises = validateArray(request.data.exercises, 'exercises', 20) as Array<{
+      original: string
+      taskDescription: string
+      transformationType: string
+      referenceSolution: string
+    }>
+    const userRewrites = validateArray(request.data.userRewrites, 'userRewrites', 20) as string[]
 
-    const uid = request.auth!.uid
+    await checkRateLimit(uid)
+
     const levelLabel = subLevelDescription(level, subLevel)
     const langProfile = await getLanguageProfile(uid, language)
 
@@ -225,9 +210,9 @@ Based on this evaluation session${langProfile ? ' and the existing profile' : ''
       const { profileUpdate: _, ...clientEvaluation } = evaluation
       return clientEvaluation
     } catch (error: unknown) {
+      if (error instanceof HttpsError) throw error
       console.error('evaluateTenseRewrites error:', error)
-      const message = error instanceof Error ? error.message : 'Unknown error'
-      throw new HttpsError('internal', message)
+      throw new HttpsError('internal', 'Failed to evaluate rewrites')
     }
   }
 )

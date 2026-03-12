@@ -99,7 +99,7 @@ export function PlayingPhase({ exercise, language, onComplete }: PlayingPhasePro
                 onChange={e => handleInputChange(verbIdx, e.target.value)}
                 onKeyDown={e => handleKeyDown(e, verbIdx)}
                 className="glass-input px-2 py-0.5 rounded-lg text-lg font-medium text-center border-b-2 border-amber-400/50 focus:border-amber-500"
-                style={{ width: `${Math.max(seg.correctForm!.length * 0.7, 4)}ch` }}
+                style={{ width: `${Math.max(seg.correctForm!.length * 1.2, 5)}ch` }}
                 dir={isRTL ? 'rtl' : 'ltr'}
                 autoFocus={verbIdx === 0}
                 autoComplete="off"

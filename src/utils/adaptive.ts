@@ -38,11 +38,35 @@ const ICON_SWAP_TABLE: DifficultyParams[] = Array.from({ length: 20 }, (_, i) =>
   }
 })
 
+const CARD_RECALL_TABLE: DifficultyParams[] = Array.from({ length: 20 }, (_, i) => {
+  const level = i + 1
+  const sequenceLength =
+    level <= 3 ? 2 :
+    level <= 6 ? 3 :
+    level <= 9 ? 4 :
+    level <= 12 ? 5 :
+    level <= 14 ? 6 :
+    level <= 16 ? 7 :
+    level <= 18 ? 8 :
+    level <= 19 ? 9 : 10
+  return {
+    level,
+    flashDurationMs: 0,
+    peripheralDistance: 0,
+    distractorCount: 0,
+    distractorSimilarity: 0,
+    sequenceLength,
+    cardDisplayTimeMs: Math.round(3000 - (level - 1) * (1500 / 19)),  // 3000ms -> 1500ms
+    distractorCardCount: Math.min(4 + Math.floor(level / 5), 8),       // 4 -> 8
+  }
+})
+
 export function getDifficultyParams(level: number, gameType: GameType): DifficultyParams {
   const clamped = Math.max(1, Math.min(20, level))
   const table =
     gameType === 'double-decision' ? DOUBLE_DECISION_TABLE :
     gameType === 'icon-swap' ? ICON_SWAP_TABLE :
+    gameType === 'card-recall' ? CARD_RECALL_TABLE :
     DIVIDED_ATTENTION_TABLE
   return table[clamped - 1]
 }
