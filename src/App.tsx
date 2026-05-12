@@ -43,6 +43,9 @@ const CardRecallPage = lazy(() =>
 const SentenceMemoryPage = lazy(() =>
   import('./pages/SentenceMemoryPage').then((m) => ({ default: m.SentenceMemoryPage }))
 )
+const OralWritingPage = lazy(() =>
+  import('./pages/OralWritingPage').then((m) => ({ default: m.OralWritingPage }))
+)
 const ProgressPage = lazy(() =>
   import('./pages/ProgressPage').then((m) => ({ default: m.ProgressPage }))
 )
@@ -168,6 +171,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <SentenceMemoryPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/games/oral-writing"
+              element={
+                <ProtectedRoute>
+                  <OralWritingPage />
                 </ProtectedRoute>
               }
             />

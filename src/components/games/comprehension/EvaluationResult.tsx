@@ -236,7 +236,7 @@ export function EvaluationResult({
           {t('common.playAgain')}
         </button>
         <button
-          onClick={() => navigate('/progress')}
+          onClick={() => navigate('/progress?game=comprehension')}
           className="flex-1 py-3 bg-black/75 backdrop-blur-sm text-white rounded-xl font-semibold hover:scale-[1.02] transition-transform"
         >
           {t('common.viewProgress')}

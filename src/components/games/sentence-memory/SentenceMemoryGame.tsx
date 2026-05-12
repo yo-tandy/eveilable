@@ -7,7 +7,8 @@ import { updateAggregateStats } from '../../../services/firestoreService'
 import { fetchSentences, evaluateLocally } from '../../../services/sentenceMemoryService'
 import { checkLevelProgression } from '../../../utils/levelProgression'
 import { fetchRecentLanguageScores } from '../../../services/firestoreService'
-import { LanguageSelector } from '../comprehension/LanguageSelector'
+import { LanguageGameIntro } from '../../common/LanguageGameIntro'
+import { Type } from 'lucide-react'
 import { KeyboardCheck } from '../comprehension/KeyboardCheck'
 import { PlayingPhase } from './PlayingPhase'
 import { SentenceMemoryResult } from './SentenceMemoryResult'
@@ -135,14 +136,13 @@ export function SentenceMemoryGame() {
   switch (phase) {
     case 'language-select':
       return (
-        <div>
-          {error && (
-            <div className="max-w-lg mx-auto mb-4 p-4 bg-red-500/10 border border-red-500/20 text-red-700 rounded-xl text-sm">
-              {error}
-            </div>
-          )}
-          <LanguageSelector onSelect={handleLanguageSelected} />
-        </div>
+        <LanguageGameIntro
+          gameKey="sentenceMemory"
+          icon={Type}
+          color="cyan"
+          error={error}
+          onSelect={handleLanguageSelected}
+        />
       )
     case 'keyboard-check':
       return <KeyboardCheck language={language} onConfirm={handleKeyboardConfirm} />

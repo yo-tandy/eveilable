@@ -15,6 +15,31 @@ const LANGUAGE_MAP: Record<string, string> = {
   it: 'it',
 }
 
+// Broad topic queries per language — a random one is picked each request for variety
+const TOPIC_QUERIES: Record<string, string[]> = {
+  en: ['technology', 'health', 'science', 'environment', 'business', 'culture', 'sports', 'education', 'travel', 'food', 'space', 'climate', 'innovation', 'wildlife', 'music'],
+  fr: ['technologie', 'santé', 'science', 'environnement', 'économie', 'culture', 'sport', 'éducation', 'voyage', 'alimentation', 'espace', 'climat', 'innovation', 'nature', 'musique'],
+  zh: ['科技', '健康', '科学', '环境', '经济', '文化', '体育', '教育', '旅游', '美食', '太空', '气候', '创新', '自然', '音乐'],
+  he: ['טכנולוגיה', 'בריאות', 'מדע', 'סביבה', 'כלכלה', 'תרבות', 'ספורט', 'חינוך', 'טיולים', 'אוכל', 'חלל', 'אקלים', 'חדשנות', 'טבע', 'מוזיקה'],
+  de: ['Technologie', 'Gesundheit', 'Wissenschaft', 'Umwelt', 'Wirtschaft', 'Kultur', 'Sport', 'Bildung', 'Reisen', 'Ernährung', 'Weltraum', 'Klima', 'Innovation', 'Natur', 'Musik'],
+  it: ['tecnologia', 'salute', 'scienza', 'ambiente', 'economia', 'cultura', 'sport', 'educazione', 'viaggi', 'alimentazione', 'spazio', 'clima', 'innovazione', 'natura', 'musica'],
+}
+
+function getDateDaysAgo(days: number): string {
+  const date = new Date()
+  date.setDate(date.getDate() - days)
+  return date.toISOString().split('T')[0] // YYYY-MM-DD
+}
+
+function pickRandom<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)]
+}
+
+function shuffleAndTake<T>(arr: T[], n: number): T[] {
+  const shuffled = [...arr].sort(() => Math.random() - 0.5)
+  return shuffled.slice(0, n)
+}
+
 // Fallback headlines when NEWS_API_KEY is not configured
 const FALLBACK_HEADLINES: Record<string, { title: string; description: string; source: string }[]> = {
   en: [
@@ -70,35 +95,70 @@ export const fetchNews = onCall(
 
     const language = validateLanguage(request.data.language ?? 'en')
 
+    const apiLang = LANGUAGE_MAP[language] || 'en'
+
     // If no NEWS_API_KEY, return fallback headlines
     if (!NEWS_API_KEY) {
-      const lang = LANGUAGE_MAP[language] || 'en'
-      const headlines = FALLBACK_HEADLINES[lang] || FALLBACK_HEADLINES['en']
+      const headlines = FALLBACK_HEADLINES[apiLang] || FALLBACK_HEADLINES['en']
       return { headlines }
     }
 
-    const apiLang = LANGUAGE_MAP[language] || 'en'
-    const url = `https://newsapi.org/v2/top-headlines?language=${apiLang}&pageSize=5&apiKey=${NEWS_API_KEY}`
+    // Pick a random topic to get diverse content across sessions
+    const topics = TOPIC_QUERIES[apiLang] || TOPIC_QUERIES['en']
+    const topic = pickRandom(topics)
+    const fromDate = getDateDaysAgo(3)
+
+    // Use "everything" endpoint for date filtering and much larger article pool
+    const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(topic)}&language=${apiLang}&from=${fromDate}&sortBy=publishedAt&pageSize=20&apiKey=${NEWS_API_KEY}`
 
     try {
       const response = await fetch(url)
       const data = await response.json()
 
-      if (data.status !== 'ok') {
-        throw new Error('News API returned error status')
+      if (data.status !== 'ok' || !data.articles?.length) {
+        // Fall back to top-headlines if everything returns nothing
+        console.warn(`NewsAPI everything returned no results for "${topic}" in ${apiLang}, trying top-headlines`)
+        const fallbackUrl = `https://newsapi.org/v2/top-headlines?language=${apiLang}&pageSize=10&apiKey=${NEWS_API_KEY}`
+        const fallbackResp = await fetch(fallbackUrl)
+        const fallbackData = await fallbackResp.json()
+
+        if (fallbackData.status === 'ok' && fallbackData.articles?.length) {
+          const headlines = fallbackData.articles
+            .filter((a: { title: string }) => a.title && a.title !== '[Removed]')
+            .map((article: { title: string; description: string; source: { name: string } }) => ({
+              title: article.title,
+              description: article.description || '',
+              source: article.source?.name || '',
+            }))
+          return { headlines: shuffleAndTake(headlines, 5) }
+        }
+
+        // Last resort: hardcoded fallbacks
+        const staticHeadlines = FALLBACK_HEADLINES[apiLang] || FALLBACK_HEADLINES['en']
+        return { headlines: staticHeadlines }
       }
 
-      const headlines = data.articles.map((article: { title: string; description: string; source: { name: string } }) => ({
-        title: article.title,
-        description: article.description,
-        source: article.source?.name,
-      }))
+      // Filter out removed/empty articles and pick 5 random ones from the 20
+      const validArticles = data.articles.filter(
+        (a: { title: string; description: string }) =>
+          a.title && a.title !== '[Removed]' && a.description
+      )
 
-      return { headlines }
+      const headlines = validArticles.map(
+        (article: { title: string; description: string; source: { name: string } }) => ({
+          title: article.title,
+          description: article.description,
+          source: article.source?.name || '',
+        })
+      )
+
+      return { headlines: shuffleAndTake(headlines, 5) }
     } catch (error: unknown) {
       if (error instanceof HttpsError) throw error
       console.error('fetchNews error:', error)
-      throw new HttpsError('internal', 'Failed to fetch news')
+      // On any error, return static fallbacks instead of failing
+      const staticHeadlines = FALLBACK_HEADLINES[apiLang] || FALLBACK_HEADLINES['en']
+      return { headlines: staticHeadlines }
     }
   }
 )

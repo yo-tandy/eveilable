@@ -207,6 +207,7 @@ ${summary}
 Language: ${langName(language)}
 Expected CEFR level: ${levelLabel}
 Word limit: ${wl.min}–${wl.max} words
+Actual word count: ${summary.trim().split(/\s+/).filter(Boolean).length} words (use this count; do not count words independently)
 
 IMPORTANT SCORING GUIDELINES:
 

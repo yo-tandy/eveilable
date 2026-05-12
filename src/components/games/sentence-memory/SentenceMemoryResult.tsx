@@ -150,7 +150,7 @@ export function SentenceMemoryResult({ result, timesMs, language, levelNotificat
           {t('common.playAgain')}
         </button>
         <button
-          onClick={() => navigate('/progress')}
+          onClick={() => navigate('/progress?game=sentence-memory')}
           className="flex-1 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 glass hover:scale-[1.02] transition-transform text-gray-700"
         >
           <BarChart3 size={18} />

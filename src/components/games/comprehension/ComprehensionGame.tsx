@@ -8,7 +8,8 @@ import { fetchAndGenerateArticle } from '../../../services/newsService'
 import { evaluateSummary } from '../../../services/claudeService'
 import { checkLevelProgression } from '../../../utils/levelProgression'
 import { fetchRecentLanguageScores } from '../../../services/firestoreService'
-import { LanguageSelector } from './LanguageSelector'
+import { LanguageGameIntro } from '../../common/LanguageGameIntro'
+import { BookOpen } from 'lucide-react'
 import { ModeSelector } from './ModeSelector'
 import { KeyboardCheck } from './KeyboardCheck'
 import { ArticleReader } from './ArticleReader'
@@ -188,7 +189,14 @@ export function ComprehensionGame() {
 
   switch (phase) {
     case 'language-select':
-      return <LanguageSelector onSelect={handleLanguageSelected} />
+      return (
+        <LanguageGameIntro
+          gameKey="comprehension"
+          icon={BookOpen}
+          color="emerald"
+          onSelect={handleLanguageSelected}
+        />
+      )
     case 'keyboard-check':
       return <KeyboardCheck language={language} onConfirm={() => setPhase('mode-select')} />
     case 'mode-select':

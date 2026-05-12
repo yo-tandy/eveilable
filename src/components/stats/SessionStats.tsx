@@ -5,14 +5,15 @@ import { ResponseTimeChart } from './ResponseTimeChart'
 import { DifficultyChart } from './DifficultyChart'
 import { PerformanceRating } from './PerformanceRating'
 import { computeSessionStats, computePerformanceRating } from '../../services/statsService'
-import type { Trial } from '../../types/game'
+import type { Trial, GameType } from '../../types/game'
 
 interface SessionStatsProps {
   trials: Trial[]
+  gameType: GameType
   onPlayAgain: () => void
 }
 
-export function SessionStats({ trials, onPlayAgain }: SessionStatsProps) {
+export function SessionStats({ trials, gameType, onPlayAgain }: SessionStatsProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
 
@@ -82,7 +83,7 @@ export function SessionStats({ trials, onPlayAgain }: SessionStatsProps) {
           {t('common.playAgain')}
         </button>
         <button
-          onClick={() => navigate('/progress')}
+          onClick={() => navigate(`/progress?game=${gameType}`)}
           className="flex-1 py-3 bg-brand-600 text-white rounded-xl font-medium hover:bg-brand-700"
         >
           {t('common.viewProgress')}

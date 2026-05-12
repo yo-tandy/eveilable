@@ -1,19 +1,29 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
 import { getAggregateStats, fetchSessionHistory } from '../services/firestoreService'
 import { TrendChart } from '../components/progress/TrendChart'
 import { GoalTracker } from '../components/progress/GoalTracker'
 import { GameHistoryList } from '../components/progress/GameHistoryList'
 import { LoadingSpinner } from '../components/common/LoadingSpinner'
-import { CATEGORIES, getGamesByCategory, getGameClasses } from '../config/games'
+import { CATEGORIES, GAMES, getGamesByCategory, getGameClasses } from '../config/games'
 import type { GameType, GameSession } from '../types/game'
 import type { AggregateStats } from '../types/user'
+
+function getInitialTab(searchParams: URLSearchParams): GameType {
+  const game = searchParams.get('game')
+  if (game && GAMES.some(g => g.id === game)) {
+    return game as GameType
+  }
+  return 'divided-attention'
+}
 
 export function ProgressPage() {
   const { t } = useTranslation()
   const { user } = useAuthStore()
-  const [activeTab, setActiveTab] = useState<GameType>('divided-attention')
+  const [searchParams] = useSearchParams()
+  const [activeTab, setActiveTab] = useState<GameType>(() => getInitialTab(searchParams))
   const [sessions, setSessions] = useState<GameSession[]>([])
   const [stats, setStats] = useState<AggregateStats | null>(null)
   const [loading, setLoading] = useState(true)

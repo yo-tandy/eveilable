@@ -14,25 +14,29 @@ export function useGameSession(gameType: GameType) {
   const startSession = useCallback(async (startLevel: number) => {
     if (!user) return
 
-    const sessionsRef = collection(db, 'users', user.uid, 'sessions')
-    const sessionDoc = doc(sessionsRef)
-    sessionIdRef.current = sessionDoc.id
-    sessionStartRef.current = Timestamp.now()
+    try {
+      const sessionsRef = collection(db, 'users', user.uid, 'sessions')
+      const sessionDoc = doc(sessionsRef)
+      sessionIdRef.current = sessionDoc.id
+      sessionStartRef.current = Timestamp.now()
 
-    await setDoc(sessionDoc, {
-      id: sessionDoc.id,
-      gameType,
-      startedAt: sessionStartRef.current,
-      totalTrials: 0,
-      correctTrials: 0,
-      accuracy: 0,
-      averageResponseTimeMs: 0,
-      finalDifficulty: startLevel,
-      difficultyProgression: [],
-      performanceRating: 0,
-    })
+      await setDoc(sessionDoc, {
+        id: sessionDoc.id,
+        gameType,
+        startedAt: sessionStartRef.current,
+        totalTrials: 0,
+        correctTrials: 0,
+        accuracy: 0,
+        averageResponseTimeMs: 0,
+        finalDifficulty: startLevel,
+        difficultyProgression: [],
+        performanceRating: 0,
+      })
 
-    return sessionDoc.id
+      return sessionDoc.id
+    } catch (err) {
+      console.error('[useGameSession] startSession failed:', err)
+    }
   }, [user, gameType])
 
   const saveTrial = useCallback(async (trial: Trial) => {
@@ -49,18 +53,22 @@ export function useGameSession(gameType: GameType) {
   const flushTrials = useCallback(async () => {
     if (!user || !sessionIdRef.current || trialBatchRef.current.length === 0) return
 
-    const batch = writeBatch(db)
-    const trialsRef = collection(
-      db, 'users', user.uid, 'sessions', sessionIdRef.current, 'trials'
-    )
+    try {
+      const batch = writeBatch(db)
+      const trialsRef = collection(
+        db, 'users', user.uid, 'sessions', sessionIdRef.current, 'trials'
+      )
 
-    for (const trial of trialBatchRef.current) {
-      const trialDoc = doc(trialsRef)
-      batch.set(trialDoc, trial)
+      for (const trial of trialBatchRef.current) {
+        const trialDoc = doc(trialsRef)
+        batch.set(trialDoc, trial)
+      }
+
+      await batch.commit()
+      trialBatchRef.current = []
+    } catch (err) {
+      console.error('[useGameSession] flushTrials failed:', err)
     }
-
-    await batch.commit()
-    trialBatchRef.current = []
   }, [user])
 
   const endSession = useCallback(async (
@@ -70,36 +78,40 @@ export function useGameSession(gameType: GameType) {
   ) => {
     if (!user || !sessionIdRef.current) return
 
-    // Flush remaining trials
-    await flushTrials()
+    try {
+      // Flush remaining trials
+      await flushTrials()
 
-    const correctTrials = trials.filter((t) => t.correct).length
-    const totalTime = trials.reduce((sum, t) => sum + t.responseTimeMs, 0)
-    const accuracy = trials.length > 0 ? correctTrials / trials.length : 0
-    const averageResponseTimeMs = trials.length > 0 ? totalTime / trials.length : 0
+      const correctTrials = trials.filter((t) => t.correct).length
+      const totalTime = trials.reduce((sum, t) => sum + t.responseTimeMs, 0)
+      const accuracy = trials.length > 0 ? correctTrials / trials.length : 0
+      const averageResponseTimeMs = trials.length > 0 ? totalTime / trials.length : 0
 
-    const sessionData: GameSession = {
-      id: sessionIdRef.current,
-      gameType,
-      startedAt: sessionStartRef.current ?? Timestamp.now(),
-      endedAt: Timestamp.now(),
-      totalTrials: trials.length,
-      correctTrials,
-      accuracy,
-      averageResponseTimeMs,
-      finalDifficulty,
-      difficultyProgression: trials.map((t) => t.difficultyLevel),
-      performanceRating,
+      const sessionData: GameSession = {
+        id: sessionIdRef.current,
+        gameType,
+        startedAt: sessionStartRef.current ?? Timestamp.now(),
+        endedAt: Timestamp.now(),
+        totalTrials: trials.length,
+        correctTrials,
+        accuracy,
+        averageResponseTimeMs,
+        finalDifficulty,
+        difficultyProgression: trials.map((t) => t.difficultyLevel),
+        performanceRating,
+      }
+
+      const sessionRef = doc(db, 'users', user.uid, 'sessions', sessionIdRef.current)
+      await setDoc(sessionRef, sessionData, { merge: true })
+
+      // Update aggregate stats so Progress page has data
+      await updateAggregateStats(user.uid, gameType, sessionData)
+
+      sessionIdRef.current = null
+      sessionStartRef.current = null
+    } catch (err) {
+      console.error('[useGameSession] endSession failed:', err)
     }
-
-    const sessionRef = doc(db, 'users', user.uid, 'sessions', sessionIdRef.current)
-    await setDoc(sessionRef, sessionData, { merge: true })
-
-    // Update aggregate stats so Progress page has data
-    await updateAggregateStats(user.uid, gameType, sessionData)
-
-    sessionIdRef.current = null
-    sessionStartRef.current = null
   }, [user, gameType, flushTrials])
 
   return { startSession, saveTrial, endSession }

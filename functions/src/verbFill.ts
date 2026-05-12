@@ -65,14 +65,20 @@ ${profileSection}
 
 Return the text as an array of segments alternating between plain text and verb blanks.
 For each verb blank, provide:
-- "infinitive": the dictionary/infinitive form of THE ACTUAL VERB being conjugated in ${langName(language)} (e.g., "aller" in French, "to go" in English, "gehen" in German, "ללכת" in Hebrew). CRITICAL: Double-check that the infinitive is the correct base form of the conjugated verb. For example, in French "ai" comes from "avoir" (not "être"), "suis allé" uses "aller" as the main verb, "est" comes from "être".
+- "infinitive": the dictionary/infinitive form of the verb whose conjugated form fills the blank in ${langName(language)} (e.g., "aller" in French, "to go" in English, "gehen" in German, "ללכת" in Hebrew). CRITICAL: The infinitive MUST correspond to the word the learner types. For example, in French "ai" comes from "avoir", "est" comes from "être".
 - "correctForm": the exact conjugated form as it appears in the text
 - "index": sequential number starting from 0
+
+CRITICAL rules for compound verb constructions:
+- In periphrastic/compound forms (futur proche, passé composé, etc.), make ONLY ONE word the blank — either the auxiliary OR the main verb, never both.
+- For futur proche ("aller + infinitive"): if you blank the infinitive part, the infinitive hint must be THAT verb (e.g., for "je vais organiser", if blanking "organiser", the infinitive hint is "organiser", NOT "aller"). If you blank "vais", the infinitive hint is "aller".
+- For passé composé ("avoir/être + past participle"): if blanking the past participle "allé" in "suis allé", the infinitive is "aller". If blanking "suis", the infinitive is "être".
+- NEVER create a blank where the correctForm is an infinitive that matches the infinitive hint — that would make it trivially obvious. Prefer blanking conjugated forms.
 
 CRITICAL formatting rules:
 - Text segments must include ALL spacing and punctuation
 - The segments must reconstruct the complete text when concatenated
-- Verb segments replace ONLY the conjugated verb form, not surrounding spaces
+- Verb segments replace ONLY a single conjugated verb form (one word), not surrounding spaces or adjacent verbs
 - Include spaces in the adjacent text segments`,
         {
           type: 'object',

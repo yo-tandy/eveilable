@@ -5,7 +5,7 @@ import { getFirestore, Timestamp } from 'firebase-admin/firestore'
 
 const VALID_LANGUAGES = ['en', 'fr', 'zh', 'he', 'de', 'it']
 const VALID_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
-const VALID_SUB_LEVELS = ['novice', 'mid', 'advanced']
+const VALID_SUB_LEVELS = ['novice', 'well-placed', 'advanced']
 
 export function validateLanguage(lang: unknown): string {
   if (typeof lang !== 'string' || !VALID_LANGUAGES.includes(lang)) {

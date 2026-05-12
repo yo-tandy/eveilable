@@ -65,10 +65,9 @@ export function LanguageSelector({ onSelect }: LanguageSelectorProps) {
             onClick={() => setSelectedLang(lang.code)}
             className={`p-4 rounded-xl text-left transition-all ${
               selectedLang === lang.code
-                ? 'glass-strong shadow-sm'
+                ? 'bg-white/70 ring-2 ring-indigo-500 shadow-md'
                 : 'glass hover:bg-white/50'
             }`}
-            style={selectedLang === lang.code ? { borderColor: 'rgba(0,0,0,0.2)' } : undefined}
           >
             <span className="text-lg font-bold">{lang.flag}</span>
             <span className="block mt-1 font-medium">{lang.name}</span>
@@ -95,10 +94,9 @@ export function LanguageSelector({ onSelect }: LanguageSelectorProps) {
                 }}
                 className={`p-3 rounded-xl text-center transition-all ${
                   selectedLevel === lvl.code
-                    ? 'glass-strong shadow-sm'
+                    ? 'bg-white/70 ring-2 ring-indigo-500 shadow-md'
                     : 'glass hover:bg-white/50'
                 }`}
-                style={selectedLevel === lvl.code ? { borderColor: 'rgba(0,0,0,0.2)' } : undefined}
               >
                 <span className="block text-lg font-bold">{lvl.code}</span>
                 <span className="block text-sm text-gray-500">{lvl.description}</span>
@@ -121,10 +119,9 @@ export function LanguageSelector({ onSelect }: LanguageSelectorProps) {
                 onClick={() => setSelectedSubLevel(sub.code)}
                 className={`p-3 rounded-xl text-center transition-all ${
                   selectedSubLevel === sub.code
-                    ? 'glass-strong shadow-sm'
+                    ? 'bg-white/70 ring-2 ring-indigo-500 shadow-md'
                     : 'glass hover:bg-white/50'
                 }`}
-                style={selectedSubLevel === sub.code ? { borderColor: 'rgba(0,0,0,0.2)' } : undefined}
               >
                 <span className="block text-sm font-bold">{sub.label}</span>
                 <span className="block text-xs text-gray-500">{sub.description}</span>

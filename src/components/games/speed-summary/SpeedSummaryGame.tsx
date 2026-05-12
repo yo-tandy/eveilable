@@ -9,7 +9,8 @@ import type { ParagraphResult } from '../../../services/paragraphService'
 import { evaluateSummary } from '../../../services/claudeService'
 import { checkLevelProgression } from '../../../utils/levelProgression'
 import { fetchRecentLanguageScores } from '../../../services/firestoreService'
-import { LanguageSelector } from '../comprehension/LanguageSelector'
+import { LanguageGameIntro } from '../../common/LanguageGameIntro'
+import { Zap } from 'lucide-react'
 import { KeyboardCheck } from '../comprehension/KeyboardCheck'
 import { PlayingPhase } from './PlayingPhase'
 import { SpeedSummaryResult } from './SpeedSummaryResult'
@@ -148,14 +149,13 @@ export function SpeedSummaryGame() {
   switch (phase) {
     case 'language-select':
       return (
-        <div>
-          {error && (
-            <div className="max-w-lg mx-auto mb-4 p-4 bg-red-500/10 border border-red-500/20 text-red-700 rounded-xl text-sm">
-              {error}
-            </div>
-          )}
-          <LanguageSelector onSelect={handleLanguageSelected} />
-        </div>
+        <LanguageGameIntro
+          gameKey="speedSummary"
+          icon={Zap}
+          color="purple"
+          error={error}
+          onSelect={handleLanguageSelected}
+        />
       )
     case 'keyboard-check':
       return <KeyboardCheck language={language} onConfirm={handleKeyboardConfirm} />
