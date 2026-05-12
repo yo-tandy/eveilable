@@ -38,6 +38,9 @@
     "comprehension": {
       "name": "Comprehension",
       "description": "Read, understand, and summarize current news",
+      "instructions1": "Read an article carefully in your chosen language.",
+      "instructions2": "Answer comprehension questions to test your understanding.",
+      "instructions3": "Write a brief summary to practice expressing key ideas.",
       "results": {
         "yourAnswer": "Your answer",
         "correctAnswer": "Correct answer",
@@ -56,6 +59,9 @@
     "speedSummary": {
       "name": "Speed Summary",
       "description": "Quickly summarize a news paragraph in 10–20 words",
+      "instructions1": "Read a short paragraph in your chosen language.",
+      "instructions2": "Summarize it in 10–20 words as quickly as you can.",
+      "instructions3": "Accuracy and speed both count toward your score.",
       "writeSummary": "Write a summary in 10–20 words",
       "words": "words",
       "submit": "Submit Summary",
@@ -73,6 +79,9 @@
     "tenseRewrite": {
       "name": "Tense Rewrite",
       "description": "Rewrite sentences with grammatical transformations",
+      "instructions1": "You'll see sentences with a grammatical transformation to apply.",
+      "instructions2": "Rewrite each sentence with the correct tense, mood, or structure.",
+      "instructions3": "Accuracy of grammar and spelling are both evaluated.",
       "yourRewrite": "Your rewrite...",
       "next": "Next",
       "submitAll": "Submit All",
@@ -87,6 +96,9 @@
     "verbFill": {
       "name": "Verb Fill",
       "description": "Fill in the correct verb conjugations in context",
+      "instructions1": "Read a short story with missing verb forms.",
+      "instructions2": "Fill in each blank with the correct conjugation.",
+      "instructions3": "Pay attention to tense, subject, and context clues.",
       "submitAll": "Submit All",
       "results": "Verb Fill Results",
       "overallScore": "Overall Score",
@@ -106,6 +118,9 @@
     "sentenceMemory": {
       "name": "Sentence Memory",
       "description": "Memorize and reproduce sentences with exact spelling and punctuation",
+      "instructions1": "A sentence will appear on screen for you to memorize.",
+      "instructions2": "After it disappears, type it back exactly — including accents and punctuation.",
+      "instructions3": "You'll complete 10 rounds at your chosen difficulty level.",
       "memorize": "Memorize this sentence",
       "typeFromMemory": "Type from memory",
       "placeholder": "Type the sentence exactly as you remember it...",
@@ -117,6 +132,31 @@
       "avgTime": "Avg. Time",
       "original": "Original",
       "yourInput": "Your input"
+    },
+    "oralWriting": {
+      "name": "Oral Writing",
+      "description": "Listen to a text and write it down with exact spelling and punctuation",
+      "instructions1": "A short text will be read aloud — it will not appear on screen.",
+      "instructions2": "Listen carefully and type exactly what you hear, including punctuation and accents.",
+      "instructions3": "Use the playback controls to adjust speed, pause, or replay the audio.",
+      "typeWhatYouHear": "Type what you hear...",
+      "words": "words",
+      "toSubmit": "to submit",
+      "submit": "Submit",
+      "restart": "Restart",
+      "jumpBack": "Previous sentence",
+      "repeatMode": "Repeat each sentence twice",
+      "pacedMode": "Paced mode — follows your writing speed",
+      "waitingForYou": "Waiting for you to catch up...",
+      "results": "Dictation Results",
+      "similarity": "Accuracy",
+      "perfect": "Perfect!",
+      "hasErrors": "Has errors",
+      "wordsCorrect": "Words correct",
+      "timeTaken": "Time",
+      "originalText": "Original text",
+      "yourInput": "Your input",
+      "notSupported": "Your browser does not support text-to-speech. Please try a different browser."
     }
   },
   "stats": {
