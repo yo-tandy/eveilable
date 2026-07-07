@@ -32,7 +32,7 @@ export async function callClaudeStructured(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> {
   const params: MessageCreateParamsNonStreaming = {
-    model: options.model ?? 'claude-sonnet-4-20250514',
+    model: options.model ?? 'claude-sonnet-5',
     max_tokens: options.maxTokens ?? 4096,
     tools: [{
       name: 'structured_output',
