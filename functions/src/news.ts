@@ -4,32 +4,19 @@ import { validateLanguage } from './validate.js'
 
 initializeApp()
 
-const NEWS_API_KEY = process.env.NEWS_API_KEY || ''
+const GOOGLE_NEWS_TOPICS = ['WORLD', 'BUSINESS', 'TECHNOLOGY', 'SCIENCE', 'SPORTS', 'HEALTH', 'ENTERTAINMENT']
 
-const LANGUAGE_MAP: Record<string, string> = {
-  en: 'en',
-  fr: 'fr',
-  zh: 'zh',
-  he: 'he',
-  de: 'de',
-  it: 'it',
+const GOOGLE_NEWS_LOCALES: Record<string, { hl: string; gl: string; ceid: string }> = {
+  en: { hl: 'en', gl: 'US', ceid: 'US:en' },
+  fr: { hl: 'fr', gl: 'FR', ceid: 'FR:fr' },
+  de: { hl: 'de', gl: 'DE', ceid: 'DE:de' },
+  it: { hl: 'it', gl: 'IT', ceid: 'IT:it' },
+  zh: { hl: 'zh-Hans', gl: 'CN', ceid: 'CN:zh-Hans' },
+  he: { hl: 'he', gl: 'IL', ceid: 'IL:he' },
 }
 
-// Broad topic queries per language — a random one is picked each request for variety
-const TOPIC_QUERIES: Record<string, string[]> = {
-  en: ['technology', 'health', 'science', 'environment', 'business', 'culture', 'sports', 'education', 'travel', 'food', 'space', 'climate', 'innovation', 'wildlife', 'music'],
-  fr: ['technologie', 'santé', 'science', 'environnement', 'économie', 'culture', 'sport', 'éducation', 'voyage', 'alimentation', 'espace', 'climat', 'innovation', 'nature', 'musique'],
-  zh: ['科技', '健康', '科学', '环境', '经济', '文化', '体育', '教育', '旅游', '美食', '太空', '气候', '创新', '自然', '音乐'],
-  he: ['טכנולוגיה', 'בריאות', 'מדע', 'סביבה', 'כלכלה', 'תרבות', 'ספורט', 'חינוך', 'טיולים', 'אוכל', 'חלל', 'אקלים', 'חדשנות', 'טבע', 'מוזיקה'],
-  de: ['Technologie', 'Gesundheit', 'Wissenschaft', 'Umwelt', 'Wirtschaft', 'Kultur', 'Sport', 'Bildung', 'Reisen', 'Ernährung', 'Weltraum', 'Klima', 'Innovation', 'Natur', 'Musik'],
-  it: ['tecnologia', 'salute', 'scienza', 'ambiente', 'economia', 'cultura', 'sport', 'educazione', 'viaggi', 'alimentazione', 'spazio', 'clima', 'innovazione', 'natura', 'musica'],
-}
-
-function getDateDaysAgo(days: number): string {
-  const date = new Date()
-  date.setDate(date.getDate() - days)
-  return date.toISOString().split('T')[0] // YYYY-MM-DD
-}
+// Max age of headlines in milliseconds (3 days)
+const MAX_ARTICLE_AGE_MS = 3 * 24 * 60 * 60 * 1000
 
 function pickRandom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]
@@ -40,7 +27,63 @@ function shuffleAndTake<T>(arr: T[], n: number): T[] {
   return shuffled.slice(0, n)
 }
 
-// Fallback headlines when NEWS_API_KEY is not configured
+/** Decode common HTML/XML entities in RSS content */
+function decodeEntities(s: string): string {
+  return s
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code, 10)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+}
+
+/** Parse a Google News RSS feed. Returns items filtered to last 3 days. */
+function parseRssFeed(xml: string): { title: string; description: string; source: string }[] {
+  const itemMatches = xml.match(/<item>([\s\S]*?)<\/item>/g) || []
+  const now = Date.now()
+  const items: { title: string; description: string; source: string }[] = []
+
+  for (const itemXml of itemMatches) {
+    const titleMatch = itemXml.match(/<title>([\s\S]*?)<\/title>/)
+    const pubDateMatch = itemXml.match(/<pubDate>([\s\S]*?)<\/pubDate>/)
+    const sourceMatch = itemXml.match(/<source[^>]*>([\s\S]*?)<\/source>/)
+
+    if (!titleMatch) continue
+
+    // Filter by age (last 3 days)
+    if (pubDateMatch) {
+      const pubDate = new Date(pubDateMatch[1].trim()).getTime()
+      if (!isNaN(pubDate) && now - pubDate > MAX_ARTICLE_AGE_MS) continue
+    }
+
+    let rawTitle = decodeEntities(titleMatch[1].trim())
+    const source = sourceMatch ? decodeEntities(sourceMatch[1].trim()) : ''
+
+    // Google News titles are formatted "Headline - Source". Strip the source suffix.
+    if (source) {
+      const suffix = ` - ${source}`
+      if (rawTitle.endsWith(suffix)) {
+        rawTitle = rawTitle.slice(0, -suffix.length)
+      }
+    }
+
+    // Filter out empty / removed articles
+    if (!rawTitle || rawTitle === '[Removed]') continue
+
+    items.push({
+      title: rawTitle,
+      description: '', // Google News description is just a related-articles list; not useful as a topic seed
+      source,
+    })
+  }
+
+  return items
+}
+
+// Fallback headlines when RSS fetch fails
 const FALLBACK_HEADLINES: Record<string, { title: string; description: string; source: string }[]> = {
   en: [
     { title: 'Scientists Discover New Species in Deep Ocean Trench', description: 'Marine biologists have identified several previously unknown organisms living at extreme depths.', source: 'Science Daily' },
@@ -94,71 +137,34 @@ export const fetchNews = onCall(
     }
 
     const language = validateLanguage(request.data.language ?? 'en')
+    const locale = GOOGLE_NEWS_LOCALES[language] || GOOGLE_NEWS_LOCALES['en']
 
-    const apiLang = LANGUAGE_MAP[language] || 'en'
-
-    // If no NEWS_API_KEY, return fallback headlines
-    if (!NEWS_API_KEY) {
-      const headlines = FALLBACK_HEADLINES[apiLang] || FALLBACK_HEADLINES['en']
-      return { headlines }
-    }
-
-    // Pick a random topic to get diverse content across sessions
-    const topics = TOPIC_QUERIES[apiLang] || TOPIC_QUERIES['en']
-    const topic = pickRandom(topics)
-    const fromDate = getDateDaysAgo(3)
-
-    // Use "everything" endpoint for date filtering and much larger article pool
-    const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(topic)}&language=${apiLang}&from=${fromDate}&sortBy=publishedAt&pageSize=20&apiKey=${NEWS_API_KEY}`
+    // Try a random topic for variety across sessions
+    const topic = pickRandom(GOOGLE_NEWS_TOPICS)
+    const url = `https://news.google.com/rss/headlines/section/topic/${topic}?hl=${locale.hl}&gl=${locale.gl}&ceid=${encodeURIComponent(locale.ceid)}`
 
     try {
-      const response = await fetch(url)
-      const data = await response.json()
+      const response = await fetch(url, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; EveilableBot/1.0)' },
+      })
 
-      if (data.status !== 'ok' || !data.articles?.length) {
-        // Fall back to top-headlines if everything returns nothing
-        console.warn(`NewsAPI everything returned no results for "${topic}" in ${apiLang}, trying top-headlines`)
-        const fallbackUrl = `https://newsapi.org/v2/top-headlines?language=${apiLang}&pageSize=10&apiKey=${NEWS_API_KEY}`
-        const fallbackResp = await fetch(fallbackUrl)
-        const fallbackData = await fallbackResp.json()
-
-        if (fallbackData.status === 'ok' && fallbackData.articles?.length) {
-          const headlines = fallbackData.articles
-            .filter((a: { title: string }) => a.title && a.title !== '[Removed]')
-            .map((article: { title: string; description: string; source: { name: string } }) => ({
-              title: article.title,
-              description: article.description || '',
-              source: article.source?.name || '',
-            }))
-          return { headlines: shuffleAndTake(headlines, 5) }
-        }
-
-        // Last resort: hardcoded fallbacks
-        const staticHeadlines = FALLBACK_HEADLINES[apiLang] || FALLBACK_HEADLINES['en']
-        return { headlines: staticHeadlines }
+      if (!response.ok) {
+        throw new Error(`Google News RSS returned ${response.status}`)
       }
 
-      // Filter out removed/empty articles and pick 5 random ones from the 20
-      const validArticles = data.articles.filter(
-        (a: { title: string; description: string }) =>
-          a.title && a.title !== '[Removed]' && a.description
-      )
+      const xml = await response.text()
+      const items = parseRssFeed(xml)
 
-      const headlines = validArticles.map(
-        (article: { title: string; description: string; source: { name: string } }) => ({
-          title: article.title,
-          description: article.description,
-          source: article.source?.name || '',
-        })
-      )
+      if (items.length === 0) {
+        console.warn(`No fresh Google News items for ${topic}/${language}, using fallback`)
+        return { headlines: FALLBACK_HEADLINES[language] || FALLBACK_HEADLINES['en'] }
+      }
 
-      return { headlines: shuffleAndTake(headlines, 5) }
+      return { headlines: shuffleAndTake(items, 5) }
     } catch (error: unknown) {
-      if (error instanceof HttpsError) throw error
       console.error('fetchNews error:', error)
-      // On any error, return static fallbacks instead of failing
-      const staticHeadlines = FALLBACK_HEADLINES[apiLang] || FALLBACK_HEADLINES['en']
-      return { headlines: staticHeadlines }
+      // Never fail: return static fallbacks on any error
+      return { headlines: FALLBACK_HEADLINES[language] || FALLBACK_HEADLINES['en'] }
     }
   }
 )

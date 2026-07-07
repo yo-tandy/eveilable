@@ -3,14 +3,21 @@ import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../../stores/authStore'
 import { signOut } from 'firebase/auth'
 import { auth } from '../../config/firebase'
-import { Gamepad2, BarChart3, LogOut, LogIn, Menu, X } from 'lucide-react'
-import { useState } from 'react'
+import { Gamepad2, BarChart3, LogOut, LogIn, Menu, X, Flame } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { getCurrentStreak } from '../../utils/streak'
 
 export function Navbar() {
   const { t } = useTranslation()
   const { user } = useAuthStore()
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [streak, setStreak] = useState(0)
+
+  // Refresh streak when location changes (e.g., navigating away from a game)
+  useEffect(() => {
+    if (user) setStreak(getCurrentStreak())
+  }, [user, location.pathname])
 
   const handleLogout = async () => {
     await signOut(auth)
@@ -71,6 +78,16 @@ export function Navbar() {
 
           {/* Desktop nav */}
           <div className="hidden sm:flex items-center gap-1">
+            {user && streak > 0 && (
+              <div
+                className="flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-medium text-orange-600 bg-orange-500/10"
+                title={t('nav.streakTooltip', { count: streak })}
+                aria-label={t('nav.streakTooltip', { count: streak })}
+              >
+                <Flame size={16} />
+                <span>{streak}</span>
+              </div>
+            )}
             {navLinks}
           </div>
 

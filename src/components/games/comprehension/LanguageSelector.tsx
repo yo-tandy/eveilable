@@ -56,7 +56,7 @@ export function LanguageSelector({ onSelect }: LanguageSelectorProps) {
     <div className="max-w-lg mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
         <Globe size={24} />
-        Select Reading Language
+        {t('common.selectLanguage')}
       </h2>
       <div className="grid grid-cols-2 gap-3 mb-8">
         {LANGUAGES.map((lang) => (

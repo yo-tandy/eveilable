@@ -4,6 +4,7 @@ import { db } from '../../../config/firebase'
 import { useAuthStore } from '../../../stores/authStore'
 import { useSettingsStore } from '../../../stores/settingsStore'
 import { updateAggregateStats } from '../../../services/firestoreService'
+import { recordSessionPlayed } from '../../../utils/streak'
 import { fetchTenseExercises, submitTenseRewrites } from '../../../services/tenseRewriteService'
 import { checkLevelProgression } from '../../../utils/levelProgression'
 import { fetchRecentLanguageScores } from '../../../services/firestoreService'
@@ -105,6 +106,7 @@ export function TenseRewriteGame() {
 
       await setDoc(sessionDoc, sessionData)
       await updateAggregateStats(user.uid, 'tense-rewrite', sessionData)
+      recordSessionPlayed()
 
       // Check level progression
       try {

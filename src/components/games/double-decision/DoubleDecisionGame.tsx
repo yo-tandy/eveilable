@@ -15,6 +15,7 @@ const DIRECTIONS = ['left', 'right']
 const POSITION_COUNT = 8
 
 function GameArea() {
+  const { t } = useTranslation()
   const { size } = useGameDimensions()
   const {
     phase,
@@ -64,14 +65,14 @@ function GameArea() {
       {/* Direction response buttons at bottom of canvas */}
       {phase === 'response-central' && (
         <div className="absolute bottom-4 left-0 right-0 px-4">
-          <p className="text-center text-sm text-gray-500 mb-2">Which direction was the car going?</p>
+          <p className="text-center text-sm text-gray-500 mb-2">{t('games.doubleDecision.whichDirection')}</p>
           <DirectionResponse onSelect={handleCentralResponse} />
         </div>
       )}
 
       {phase !== 'idle' && phase !== 'end' && (
-        <div className="absolute top-2 right-3 text-xs text-gray-400">
-          Trial {currentTrial + (phase === 'feedback' ? 0 : 1)}
+        <div className="absolute top-2 right-3 text-xs text-gray-500">
+          {t('common.trial')} {currentTrial + (phase === 'feedback' ? 0 : 1)}
         </div>
       )}
     </>
@@ -110,10 +111,10 @@ export function DoubleDecisionGame() {
         <h2 className="text-2xl font-bold mb-2">{t('games.doubleDecision.name')}</h2>
         <p className="text-gray-500 mb-6">{t('games.doubleDecision.description')}</p>
         <div className="glass rounded-xl p-4 text-sm text-gray-600 mb-6 text-left space-y-2">
-          <p>A car will flash on a road while a sign appears at the periphery.</p>
-          <p>1. Decide which direction the car is going (Left or Right)</p>
-          <p>2. Tap where the sign appeared</p>
-          <p>Time pressure increases as you improve!</p>
+          <p>{t('games.doubleDecision.instructions1')}</p>
+          <p>{t('games.doubleDecision.instructions2')}</p>
+          <p>{t('games.doubleDecision.instructions3')}</p>
+          <p>{t('games.doubleDecision.instructions4')}</p>
         </div>
         <button
           onClick={() => beginGame()}

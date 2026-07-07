@@ -108,8 +108,9 @@ export function PlayingPhase({ text, language, onComplete }: PlayingPhaseProps) 
           {/* Restart */}
           <button
             onClick={tts.restart}
-            className="p-2.5 rounded-xl glass hover:scale-105 transition-transform"
+            className="p-2.5 rounded-xl glass hover:scale-105 transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500"
             title={t('games.oralWriting.restart')}
+            aria-label={t('games.oralWriting.restart')}
           >
             <RotateCcw size={18} className="text-gray-600" />
           </button>
@@ -117,8 +118,9 @@ export function PlayingPhase({ text, language, onComplete }: PlayingPhaseProps) 
           {/* Jump back */}
           <button
             onClick={() => tts.jumpBack()}
-            className="p-2.5 rounded-xl glass hover:scale-105 transition-transform"
+            className="p-2.5 rounded-xl glass hover:scale-105 transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500"
             title={t('games.oralWriting.jumpBack')}
+            aria-label={t('games.oralWriting.jumpBack')}
           >
             <Rewind size={18} className="text-gray-600" />
           </button>
@@ -126,7 +128,9 @@ export function PlayingPhase({ text, language, onComplete }: PlayingPhaseProps) 
           {/* Play/Pause (large) */}
           <button
             onClick={handlePlayPause}
-            className="p-4 rounded-full bg-sky-500 text-white hover:bg-sky-600 hover:scale-105 transition-all shadow-lg"
+            className="p-4 rounded-full bg-sky-500 text-white hover:bg-sky-600 hover:scale-105 transition-all shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700"
+            aria-label={tts.isPlaying && !tts.isPaused ? t('games.oralWriting.pause') : t('games.oralWriting.play')}
+            aria-pressed={tts.isPlaying && !tts.isPaused}
           >
             {tts.isPlaying && !tts.isPaused
               ? <Pause size={24} />
@@ -137,12 +141,14 @@ export function PlayingPhase({ text, language, onComplete }: PlayingPhaseProps) 
           {/* Repeat toggle */}
           <button
             onClick={toggleRepeat}
-            className={`p-2.5 rounded-xl transition-all hover:scale-105 ${
+            className={`p-2.5 rounded-xl transition-all hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 ${
               repeatMode
                 ? 'bg-sky-500 text-white shadow-md'
                 : 'glass text-gray-600'
             }`}
             title={t('games.oralWriting.repeatMode')}
+            aria-label={t('games.oralWriting.repeatMode')}
+            aria-pressed={repeatMode}
           >
             <Repeat size={18} />
           </button>
@@ -150,12 +156,14 @@ export function PlayingPhase({ text, language, onComplete }: PlayingPhaseProps) 
           {/* Paced mode toggle */}
           <button
             onClick={togglePaced}
-            className={`p-2.5 rounded-xl transition-all hover:scale-105 ${
+            className={`p-2.5 rounded-xl transition-all hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 ${
               pacedMode
                 ? 'bg-sky-500 text-white shadow-md'
                 : 'glass text-gray-600'
             }`}
             title={t('games.oralWriting.pacedMode')}
+            aria-label={t('games.oralWriting.pacedMode')}
+            aria-pressed={pacedMode}
           >
             <TextCursorInput size={18} />
           </button>
@@ -168,11 +176,13 @@ export function PlayingPhase({ text, language, onComplete }: PlayingPhaseProps) 
               <button
                 key={opt.value}
                 onClick={() => tts.setRate(opt.value)}
-                className={`px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                className={`px-2.5 py-1.5 text-xs font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-700 ${
                   tts.rate === opt.value
                     ? 'bg-sky-500 text-white'
                     : 'bg-white/50 text-gray-600 hover:bg-gray-100'
                 }`}
+                aria-label={`${t('games.oralWriting.speed')} ${opt.label}`}
+                aria-pressed={tts.rate === opt.value}
               >
                 {opt.label}
               </button>
@@ -221,7 +231,7 @@ export function PlayingPhase({ text, language, onComplete }: PlayingPhaseProps) 
       <button
         onClick={handleSubmit}
         disabled={!userInput.trim()}
-        className="w-full py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 bg-sky-500 text-white hover:bg-sky-600 disabled:opacity-40 disabled:cursor-not-allowed hover:scale-[1.01] transition-all"
+        className="w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 bg-black/75 backdrop-blur-sm text-white hover:scale-[1.02] transition-transform disabled:opacity-40 disabled:cursor-not-allowed"
       >
         <Send size={18} />
         {t('games.oralWriting.submit')}

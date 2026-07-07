@@ -15,6 +15,7 @@ const CENTRAL_TYPES = ['car', 'truck']
 const POSITION_COUNT = 8
 
 function GameArea() {
+  const { t } = useTranslation()
   const { size } = useGameDimensions()
   const {
     phase,
@@ -70,15 +71,15 @@ function GameArea() {
       {/* Central response buttons at bottom of canvas */}
       {phase === 'response-central' && (
         <div className="absolute bottom-4 left-0 right-0 px-4">
-          <p className="text-center text-sm text-gray-500 mb-2">What was the central object?</p>
+          <p className="text-center text-sm text-gray-500 mb-2">{t('games.dividedAttention.whatWasCentral')}</p>
           <CentralResponse onSelect={handleCentralResponse} />
         </div>
       )}
 
       {/* Trial counter */}
       {phase !== 'idle' && phase !== 'end' && (
-        <div className="absolute top-2 right-3 text-xs text-gray-400">
-          Trial {currentTrial + (phase === 'feedback' ? 0 : 1)}
+        <div className="absolute top-2 right-3 text-xs text-gray-500">
+          {t('common.trial')} {currentTrial + (phase === 'feedback' ? 0 : 1)}
         </div>
       )}
     </>
@@ -117,10 +118,10 @@ export function DividedAttentionGame() {
         <h2 className="text-2xl font-bold mb-2">{t('games.dividedAttention.name')}</h2>
         <p className="text-gray-500 mb-6">{t('games.dividedAttention.description')}</p>
         <div className="glass rounded-xl p-4 text-sm text-gray-600 mb-6 text-left space-y-2">
-          <p>A symbol will flash in the center while a target appears at the periphery.</p>
-          <p>1. Identify the central object (Car or Truck)</p>
-          <p>2. Tap where the peripheral target appeared</p>
-          <p>The display gets faster as you improve!</p>
+          <p>{t('games.dividedAttention.instructions1')}</p>
+          <p>{t('games.dividedAttention.instructions2')}</p>
+          <p>{t('games.dividedAttention.instructions3')}</p>
+          <p>{t('games.dividedAttention.instructions4')}</p>
         </div>
         <button
           onClick={() => beginGame()}

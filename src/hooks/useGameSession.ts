@@ -3,6 +3,7 @@ import { collection, doc, setDoc, Timestamp, writeBatch } from 'firebase/firesto
 import { db } from '../config/firebase'
 import { useAuthStore } from '../stores/authStore'
 import { updateAggregateStats } from '../services/firestoreService'
+import { recordSessionPlayed } from '../utils/streak'
 import type { GameType, Trial, GameSession } from '../types/game'
 
 export function useGameSession(gameType: GameType) {
@@ -106,6 +107,9 @@ export function useGameSession(gameType: GameType) {
 
       // Update aggregate stats so Progress page has data
       await updateAggregateStats(user.uid, gameType, sessionData)
+
+      // Update local daily streak
+      recordSessionPlayed()
 
       sessionIdRef.current = null
       sessionStartRef.current = null

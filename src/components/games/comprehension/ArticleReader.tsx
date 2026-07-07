@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { preciseNow } from '../../../utils/timing'
 import { Timer } from '../../common/Timer'
 import type { Article } from '../../../types/comprehension'
@@ -40,6 +41,7 @@ function getInterpolatedReadingTime(level: LanguageLevel, subLevel?: LanguageSub
 }
 
 export function ArticleReader({ article, mode, level, subLevel, onDoneReading }: ArticleReaderProps) {
+  const { t } = useTranslation()
   const startTimeRef = useRef(preciseNow())
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
 
@@ -94,7 +96,7 @@ export function ArticleReader({ article, mode, level, subLevel, onDoneReading }:
         onClick={handleDone}
         className="mt-8 w-full py-3 bg-black/75 backdrop-blur-sm text-white rounded-xl font-semibold hover:scale-[1.02] transition-transform"
       >
-        Done Reading
+        {t('games.comprehension.doneReading')}
       </button>
     </div>
   )

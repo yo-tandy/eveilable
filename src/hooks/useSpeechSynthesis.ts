@@ -13,11 +13,11 @@ const CHARS_PER_SECOND = 14
 const SENTENCE_PAUSE_MS = 1800
 
 // Paced mode: stop reading when this many words ahead of user
-const PACED_LEAD_LIMIT = 5
+const PACED_LEAD_LIMIT = 10
 // Paced mode: resume from this many words before the user's position
 const PACED_RESUME_OVERLAP = 4
 // Paced mode: resume when user is within this many words of where we stopped
-const PACED_RESUME_GAP = 2
+const PACED_RESUME_GAP = 4
 
 /** Split text into sentences, keeping punctuation attached */
 function splitSentences(text: string): string[] {

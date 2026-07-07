@@ -11,8 +11,8 @@ interface ProgressionResult {
 
 /**
  * Check if the user should advance or regress based on recent scores.
- * - Upgrade: 3 consecutive sessions with overallScore >= 8
- * - Downgrade: 2 consecutive sessions with overallScore <= 4
+ * - Upgrade: last 2 sessions with overallScore >= 8
+ * - Downgrade: last 2 sessions with overallScore <= 4
  * Capped at C2-advanced (top) and A1-novice (bottom).
  */
 export function checkLevelProgression(
@@ -21,27 +21,23 @@ export function checkLevelProgression(
 ): ProgressionResult {
   const noChange: ProgressionResult = { changed: false, newConfig: current }
 
-  if (recentScores.length === 0) return noChange
+  if (recentScores.length < 2) return noChange
 
-  // Check for upgrade: last 3 scores all >= 8
-  if (recentScores.length >= 3) {
-    const last3 = recentScores.slice(-3)
-    if (last3.every((s) => s >= 8)) {
-      const next = stepUp(current)
-      if (next) {
-        return { changed: true, newConfig: next, direction: 'up' }
-      }
+  const last2 = recentScores.slice(-2)
+
+  // Upgrade: last 2 scores all >= 8
+  if (last2.every((s) => s >= 8)) {
+    const next = stepUp(current)
+    if (next) {
+      return { changed: true, newConfig: next, direction: 'up' }
     }
   }
 
-  // Check for downgrade: last 2 scores all <= 4
-  if (recentScores.length >= 2) {
-    const last2 = recentScores.slice(-2)
-    if (last2.every((s) => s <= 4)) {
-      const prev = stepDown(current)
-      if (prev) {
-        return { changed: true, newConfig: prev, direction: 'down' }
-      }
+  // Downgrade: last 2 scores all <= 4
+  if (last2.every((s) => s <= 4)) {
+    const prev = stepDown(current)
+    if (prev) {
+      return { changed: true, newConfig: prev, direction: 'down' }
     }
   }
 

@@ -27,10 +27,12 @@ export function ProgressPage() {
   const [sessions, setSessions] = useState<GameSession[]>([])
   const [stats, setStats] = useState<AggregateStats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!user) return
     setLoading(true)
+    setError(null)
     Promise.all([
       fetchSessionHistory(user.uid, activeTab, 30),
       getAggregateStats(user.uid, activeTab),
@@ -38,7 +40,9 @@ export function ProgressPage() {
       setSessions(sessionData)
       setStats(statsData)
       setLoading(false)
-    }).catch(() => {
+    }).catch((err) => {
+      console.error('[ProgressPage] Failed to load session history:', err)
+      setError(err instanceof Error ? err.message : 'Failed to load progress data')
       setLoading(false)
     })
   }, [user, activeTab])
@@ -56,7 +60,7 @@ export function ProgressPage() {
               {/* Category label */}
               <div className="flex items-center gap-1.5 mb-1.5 px-1">
                 <span className="text-sm">{category.emoji}</span>
-                <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+                <span className="text-xs font-medium text-gray-600 uppercase tracking-wide">
                   {t(category.i18nKey)}
                 </span>
               </div>
@@ -86,8 +90,13 @@ export function ProgressPage() {
 
       {loading ? (
         <LoadingSpinner />
+      ) : error ? (
+        <div className="glass rounded-2xl p-6 text-center border border-red-300/50">
+          <div className="text-red-600 font-medium mb-2">{t('progress.loadError') ?? 'Could not load progress data'}</div>
+          <div className="text-sm text-gray-500">{error}</div>
+        </div>
       ) : !stats || sessions.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">
+        <div className="text-center py-12 text-gray-500">
           {t('progress.noSessions')}
         </div>
       ) : (

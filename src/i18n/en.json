@@ -5,7 +5,8 @@
     "settings": "Settings",
     "logout": "Log Out",
     "login": "Log In",
-    "register": "Register"
+    "register": "Register",
+    "streakTooltip": "{{count}}-day streak"
   },
   "home": {
     "title": "Eveilable",
@@ -29,11 +30,21 @@
     "selectGame": "Select a Game",
     "dividedAttention": {
       "name": "Divided Attention",
-      "description": "Track central and peripheral objects simultaneously"
+      "description": "Track central and peripheral objects simultaneously",
+      "instructions1": "A symbol will flash in the center while a target appears at the periphery.",
+      "instructions2": "1. Identify the central object (Car or Truck)",
+      "instructions3": "2. Tap where the peripheral target appeared",
+      "instructions4": "The display gets faster as you improve!",
+      "whatWasCentral": "What was the central object?"
     },
     "doubleDecision": {
       "name": "Double Decision",
-      "description": "Quick decisions about direction under time pressure"
+      "description": "Quick decisions about direction under time pressure",
+      "instructions1": "A car will flash on a road while a sign appears at the periphery.",
+      "instructions2": "1. Decide which direction the car is going (Left or Right)",
+      "instructions3": "2. Tap where the sign appeared",
+      "instructions4": "Time pressure increases as you improve!",
+      "whichDirection": "Which direction was the car going?"
     },
     "comprehension": {
       "name": "Comprehension",
@@ -41,6 +52,7 @@
       "instructions1": "Read an article carefully in your chosen language.",
       "instructions2": "Answer comprehension questions to test your understanding.",
       "instructions3": "Write a brief summary to practice expressing key ideas.",
+      "doneReading": "Done Reading",
       "results": {
         "yourAnswer": "Your answer",
         "correctAnswer": "Correct answer",
@@ -148,6 +160,9 @@
       "repeatMode": "Repeat each sentence twice",
       "pacedMode": "Paced mode — follows your writing speed",
       "waitingForYou": "Waiting for you to catch up...",
+      "play": "Play",
+      "pause": "Pause",
+      "speed": "Speed",
       "results": "Dictation Results",
       "similarity": "Accuracy",
       "perfect": "Perfect!",
@@ -175,7 +190,14 @@
     "stable": "Stable",
     "declining": "Declining",
     "lifetimeAccuracy": "Lifetime Accuracy",
-    "noSessions": "No sessions yet. Play a game to see your progress!"
+    "noSessions": "No sessions yet. Play a game to see your progress!",
+    "loadError": "Could not load progress data"
+  },
+  "feedback": {
+    "correct": "Correct!",
+    "incorrect": "Incorrect",
+    "central": "Central:",
+    "peripheral": "Peripheral:"
   },
   "categories": {
     "attention": "Attention Games",
@@ -191,7 +213,9 @@
     "loading": "Loading...",
     "error": "Something went wrong",
     "retry": "Retry",
-    "startGame": "Start Game"
+    "startGame": "Start Game",
+    "trial": "Trial",
+    "selectLanguage": "Select language"
   },
   "footer": {
     "about": "About",
