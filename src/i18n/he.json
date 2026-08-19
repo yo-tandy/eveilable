@@ -40,6 +40,12 @@
       "corrections": "תיקונים"
     }
   },
+  "puzzles": {
+    "wolvesAndWool": {
+      "name": "זאבים וצמר",
+      "description": "סובבו את העדר, הערימו על הלהקה — חידת היגיון תורית"
+    }
+  },
   "common": {
     "continue": "המשך",
     "endSession": "סיום",
@@ -49,5 +55,9 @@
     "error": "משהו השתבש",
     "retry": "נסה שוב",
     "startGame": "התחל משחק"
+  },
+  "categories": {
+    "puzzles": "חידות",
+    "puzzlesDescription": "תכננו קדימה ופתרו אתגרי היגיון בקצב שלכם"
   }
 }

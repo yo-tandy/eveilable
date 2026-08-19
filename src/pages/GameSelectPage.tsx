@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import { CATEGORIES, getGamesByCategory } from '../config/games'
+import { PuzzleSection } from '../components/common/PuzzleSection'
 
 export function GameSelectPage() {
   const { t } = useTranslation()
@@ -58,6 +59,8 @@ export function GameSelectPage() {
           </section>
         )
       })}
+
+      <PuzzleSection variant="list" className="mb-8" />
     </div>
   )
 }

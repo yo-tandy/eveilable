@@ -40,6 +40,12 @@
       "corrections": "纠正"
     }
   },
+  "puzzles": {
+    "wolvesAndWool": {
+      "name": "狼与羊毛",
+      "description": "转动羊群，智胜狼群——回合制逻辑解谜"
+    }
+  },
   "common": {
     "continue": "继续",
     "endSession": "结束",
@@ -49,5 +55,9 @@
     "error": "出现错误",
     "retry": "重试",
     "startGame": "开始游戏"
+  },
+  "categories": {
+    "puzzles": "益智解谜",
+    "puzzlesDescription": "按自己的节奏规划思路，解决逻辑难题"
   }
 }

@@ -1,8 +1,8 @@
 import type { LucideIcon } from 'lucide-react'
-import { Eye, Car, BookOpen, Zap, Shuffle, RefreshCw, PenLine, Focus, Languages, Layers, Type, Headphones } from 'lucide-react'
+import { Eye, Car, BookOpen, Zap, Shuffle, RefreshCw, PenLine, Focus, Languages, Layers, Type, Headphones, Puzzle } from 'lucide-react'
 import type { GameType } from '../types/game'
 
-export type GameCategory = 'attention' | 'language'
+export type GameCategory = 'attention' | 'language' | 'puzzles'
 
 export interface GameConfig {
   id: GameType
@@ -64,6 +64,49 @@ export const CATEGORIES: CategoryConfig[] = [
     labelText: 'text-indigo-700',
     iconColor: 'text-indigo-600',
     iconColorLight: 'text-indigo-500',
+  },
+]
+
+/**
+ * Puzzles are self-contained static games served from /public/puzzles. They have no
+ * adaptive difficulty or session tracking, so they live outside GAMES/CATEGORIES —
+ * pages that map over CATEGORIES would otherwise render an empty stats section.
+ */
+export interface PuzzleConfig {
+  id: string
+  key: string
+  href: string
+  emoji: string
+  skillLabel: string
+  cardGradient: string
+}
+
+export const PUZZLE_CATEGORY: CategoryConfig = {
+  key: 'puzzles',
+  i18nKey: 'categories.puzzles',
+  descriptionKey: 'categories.puzzlesDescription',
+  icon: Puzzle,
+  emoji: '🧩',
+  pillBg: 'rgba(16, 185, 129, 0.12)',
+  pillBorder: 'rgba(16, 185, 129, 0.3)',
+  pillText: '#047857',
+  gradientFrom: 'from-emerald-50',
+  gradientTo: 'to-teal-50',
+  labelBg: 'bg-emerald-200',
+  labelText: 'text-emerald-700',
+  iconColor: 'text-emerald-600',
+  iconColorLight: 'text-emerald-500',
+}
+
+export const PUZZLES: PuzzleConfig[] = [
+  {
+    id: 'wolves-and-wool',
+    key: 'wolvesAndWool',
+    // Explicit index.html: a bare directory URL falls through to the SPA rewrite in dev.
+    href: '/puzzles/wolves-and-wool/index.html',
+    emoji: '🐺',
+    skillLabel: 'Planning',
+    cardGradient: 'linear-gradient(135deg, #0f766e, #22c55e)',
   },
 ]
 

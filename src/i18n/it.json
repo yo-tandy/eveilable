@@ -40,6 +40,12 @@
       "corrections": "Correzioni"
     }
   },
+  "puzzles": {
+    "wolvesAndWool": {
+      "name": "Lupi & Lana",
+      "description": "Gira il gregge, batti il branco — un rompicapo logico a turni"
+    }
+  },
   "common": {
     "continue": "Continua",
     "endSession": "Termina",
@@ -49,5 +55,9 @@
     "error": "Si è verificato un errore",
     "retry": "Riprova",
     "startGame": "Inizia gioco"
+  },
+  "categories": {
+    "puzzles": "Rompicapi",
+    "puzzlesDescription": "Pianifica in anticipo e risolvi sfide di logica al tuo ritmo"
   }
 }

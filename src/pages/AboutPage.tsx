@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { Shield, FileText } from 'lucide-react'
 import { CATEGORIES, getGamesByCategory } from '../config/games'
+import { PuzzleSection } from '../components/common/PuzzleSection'
 
 export function AboutPage() {
   const { t } = useTranslation()
@@ -60,6 +61,8 @@ export function AboutPage() {
             </div>
           )
         })}
+
+        <PuzzleSection variant="static" className="mb-6" />
       </div>
 
       {/* Features */}

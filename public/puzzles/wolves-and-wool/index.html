@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wolves &amp; Wool — a parlor puzzle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Karla:wght@400;600;700&family=Frank+Ruhl+Libre:wght@500;700;900&family=Heebo:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=14">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐺</text></svg>">
+</head>
+<body>
+
+<div class="room">
+  <header class="topbar">
+    <div class="brand">
+      <h1 data-i18n-html="brand_html">Wolves <span class="amp">&amp;</span> Wool</h1>
+      <p class="tagline" data-i18n="tagline">keep the flock · lose the pack</p>
+    </div>
+    <nav class="topnav">
+      <select class="lang-select" id="langSelect" aria-label="Language">
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+        <option value="he">עברית</option>
+      </select>
+      <button class="btn btn-ghost btn-icon" id="btnMute" title="Sound on/off">🔊</button>
+      <button class="btn btn-ghost" id="btnHelp" data-i18n="nav_help">How to play</button>
+      <button class="btn btn-ghost" id="btnLevels" data-i18n="nav_levels">Levels</button>
+      <a class="btn btn-ghost" href="meadow.html" data-i18n="to_meadow">Meadow mode</a>
+      <button class="btn btn-brass" id="btnEditor" data-i18n="nav_editor">Level editor</button>
+    </nav>
+  </header>
+
+  <main class="scene" id="scene">
+    <div class="tilt" id="tilt">
+      <div class="table" id="table"></div>
+      <div class="board" id="board">
+        <div class="frame" id="frame"></div>
+        <div class="tiles" id="tiles"></div>
+        <div class="pieces" id="pieces"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="controls" id="playControls">
+    <button class="turnbtn turnbtn-left" id="btnTurnLeft" title="←">
+      <svg viewBox="0 0 48 48"><path d="M24 8 A16 16 0 1 0 39.4 19.5" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/><path d="M44 10 L38.5 21.5 L27 16.5 Z" fill="currentColor"/></svg>
+      <span data-i18n="turn_left">Turn left</span>
+    </button>
+    <div class="hud">
+      <div class="hud-level" id="hudLevel">First Prowl</div>
+      <div class="hud-moves"><span id="hudMoves">0</span> <span data-i18n="moves_label">moves</span><span id="hudBest" class="hud-best"></span></div>
+      <button class="btn btn-ghost btn-small" id="btnReset" data-i18n="reset">Reset board</button>
+    </div>
+    <button class="turnbtn turnbtn-right" id="btnTurnRight" title="→">
+      <svg viewBox="0 0 48 48"><path d="M24 8 A16 16 0 1 1 8.6 19.5" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/><path d="M4 10 L9.5 21.5 L21 16.5 Z" fill="currentColor"/></svg>
+      <span data-i18n="turn_right">Turn right</span>
+    </button>
+  </footer>
+
+  <aside class="editor-panel" id="editorPanel">
+    <h2 data-i18n="workshop">Workshop</h2>
+    <p class="editor-hint" data-i18n="ed_hint">Click a square to place the selected piece. Click an animal again to turn it; crates and sliders toggle off.</p>
+    <div class="palette" id="palette">
+      <button class="pal" data-tool="empty"><span class="pal-swatch pal-empty"></span><span data-i18n="pal_clear">Clear</span></button>
+      <button class="pal" data-tool="box"><span class="pal-swatch pal-box"></span><span data-i18n="pal_crate">Crate</span></button>
+      <button class="pal" data-tool="slider"><span class="pal-swatch pal-slider">✦</span><span data-i18n="pal_slider">Slider</span></button>
+      <button class="pal" data-tool="wolf"><span class="pal-swatch pal-wolf"></span><span data-i18n="pal_wolf">Wolf</span></button>
+      <button class="pal" data-tool="sheep"><span class="pal-swatch pal-sheep"></span><span data-i18n="pal_sheep">Sheep</span></button>
+    </div>
+    <div class="editor-size">
+      <label><span data-i18n="board_label">Board</span>
+        <span class="stepper">
+          <button id="wMinus">−</button><span id="wVal">5</span><button id="wPlus">+</button>
+        </span> ×
+        <span class="stepper">
+          <button id="hMinus">−</button><span id="hVal">5</span><button id="hPlus">+</button>
+        </span>
+      </label>
+    </div>
+    <label class="editor-name"><span data-i18n="level_name">Level name</span>
+      <input type="text" id="levelName" maxlength="40" placeholder="My clever level" data-i18n-ph="name_ph">
+    </label>
+    <div class="editor-problems" id="editorProblems"></div>
+    <div class="editor-actions">
+      <button class="btn btn-brass" id="btnSaveLevel" data-i18n="save_level">Save level</button>
+      <button class="btn btn-ghost" id="btnTestLevel" data-i18n="try_it">Try it</button>
+      <button class="btn btn-ghost" id="btnClearBoard" data-i18n="clear_all">Clear all</button>
+      <button class="btn btn-ghost" id="btnExitEditor" data-i18n="leave">Leave workshop</button>
+    </div>
+  </aside>
+
+  <div class="overlay" id="overlay" hidden>
+    <div class="card" id="overlayCard">
+      <div class="card-kicker" id="overlayKicker"></div>
+      <h2 id="overlayTitle"></h2>
+      <p id="overlayBody"></p>
+      <div class="card-actions" id="overlayActions"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="levelsModal" hidden>
+    <div class="card card-wide">
+      <button class="card-close" data-close aria-label="Close">×</button>
+      <h2 data-i18n="cabinet_title">The Level Cabinet</h2>
+      <h3 data-i18n="house_levels">House levels</h3>
+      <div class="level-list" id="builtinList"></div>
+      <h3 data-i18n="your_levels">Your levels</h3>
+      <div class="level-list" id="customList"></div>
+      <p class="empty-note" id="customEmpty" data-i18n="empty_note">Nothing here yet — craft one in the workshop.</p>
+      <div class="card-actions">
+        <button class="btn btn-brass" id="btnImport" data-i18n="import">Import…</button>
+        <button class="btn btn-ghost" id="btnExportAll" data-i18n="export_all">Export all yours</button>
+      </div>
+      <input type="file" id="importFile" accept=".json,application/json" multiple hidden>
+    </div>
+  </div>
+
+  <div class="overlay" id="helpModal" hidden>
+    <div class="card card-wide">
+      <button class="card-close" data-close aria-label="Close">×</button>
+      <h2 data-i18n="help_title">How to play</h2>
+      <div class="help-body" data-i18n-html="help_html"></div>
+    </div>
+  </div>
+</div>
+
+<script src="js/engine.js?v=14"></script>
+<script src="js/levels.js?v=14"></script>
+<script src="js/i18n.js?v=14"></script>
+<script src="js/audio.js?v=14"></script>
+<script src="js/storage.js?v=14"></script>
+<script src="js/render.js?v=14"></script>
+<script src="js/editor.js?v=14"></script>
+<script src="js/main.js?v=14"></script>
+</body>
+</html>

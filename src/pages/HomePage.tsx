@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
 import { ArrowRight } from 'lucide-react'
 import { CATEGORIES, getGamesByCategory } from '../config/games'
+import { PuzzleSection } from '../components/common/PuzzleSection'
 
 export function HomePage() {
   const { t } = useTranslation()
@@ -88,6 +89,8 @@ export function HomePage() {
           </section>
         )
       })}
+
+      <PuzzleSection variant="grid" className="mb-12" />
     </div>
   )
 }

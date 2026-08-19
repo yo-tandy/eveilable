@@ -1,0 +1,237 @@
+/* Meadow mode — continuous pasture on a more elevated camera. */
+
+.meadow-page .tilt { --tilt: 42deg; }
+
+.meadow-page .table {
+  background:
+    var(--grain),
+    radial-gradient(80% 70% at 50% 32%, #2e5c3c 0%, #1c3527 55%, #10231a 100%);
+  background-blend-mode: overlay, normal;
+}
+
+/* the tilt anchor is zero-size and the world hangs off it absolutely,
+   so huge meadows never affect page layout (or make it scrollable) */
+.meadow-page .scene { overflow: hidden; }
+.mtilt { width: 0; height: 0; }
+
+.mworld {
+  position: absolute;
+  transform-style: preserve-3d;
+}
+
+.mground {
+  position: absolute;
+  inset: 0;
+  transform: translateZ(0.5px);
+}
+
+.mground svg { display: block; width: 100%; height: 100%; }
+
+.mpieces {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+/* ---------- fence posts (billboarded sticks) ---------- */
+
+.post {
+  position: absolute;
+  left: 0; top: 0;
+  width: 0; height: 0;
+  transform-style: preserve-3d;
+}
+
+.post .stick {
+  position: absolute;
+  width: 11px; height: 48px;
+  left: -5.5px; bottom: 0;
+  transform-origin: 50% 100%;
+  transform: rotateX(calc(var(--tilt) * -1));
+  background: linear-gradient(90deg, #7a5330, #5a3a22 55%, #46290f);
+  border-radius: 5px 5px 2px 2px;
+  box-shadow: inset 0 3px 4px rgba(255, 230, 180, .3), inset 0 -6px 8px rgba(20, 10, 2, .5);
+}
+
+.post .stick::after {              /* rope notch */
+  content: "";
+  position: absolute;
+  left: -2px; right: -2px; top: 12px;
+  height: 5px;
+  background: #c8b088;
+  border-radius: 3px;
+  opacity: .75;
+}
+
+.post .pshadow {
+  position: absolute;
+  left: -10px; top: -5px;
+  width: 20px; height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(0,0,0,.35), transparent 75%);
+}
+
+/* ---------- rocks (two crossed vertical planes) ---------- */
+
+.rock {
+  position: absolute;
+  left: 0; top: 0;
+  width: 0; height: 0;
+  transform-style: preserve-3d;
+}
+
+.rock .rshadow {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(10, 14, 8, .5), transparent 72%);
+}
+
+.rock .rplw {
+  position: absolute;
+  left: 0; top: 0;
+  transform-style: preserve-3d;
+}
+
+.rock .rpl {
+  position: absolute;
+  transform-origin: 50% 100%;
+  transform: rotateX(calc(var(--tilt) * -1));
+}
+
+.rock .rpl svg { display: block; width: 100%; height: 100%; }
+
+/* ---------- animals: fully 3D CSS-box bodies (wooden-toy style) ---------- */
+
+.manimal {
+  position: absolute;
+  left: 0; top: 0;
+  width: 0; height: 0;
+  transform-style: preserve-3d;
+}
+
+.manimal .aturn {
+  position: absolute;
+  left: 0; top: 0;
+  transform-style: preserve-3d;
+}
+
+.manimal .mshadow {
+  position: absolute;
+  left: -24px; top: -34px;
+  width: 48px; height: 68px;      /* elongated along the heading axis */
+  border-radius: 50%;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(8, 12, 6, .42), transparent 72%);
+}
+
+.manimal .body3d {
+  position: absolute;
+  left: 0; top: 0;
+  transform-style: preserve-3d;
+  animation: bob3 .38s ease-in-out infinite alternate;
+}
+
+@keyframes bob3 {
+  from { transform: translateZ(0); }
+  to   { transform: translateZ(2.5px); }
+}
+
+/* one face of a 3D box; anchored at its top edge, hangs downward */
+.f3 {
+  position: absolute;
+  left: 0; top: 0;
+  transform-origin: 0 0;
+}
+
+.f3 .dot {
+  position: absolute;
+  border-radius: 50%;
+  display: block;
+}
+
+/* legs & tail: outer div carries the hip position, inner div the swing */
+.legpos {
+  position: absolute;
+  left: 0; top: 0;
+  transform-style: preserve-3d;
+}
+
+.legswingA, .legswingB, .tailwag3 {
+  position: absolute;
+  left: 0; top: 0;
+  transform-style: preserve-3d;
+  transform-origin: 0 0;
+}
+
+.legswingA { animation: lswing .4s ease-in-out infinite alternate; }
+.legswingB { animation: lswing .4s ease-in-out infinite alternate-reverse; }
+
+@keyframes lswing {
+  from { transform: rotateX(-26deg); }
+  to   { transform: rotateX(26deg); }
+}
+
+.tailwag3 { animation: twag .7s ease-in-out infinite alternate; }
+
+@keyframes twag {
+  from { transform: rotateZ(-13deg); }
+  to   { transform: rotateZ(13deg); }
+}
+
+.manimal.dead { display: none; }
+
+/* in-puddle splash hint */
+.manimal.splashing .mshadow {
+  background: radial-gradient(50% 50% at 50% 50%, rgba(90, 140, 190, .5), transparent 72%);
+}
+
+/* ---------- poofs & flashes ---------- */
+
+.mpoof {
+  position: absolute;
+  left: 0; top: 0;
+  width: 0; height: 0;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+.mpoof .p {
+  position: absolute;
+  left: -7px; top: -7px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fdf4dc, #cfd6da 65%, rgba(207,214,218,0));
+  animation: mpoof-fly .65s ease-out forwards;
+}
+
+.mpoof.caught .p {
+  background: radial-gradient(circle at 35% 30%, #ffe3da, #d4655a 60%, rgba(212,101,90,0));
+}
+
+@keyframes mpoof-fly {
+  0%   { transform: translate3d(0, 0, 12px) scale(.6); opacity: 1; }
+  100% { transform: translate3d(var(--px), var(--py), 60px) scale(1.6); opacity: 0; }
+}
+
+/* start overlay uses the shared card styles from style.css */
+
+/* ---------- pause & hud ---------- */
+
+.hud-btns { display: flex; gap: 8px; justify-content: center; }
+
+/* dim with a fixed veil — filtering .scene would flatten its 3D compositing */
+.mpaused .room::after {
+  content: "⏸";
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 8, 6, .45);
+  z-index: 30;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+  font-size: 64px;
+  color: rgba(242, 232, 213, .35);
+  animation: fade-in .25s ease;
+}
+
+#btnPause:disabled { opacity: .4; cursor: default; }

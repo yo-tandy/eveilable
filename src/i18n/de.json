@@ -40,6 +40,12 @@
       "corrections": "Korrekturen"
     }
   },
+  "puzzles": {
+    "wolvesAndWool": {
+      "name": "Wölfe & Wolle",
+      "description": "Dreh die Herde, überliste das Rudel — ein rundenbasiertes Logikrätsel"
+    }
+  },
   "common": {
     "continue": "Weiter",
     "endSession": "Beenden",
@@ -49,5 +55,9 @@
     "error": "Ein Fehler ist aufgetreten",
     "retry": "Erneut versuchen",
     "startGame": "Spiel starten"
+  },
+  "categories": {
+    "puzzles": "Rätsel",
+    "puzzlesDescription": "Vorausdenken und Logikrätsel in deinem eigenen Tempo lösen"
   }
 }
