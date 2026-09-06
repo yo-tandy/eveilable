@@ -2,6 +2,7 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import Anthropic from '@anthropic-ai/sdk'
 import { getLanguageProfile, updateLanguageProfile } from './learningProfile.js'
 import { callClaudeStructured } from './jsonUtils.js'
+import { aiHttpsError } from './aiErrors.js'
 import {
   validateLanguage, validateLevel, validateSubLevel, validateString, validateArray,
   checkRateLimit, langName, subLevelDescription,
@@ -108,8 +109,7 @@ CRITICAL formatting rules:
       return result
     } catch (error: unknown) {
       if (error instanceof HttpsError) throw error
-      console.error('generateVerbFillExercise error:', error)
-      throw new HttpsError('internal', 'Failed to generate exercise')
+      throw aiHttpsError(error, 'generateVerbFillExercise', 'Failed to generate exercise')
     }
   }
 )
@@ -239,8 +239,7 @@ Based on this evaluation session${langProfile ? ' and the existing profile' : ''
       return clientEvaluation
     } catch (error: unknown) {
       if (error instanceof HttpsError) throw error
-      console.error('evaluateVerbFill error:', error)
-      throw new HttpsError('internal', 'Failed to evaluate answers')
+      throw aiHttpsError(error, 'evaluateVerbFill', 'Failed to evaluate answers')
     }
   }
 )

@@ -1,6 +1,7 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import Anthropic from '@anthropic-ai/sdk'
 import { callClaudeStructured } from './jsonUtils.js'
+import { aiHttpsError } from './aiErrors.js'
 import {
   validateLanguage, validateLevel, validateSubLevel,
   checkRateLimit, langName, subLevelDescription,
@@ -75,8 +76,7 @@ Requirements:
       return { sentences: result.sentences }
     } catch (error: unknown) {
       if (error instanceof HttpsError) throw error
-      console.error('generateMemorySentences error:', error)
-      throw new HttpsError('internal', 'Failed to generate sentences')
+      throw aiHttpsError(error, 'generateMemorySentences', 'Failed to generate sentences')
     }
   }
 )

@@ -2,6 +2,7 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import Anthropic from '@anthropic-ai/sdk'
 import { getLanguageProfile } from './learningProfile.js'
 import { callClaudeStructured } from './jsonUtils.js'
+import { aiHttpsError } from './aiErrors.js'
 import {
   validateLanguage, validateLevel, validateSubLevel, validateString,
   checkRateLimit, langName, subLevelDescription,
@@ -70,8 +71,7 @@ ${profileSection}`,
       }
     } catch (error: unknown) {
       if (error instanceof HttpsError) throw error
-      console.error('generateParagraph error:', error)
-      throw new HttpsError('internal', 'Failed to generate paragraph')
+      throw aiHttpsError(error, 'generateParagraph', 'Failed to generate paragraph')
     }
   }
 )

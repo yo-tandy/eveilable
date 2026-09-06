@@ -2,6 +2,7 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import Anthropic from '@anthropic-ai/sdk'
 import { getLanguageProfile, updateLanguageProfile } from './learningProfile.js'
 import { callClaudeStructured } from './jsonUtils.js'
+import { aiHttpsError } from './aiErrors.js'
 import {
   validateLanguage, validateLevel, validateSubLevel, validateString,
   checkRateLimit, langName, subLevelDescription,
@@ -104,8 +105,7 @@ ${profileSection}`,
       }
     } catch (error: unknown) {
       if (error instanceof HttpsError) throw error
-      console.error('generateArticle error:', error)
-      throw new HttpsError('internal', 'Failed to generate article')
+      throw aiHttpsError(error, 'generateArticle', 'Failed to generate article')
     }
   }
 )
@@ -163,8 +163,7 @@ Requirements:
       return { questions: result.questions }
     } catch (error: unknown) {
       if (error instanceof HttpsError) throw error
-      console.error('generateQuestions error:', error)
-      throw new HttpsError('internal', 'Failed to generate questions')
+      throw aiHttpsError(error, 'generateQuestions', 'Failed to generate questions')
     }
   }
 )
@@ -283,8 +282,7 @@ Based on this evaluation session${langProfile ? ' and the existing profile' : ''
       return clientEvaluation
     } catch (error: unknown) {
       if (error instanceof HttpsError) throw error
-      console.error('evaluateSummary error:', error)
-      throw new HttpsError('internal', 'Failed to evaluate summary')
+      throw aiHttpsError(error, 'evaluateSummary', 'Failed to evaluate summary')
     }
   }
 )

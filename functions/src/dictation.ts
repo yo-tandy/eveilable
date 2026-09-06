@@ -2,6 +2,7 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import Anthropic from '@anthropic-ai/sdk'
 import { getLanguageProfile } from './learningProfile.js'
 import { callClaudeStructured } from './jsonUtils.js'
+import { aiHttpsError } from './aiErrors.js'
 import {
   validateLanguage, validateLevel, validateSubLevel,
   checkRateLimit, langName, subLevelDescription,
@@ -85,8 +86,7 @@ ${profileSection}`,
       }
     } catch (error: unknown) {
       if (error instanceof HttpsError) throw error
-      console.error('generateDictationText error:', error)
-      throw new HttpsError('internal', 'Failed to generate dictation text')
+      throw aiHttpsError(error, 'generateDictationText', 'Failed to generate dictation text')
     }
   }
 )

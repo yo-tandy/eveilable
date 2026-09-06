@@ -18,9 +18,11 @@ const GOOGLE_NEWS_LOCALES: Record<string, { hl: string; gl: string; ceid: string
 // Max age of headlines in milliseconds (3 days)
 const MAX_ARTICLE_AGE_MS = 3 * 24 * 60 * 60 * 1000
 
-function pickRandom<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)]
-}
+// Google News intermittently 503s requests from Cloud Run IPs, so retry across
+// distinct topic feeds before giving up on live headlines.
+const MAX_TOPIC_ATTEMPTS = 3
+const RETRY_DELAY_MS = 400
+const REQUEST_TIMEOUT_MS = 8000
 
 function shuffleAndTake<T>(arr: T[], n: number): T[] {
   const shuffled = [...arr].sort(() => Math.random() - 0.5)
@@ -129,6 +131,45 @@ const FALLBACK_HEADLINES: Record<string, { title: string; description: string; s
   ],
 }
 
+/**
+ * Fetch one Google News RSS topic feed.
+ *
+ * Google serves 503 to Cloud Run egress IPs intermittently, and the topic URL
+ * now 302-redirects to /rss/topics/<id> (fetch follows it). Returns null on any
+ * failure so the caller can try another topic rather than falling straight back
+ * to canned headlines.
+ */
+async function fetchTopic(
+  topic: string,
+  locale: { hl: string; gl: string; ceid: string },
+): Promise<{ title: string; description: string; source: string }[] | null> {
+  const url = `https://news.google.com/rss/headlines/section/topic/${topic}?hl=${locale.hl}&gl=${locale.gl}&ceid=${encodeURIComponent(locale.ceid)}`
+
+  try {
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; EveilableBot/1.0)' },
+      redirect: 'follow',
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    })
+
+    if (!response.ok) {
+      console.warn(`Google News RSS ${topic} returned ${response.status}`)
+      return null
+    }
+
+    const items = parseRssFeed(await response.text())
+    if (items.length === 0) {
+      console.warn(`Google News RSS ${topic} returned no items within the freshness window`)
+      return null
+    }
+
+    return items
+  } catch (error: unknown) {
+    console.warn(`Google News RSS ${topic} fetch failed:`, error)
+    return null
+  }
+}
+
 export const fetchNews = onCall(
   { timeoutSeconds: 30 },
   async (request) => {
@@ -139,32 +180,28 @@ export const fetchNews = onCall(
     const language = validateLanguage(request.data.language ?? 'en')
     const locale = GOOGLE_NEWS_LOCALES[language] || GOOGLE_NEWS_LOCALES['en']
 
-    // Try a random topic for variety across sessions
-    const topic = pickRandom(GOOGLE_NEWS_TOPICS)
-    const url = `https://news.google.com/rss/headlines/section/topic/${topic}?hl=${locale.hl}&gl=${locale.gl}&ceid=${encodeURIComponent(locale.ceid)}`
-
-    try {
-      const response = await fetch(url, {
-        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; EveilableBot/1.0)' },
-      })
-
-      if (!response.ok) {
-        throw new Error(`Google News RSS returned ${response.status}`)
+    // Each attempt uses a different topic: it varies the content across sessions
+    // and routes around a single topic feed being unavailable.
+    const topics = shuffleAndTake(GOOGLE_NEWS_TOPICS, MAX_TOPIC_ATTEMPTS)
+    for (let i = 0; i < topics.length; i++) {
+      const items = await fetchTopic(topics[i], locale)
+      if (items) {
+        return { headlines: shuffleAndTake(items, 5), source: 'live' as const }
       }
-
-      const xml = await response.text()
-      const items = parseRssFeed(xml)
-
-      if (items.length === 0) {
-        console.warn(`No fresh Google News items for ${topic}/${language}, using fallback`)
-        return { headlines: FALLBACK_HEADLINES[language] || FALLBACK_HEADLINES['en'] }
+      if (i < topics.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS))
       }
+    }
 
-      return { headlines: shuffleAndTake(items, 5) }
-    } catch (error: unknown) {
-      console.error('fetchNews error:', error)
-      // Never fail: return static fallbacks on any error
-      return { headlines: FALLBACK_HEADLINES[language] || FALLBACK_HEADLINES['en'] }
+    // Every attempt failed. Serve canned headlines so the games still work, but
+    // say so loudly — this line means users are reading stale sample content.
+    console.error(
+      `[NEWS FALLBACK] All ${MAX_TOPIC_ATTEMPTS} Google News attempts failed for ` +
+      `${language}; serving static fallback headlines.`,
+    )
+    return {
+      headlines: FALLBACK_HEADLINES[language] || FALLBACK_HEADLINES['en'],
+      source: 'fallback' as const,
     }
   }
 )

@@ -2,6 +2,7 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https'
 import Anthropic from '@anthropic-ai/sdk'
 import { getLanguageProfile, updateLanguageProfile } from './learningProfile.js'
 import { callClaudeStructured } from './jsonUtils.js'
+import { aiHttpsError } from './aiErrors.js'
 import {
   validateLanguage, validateLevel, validateSubLevel, validateArray,
   checkRateLimit, langName, subLevelDescription,
@@ -90,8 +91,7 @@ ${profileSection}`,
       return { exercises: result.exercises }
     } catch (error: unknown) {
       if (error instanceof HttpsError) throw error
-      console.error('generateTenseExercises error:', error)
-      throw new HttpsError('internal', 'Failed to generate exercises')
+      throw aiHttpsError(error, 'generateTenseExercises', 'Failed to generate exercises')
     }
   }
 )
@@ -211,8 +211,7 @@ Based on this evaluation session${langProfile ? ' and the existing profile' : ''
       return clientEvaluation
     } catch (error: unknown) {
       if (error instanceof HttpsError) throw error
-      console.error('evaluateTenseRewrites error:', error)
-      throw new HttpsError('internal', 'Failed to evaluate rewrites')
+      throw aiHttpsError(error, 'evaluateTenseRewrites', 'Failed to evaluate rewrites')
     }
   }
 )
