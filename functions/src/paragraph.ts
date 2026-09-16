@@ -7,6 +7,7 @@ import {
   validateLanguage, validateLevel, validateSubLevel, validateString,
   checkRateLimit, langName, subLevelDescription,
 } from './validate.js'
+import { CEFR_BANDS, ASSESSED_LEVEL_SCHEMA, levelRubric, levelDrift, retryNote } from './levelRubric.js'
 
 function getClient() {
   return new Anthropic({
@@ -34,40 +35,59 @@ export const generateParagraph = onCall(
     const langProfile = await getLanguageProfile(uid, language)
 
     const profileSection = langProfile
-      ? `\nLearner Profile for ${langName(language)}:\n"${langProfile.summary}"\n\nIncorporate vocabulary and sentence structures that gently challenge the learner's known weak areas while remaining at the appropriate CEFR level.\n`
+      ? `\nLearner Profile for ${langName(language)}:\n"${langProfile.summary}"\n\nIncorporate vocabulary and sentence structures that gently challenge the learner's known weak areas, but only within the level constraints above.\n`
       : ''
 
-    try {
-      const result = await callClaudeStructured(
-        getClient(),
-        `Write a single news paragraph based on this headline: "${headline}"
+    const isBeginner = level === 'A1' || level === 'A2'
+    const densityLine = isBeginner
+      ? '- Cover only the 2-3 main facts, each told plainly'
+      : '- Dense and informative — pack in key facts'
+
+    const basePrompt = `Write a single news paragraph based on this headline: "${headline}"
 
 Requirements:
 - Language: ${langName(language)}
-- CEFR language level: ${subLevelDescription(level, subLevel)} (adjust vocabulary and sentence complexity accordingly)
+- ${levelRubric(level, subLevel)}
 - Exactly ONE paragraph, 80-120 words
-- Dense and informative — pack in key facts
+${densityLine}
 - The paragraph should be self-contained and understandable without prior knowledge
-${profileSection}`,
-        {
-          type: 'object',
-          properties: {
-            title: { type: 'string', description: 'The paragraph title' },
-            paragraph: { type: 'string', description: 'The news paragraph (80-120 words)' },
-          },
-          required: ['title', 'paragraph'],
-        },
-        { maxTokens: 1024 },
-      )
+${profileSection}`
 
-      const wordCount = result.paragraph.split(/\s+/).length
+    const schema = {
+      type: 'object',
+      properties: {
+        title: { type: 'string', description: 'The paragraph title, obeying the same level constraints' },
+        paragraph: { type: 'string', description: 'The news paragraph (80-120 words)' },
+        assessedLevel: ASSESSED_LEVEL_SCHEMA,
+      },
+      required: ['title', 'paragraph', 'assessedLevel'],
+    }
+
+    try {
+      let result = await callClaudeStructured(getClient(), basePrompt, schema, { maxTokens: 1024 })
+
+      // One regeneration if the model's own assessment says the text drifted off-level.
+      const drift = levelDrift(result.assessedLevel, level, subLevel)
+      if (drift) {
+        console.info(`generateParagraph: assessed ${result.assessedLevel} for target ${subLevelDescription(level, subLevel)} (${drift}); regenerating`)
+        result = await callClaudeStructured(
+          getClient(),
+          basePrompt + retryNote(drift, String(result.assessedLevel), level, subLevel, String(result.paragraph)),
+          schema,
+          { maxTokens: 1024 },
+        )
+      }
+
+      const paragraph = String(result.paragraph)
+      const wordCount = paragraph.split(/\s+/).length
 
       return {
         title: result.title,
-        paragraph: result.paragraph,
+        paragraph,
         wordCount,
         language,
         level,
+        assessedLevel: CEFR_BANDS.includes(result.assessedLevel) ? result.assessedLevel : null,
       }
     } catch (error: unknown) {
       if (error instanceof HttpsError) throw error

@@ -7,6 +7,7 @@ import {
   validateLanguage, validateLevel, validateSubLevel, validateString,
   checkRateLimit, langName, subLevelDescription,
 } from './validate.js'
+import { CEFR_BANDS, ASSESSED_LEVEL_SCHEMA, levelRubric, levelDrift, retryNote } from './levelRubric.js'
 
 // Lazy-initialize: secret is only available at request time, not module load
 function getClient() {
@@ -16,9 +17,6 @@ function getClient() {
 }
 
 const SECRETS = ['ANTHROPIC_API_KEY'] as const
-
-/** CEFR bands with lower/upper modifiers: A1-, A1, A1+, ... C2+. */
-const CEFR_BANDS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].flatMap(b => [`${b}-`, b, `${b}+`])
 
 
 export const generateArticle = onCall(
@@ -39,64 +37,58 @@ export const generateArticle = onCall(
     const langProfile = await getLanguageProfile(uid, language)
 
     const profileSection = langProfile
-      ? `\nLearner Profile for ${langName(language)}:\n"${langProfile.summary}"\n\nIncorporate vocabulary and sentence structures that gently stretch the learner's weak areas. Use constructions they've been struggling with so they encounter them in reading context.\n`
+      ? `\nLearner Profile for ${langName(language)}:\n"${langProfile.summary}"\n\nIncorporate vocabulary and sentence structures that gently stretch the learner's weak areas, but only within the level constraints above. Use constructions they've been struggling with so they encounter them in reading context.\n`
       : ''
 
-    try {
-      const article = await callClaudeStructured(
-        getClient(),
-        `Write a news article based on this headline: "${headline}"
+    const isBeginner = level === 'A1' || level === 'A2'
+    const toneLine = isBeginner
+      ? '- Simple, clear and factual. Tell the 3-4 main facts plainly; leave out secondary details.'
+      : '- Factual and informative tone'
+
+    const basePrompt = `Write a news article based on this headline: "${headline}"
 
 Requirements:
 - Language: ${langName(language)}
-- CEFR language level: ${subLevelDescription(level, subLevel)} (adjust vocabulary and sentence complexity accordingly)
+- ${levelRubric(level, subLevel)}
 - Exactly 3 paragraphs
-- Approximately 350 words total
-- Factual and informative tone
+- Approximately ${isBeginner ? 250 : 350} words total
+${toneLine}
 - The article should be self-contained and understandable without prior knowledge
-${profileSection}`,
-        {
-          type: 'object',
-          properties: {
-            title: { type: 'string', description: 'The article title' },
-            paragraphs: {
-              type: 'array',
-              items: { type: 'string' },
-              minItems: 3,
-              maxItems: 3,
-              description: 'Exactly 3 paragraphs',
-            },
-          },
-          required: ['title', 'paragraphs'],
+${profileSection}`
+
+    const schema = {
+      type: 'object',
+      properties: {
+        title: { type: 'string', description: 'The article title, obeying the same level constraints' },
+        paragraphs: {
+          type: 'array',
+          items: { type: 'string' },
+          minItems: 3,
+          maxItems: 3,
+          description: 'Exactly 3 paragraphs',
         },
-        { maxTokens: 2048 },
-      )
+        assessedLevel: ASSESSED_LEVEL_SCHEMA,
+      },
+      required: ['title', 'paragraphs', 'assessedLevel'],
+    }
 
-      // Robust extraction: handle all possible shapes from tool_use
-      const rawParas = article.paragraphs
-      let paragraphs: string[]
+    try {
+      let article = await callClaudeStructured(getClient(), basePrompt, schema, { maxTokens: 2048 })
 
-      if (Array.isArray(rawParas)) {
-        paragraphs = rawParas.map((p: unknown) => String(p))
-      } else if (typeof rawParas === 'string') {
-        // Could be a JSON-stringified array or a plain string with paragraphs
-        try {
-          const parsed = JSON.parse(rawParas)
-          paragraphs = Array.isArray(parsed) ? parsed.map(String) : rawParas.split('\n\n').filter(Boolean)
-        } catch {
-          paragraphs = rawParas.split('\n\n').filter(Boolean)
-        }
-      } else {
-        // Last resort: stringify and log for debugging
-        console.warn('Unexpected paragraphs type:', typeof rawParas, JSON.stringify(rawParas).slice(0, 200))
-        paragraphs = [String(rawParas)]
+      // One regeneration if the model's own assessment says the text drifted off-level.
+      const drift = levelDrift(article.assessedLevel, level, subLevel)
+      if (drift) {
+        const previous = extractParagraphs(article.paragraphs).join('\n\n')
+        console.info(`generateArticle: assessed ${article.assessedLevel} for target ${subLevelDescription(level, subLevel)} (${drift}); regenerating`)
+        article = await callClaudeStructured(
+          getClient(),
+          basePrompt + retryNote(drift, String(article.assessedLevel), level, subLevel, previous),
+          schema,
+          { maxTokens: 2048 },
+        )
       }
 
-      // Ensure we have at least 1 paragraph
-      if (paragraphs.length === 0) {
-        paragraphs = [String(rawParas)]
-      }
-
+      const paragraphs = extractParagraphs(article.paragraphs)
       const wordCount = paragraphs.join(' ').split(/\s+/).length
 
       return {
@@ -105,6 +97,7 @@ ${profileSection}`,
         wordCount,
         language,
         level,
+        assessedLevel: CEFR_BANDS.includes(article.assessedLevel) ? article.assessedLevel : null,
       }
     } catch (error: unknown) {
       if (error instanceof HttpsError) throw error
@@ -112,6 +105,29 @@ ${profileSection}`,
     }
   }
 )
+
+/** Robust extraction: handle all possible shapes from tool_use. */
+function extractParagraphs(rawParas: unknown): string[] {
+  let paragraphs: string[]
+
+  if (Array.isArray(rawParas)) {
+    paragraphs = rawParas.map((p: unknown) => String(p))
+  } else if (typeof rawParas === 'string') {
+    // Could be a JSON-stringified array or a plain string with paragraphs
+    try {
+      const parsed = JSON.parse(rawParas)
+      paragraphs = Array.isArray(parsed) ? parsed.map(String) : rawParas.split('\n\n').filter(Boolean)
+    } catch {
+      paragraphs = rawParas.split('\n\n').filter(Boolean)
+    }
+  } else {
+    // Last resort: stringify and log for debugging
+    console.warn('Unexpected paragraphs type:', typeof rawParas, JSON.stringify(rawParas).slice(0, 200))
+    paragraphs = [String(rawParas)]
+  }
+
+  return paragraphs.length === 0 ? [String(rawParas)] : paragraphs
+}
 
 export const generateQuestions = onCall(
   { timeoutSeconds: 60, memory: '256MiB', secrets: [...SECRETS] },
