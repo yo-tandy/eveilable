@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Clock, Send } from 'lucide-react'
 import { StoryByline } from '../../common/StoryByline'
 import type { ParagraphResult } from '../../../services/paragraphService'
+import { countWords, summaryLimits } from '../../../utils/levelScale'
 
 interface PlayingPhaseProps {
   paragraph: ParagraphResult
@@ -18,8 +19,9 @@ export function PlayingPhase({ paragraph, language, onSubmit }: PlayingPhaseProp
   const timerRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined)
 
   const isRTL = language === 'he'
-  const wordCount = summary.trim().split(/\s+/).filter(Boolean).length
-  const isValid = wordCount >= 10 && wordCount <= 20
+  const { min, max } = summaryLimits(language, 'speedSummary')
+  const wordCount = countWords(summary, language)
+  const isValid = wordCount >= min && wordCount <= max
 
   useEffect(() => {
     startTimeRef.current = Date.now()
@@ -82,16 +84,16 @@ export function PlayingPhase({ paragraph, language, onSubmit }: PlayingPhaseProp
             className={`text-sm font-medium ${
               wordCount === 0
                 ? 'text-ink-3'
-                : wordCount < 10
+                : wordCount < min
                   ? 'text-amber-600'
-                  : wordCount > 20
+                  : wordCount > max
                     ? 'text-red-600'
                     : 'text-green-600'
             }`}
           >
             {wordCount} {t('games.speedSummary.words')}
-            {wordCount > 0 && wordCount < 10 && ` — ${t('games.speedSummary.tooFew')}`}
-            {wordCount > 20 && ` — ${t('games.speedSummary.tooMany')}`}
+            {wordCount > 0 && wordCount < min && ` — ${t('games.speedSummary.tooFew')}`}
+            {wordCount > max && ` — ${t('games.speedSummary.tooMany')}`}
           </span>
           <span className="text-xs text-ink-3">10–20</span>
         </div>

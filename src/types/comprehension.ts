@@ -6,7 +6,7 @@ export interface StoryMeta {
   sourceUrl?: string
   /** Original article publication time, ISO-8601. */
   publishedAt?: string
-  /** CEFR level the story was written for. */
+  /** Level the story was written for (CEFR, or HSK for Chinese). */
   level: string
   subLevel?: string
 }
@@ -42,6 +42,6 @@ export interface SummaryScore {
   feedback: string
   sentenceIssues: SentenceIssue[]
   readingTimeSeconds: number
-  /** CEFR level the summary itself demonstrates, e.g. "A2+", "B1", "C1-". */
+  /** Level the summary itself demonstrates on the language's scale, e.g. "A2+", "B1", "HSK4-". */
   assessedLevel?: string
 }

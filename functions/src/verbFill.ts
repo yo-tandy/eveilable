@@ -5,7 +5,7 @@ import { callClaudeStructured } from './jsonUtils.js'
 import { aiHttpsError } from './aiErrors.js'
 import {
   validateLanguage, validateLevel, validateSubLevel, validateString, validateArray,
-  checkRateLimit, langName, subLevelDescription,
+  checkRateLimit, langName, subLevelDescription, levelTier, scaleName, coerceArray,
 } from './validate.js'
 
 function getClient() {
@@ -17,10 +17,10 @@ function getClient() {
 const SECRETS = ['ANTHROPIC_API_KEY'] as const
 
 function getTenseGuidance(level: string): string {
-  if (level === 'A1' || level === 'A2') {
+  if (levelTier(level) === 'beginner') {
     return 'Use mostly present tense, simple past, and near future. Keep sentences short and straightforward.'
   }
-  if (level === 'B1' || level === 'B2') {
+  if (levelTier(level) === 'intermediate') {
     return 'Include present, past (simple & compound/imperfect), future, and some conditional forms. Use varied sentence structures.'
   }
   return 'Include subjunctive, pluperfect, passive constructions, literary tenses, and complex compound forms. Use sophisticated syntax.'
@@ -35,7 +35,7 @@ export const generateVerbFillExercise = onCall(
 
     const uid = request.auth.uid
     const language = validateLanguage(request.data.language)
-    const level = validateLevel(request.data.level)
+    const level = validateLevel(request.data.level, language)
     const subLevel = validateSubLevel(request.data.subLevel)
 
     await checkRateLimit(uid)
@@ -55,7 +55,7 @@ export const generateVerbFillExercise = onCall(
 
 Requirements:
 - Language: ${langName(language)}
-- CEFR level: ${levelLabel} (adjust vocabulary and sentence complexity accordingly)
+- ${scaleName(level)} level: ${levelLabel} (adjust vocabulary and sentence complexity accordingly)
 - Write a coherent, natural 2-paragraph text (about 80-120 words total) on a random everyday topic (travel, cooking, daily routine, sports, nature, work, school, hobbies, etc.)
 - The text should contain 8-12 conjugated verbs in various tenses
 - Tense guidance for this level: ${tenseGuidance}
@@ -106,7 +106,7 @@ CRITICAL formatting rules:
         { maxTokens: 4096 },
       )
 
-      return result
+      return { ...result, segments: coerceArray(result.segments, 'segments') }
     } catch (error: unknown) {
       if (error instanceof HttpsError) throw error
       throw aiHttpsError(error, 'generateVerbFillExercise', 'Failed to generate exercise')
@@ -124,7 +124,7 @@ export const evaluateVerbFill = onCall(
     const uid = request.auth.uid
     const title = validateString(request.data.title, 'title', 500)
     const language = validateLanguage(request.data.language)
-    const level = validateLevel(request.data.level)
+    const level = validateLevel(request.data.level, language)
     const subLevel = validateSubLevel(request.data.subLevel)
     const segments = validateArray(request.data.segments, 'segments', 100) as Array<{
       type: string; content?: string; infinitive?: string; correctForm?: string; index?: number
@@ -160,7 +160,7 @@ export const evaluateVerbFill = onCall(
         `Evaluate verb conjugation answers for a fill-in-the-blank exercise.
 
 Language: ${langName(language)}
-Expected CEFR level: ${levelLabel}
+Expected ${scaleName(level)} level: ${levelLabel}
 Title: "${title}"
 
 Full text (with correct verbs in brackets):

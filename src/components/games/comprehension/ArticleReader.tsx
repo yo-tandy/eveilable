@@ -5,6 +5,7 @@ import { Timer } from '../../common/Timer'
 import { StoryByline } from '../../common/StoryByline'
 import type { Article } from '../../../types/comprehension'
 import type { LanguageLevel, LanguageSubLevel } from '../../../types/user'
+import { levelOrderOf } from '../../../utils/levelScale'
 
 interface ArticleReaderProps {
   article: Article
@@ -14,21 +15,34 @@ interface ArticleReaderProps {
   onDoneReading: (timeSeconds: number) => void
 }
 
-const READING_TIME_PER_100_WORDS: Record<string, number> = {
+/**
+ * Seconds a learner at each level needs per 100 units of text. The unit is
+ * words for CEFR languages and Han characters for Chinese (HSK), matching
+ * how the server counts `wordCount`.
+ */
+const READING_TIME_PER_100_WORDS: Record<LanguageLevel, number> = {
   A1: 120,
   A2: 90,
   B1: 60,
   B2: 45,
   C1: 35,
   C2: 25,
+  HSK1: 200,
+  HSK2: 160,
+  HSK3: 120,
+  HSK4: 90,
+  HSK5: 70,
+  HSK6: 55,
+  HSK7: 45,
+  HSK8: 35,
+  HSK9: 28,
 }
-
-const LEVEL_ORDER: LanguageLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 
 function getInterpolatedReadingTime(level: LanguageLevel, subLevel?: LanguageSubLevel): number {
   const baseTime = READING_TIME_PER_100_WORDS[level]
   if (!subLevel || subLevel === 'well-placed') return baseTime
 
+  const LEVEL_ORDER = levelOrderOf(level)
   const idx = LEVEL_ORDER.indexOf(level)
   if (subLevel === 'novice') {
     // 30% toward the easier (higher time) level

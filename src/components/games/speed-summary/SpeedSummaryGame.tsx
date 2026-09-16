@@ -15,6 +15,7 @@ import { LanguageGameIntro } from '../../common/LanguageGameIntro'
 import { Zap } from 'lucide-react'
 import { KeyboardCheck } from '../comprehension/KeyboardCheck'
 import { PlayingPhase } from './PlayingPhase'
+import { summaryLimits } from '../../../utils/levelScale'
 import { SpeedSummaryResult } from './SpeedSummaryResult'
 import { LoadingSpinner } from '../../common/LoadingSpinner'
 import type { SummaryScore } from '../../../types/comprehension'
@@ -138,7 +139,7 @@ export function SpeedSummaryGame() {
         summaryText,
         language,
         level,
-        { min: 10, max: 20 },
+        summaryLimits(language, 'speedSummary'),
         subLevel,
       )
       setSummaryEvaluation(evaluation)

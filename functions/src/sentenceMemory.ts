@@ -4,7 +4,7 @@ import { callClaudeStructured } from './jsonUtils.js'
 import { aiHttpsError } from './aiErrors.js'
 import {
   validateLanguage, validateLevel, validateSubLevel,
-  checkRateLimit, langName, subLevelDescription,
+  checkRateLimit, langName, subLevelDescription, levelTier, scaleName, coerceArray,
 } from './validate.js'
 
 function getClient() {
@@ -16,10 +16,10 @@ function getClient() {
 const SECRETS = ['ANTHROPIC_API_KEY'] as const
 
 function getSentenceLengthGuidance(level: string): string {
-  if (level === 'A1' || level === 'A2') {
+  if (levelTier(level) === 'beginner') {
     return '5-8 words per sentence. Use simple, everyday vocabulary and basic sentence structures (subject-verb-object).'
   }
-  if (level === 'B1' || level === 'B2') {
+  if (levelTier(level) === 'intermediate') {
     return '8-14 words per sentence. Use varied vocabulary and moderately complex structures (subordinate clauses, connectors).'
   }
   return '14-22 words per sentence. Use sophisticated vocabulary, complex grammar, and multi-clause structures.'
@@ -34,7 +34,7 @@ export const generateMemorySentences = onCall(
 
     const uid = request.auth.uid
     const language = validateLanguage(request.data.language)
-    const level = validateLevel(request.data.level)
+    const level = validateLevel(request.data.level, language)
     const subLevel = validateSubLevel(request.data.subLevel)
 
     await checkRateLimit(uid)
@@ -49,7 +49,7 @@ export const generateMemorySentences = onCall(
 
 Requirements:
 - Language: ${langName(language)}
-- CEFR level: ${levelLabel}
+- ${scaleName(level)} level: ${levelLabel}
 - Sentence length: ${lengthGuidance}
 - Each sentence should be on a DIFFERENT everyday topic (travel, food, family, work, weather, hobbies, nature, technology, health, culture, etc.)
 - Sentences must be grammatically perfect with correct punctuation and accents
@@ -73,7 +73,7 @@ Requirements:
         { maxTokens: 1024 },
       )
 
-      return { sentences: result.sentences }
+      return { sentences: coerceArray(result.sentences, 'sentences') }
     } catch (error: unknown) {
       if (error instanceof HttpsError) throw error
       throw aiHttpsError(error, 'generateMemorySentences', 'Failed to generate sentences')

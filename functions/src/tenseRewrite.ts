@@ -4,8 +4,8 @@ import { getLanguageProfile, updateLanguageProfile } from './learningProfile.js'
 import { callClaudeStructured } from './jsonUtils.js'
 import { aiHttpsError } from './aiErrors.js'
 import {
-  validateLanguage, validateLevel, validateSubLevel, validateArray,
-  checkRateLimit, langName, subLevelDescription,
+  validateLanguage, validateLevel, validateSubLevel, validateArray, coerceArray,
+  checkRateLimit, langName, subLevelDescription, levelTier, scaleName,
 } from './validate.js'
 
 function getClient() {
@@ -18,11 +18,11 @@ const SECRETS = ['ANTHROPIC_API_KEY'] as const
 
 function getTransformationTypes(level: string): string {
   const base = 'future-tense, past-tense, present-tense, negation, question-form'
-  if (level === 'A1' || level === 'A2') {
+  if (levelTier(level) === 'beginner') {
     return base
   }
   const intermediate = `${base}, active-voice, passive-voice, conditional, reported-speech`
-  if (level === 'B1' || level === 'B2') {
+  if (levelTier(level) === 'intermediate') {
     return intermediate
   }
   // C1, C2
@@ -38,7 +38,7 @@ export const generateTenseExercises = onCall(
 
     const uid = request.auth.uid
     const language = validateLanguage(request.data.language)
-    const level = validateLevel(request.data.level)
+    const level = validateLevel(request.data.level, language)
     const subLevel = validateSubLevel(request.data.subLevel)
 
     await checkRateLimit(uid)
@@ -58,7 +58,7 @@ export const generateTenseExercises = onCall(
 
 Requirements:
 - Language: ${langName(language)}
-- CEFR level: ${levelLabel} (adjust sentence complexity accordingly)
+- ${scaleName(level)} level: ${levelLabel} (adjust sentence complexity accordingly)
 - Each exercise has an original sentence (1-2 lines, about 15-20 words) on a random everyday topic (news, culture, science, daily life, travel, food, technology, etc.)
 - Each exercise has a transformation task from this list: ${allowedTypes}
 - Use a DIVERSE MIX of transformation types — do NOT repeat the same type more than twice
@@ -88,7 +88,7 @@ ${profileSection}`,
         { maxTokens: 4096 },
       )
 
-      return { exercises: result.exercises }
+      return { exercises: coerceArray(result.exercises, 'exercises') }
     } catch (error: unknown) {
       if (error instanceof HttpsError) throw error
       throw aiHttpsError(error, 'generateTenseExercises', 'Failed to generate exercises')
@@ -105,7 +105,7 @@ export const evaluateTenseRewrites = onCall(
 
     const uid = request.auth.uid
     const language = validateLanguage(request.data.language)
-    const level = validateLevel(request.data.level)
+    const level = validateLevel(request.data.level, language)
     const subLevel = validateSubLevel(request.data.subLevel)
     const exercises = validateArray(request.data.exercises, 'exercises', 20) as Array<{
       original: string
@@ -138,7 +138,7 @@ User's rewrite: "${userRewrites[i]}"`
         `Evaluate these 10 sentence transformation exercises.
 
 Language: ${langName(language)}
-Expected CEFR level: ${levelLabel}
+Expected ${scaleName(level)} level: ${levelLabel}
 
 ${exerciseList}
 

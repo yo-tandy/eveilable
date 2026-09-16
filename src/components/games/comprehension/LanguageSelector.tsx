@@ -3,21 +3,13 @@ import { useTranslation } from 'react-i18next'
 import { Globe, GraduationCap, Layers } from 'lucide-react'
 import { useSettingsStore } from '../../../stores/settingsStore'
 import type { SupportedLanguage, LanguageLevel, LanguageSubLevel } from '../../../types/user'
+import { levelsForLanguage, isLevelForLanguage, LEVEL_DESCRIPTIONS } from '../../../utils/levelScale'
 
 interface LanguageSelectorProps {
   onSelect: (language: SupportedLanguage, level: LanguageLevel, subLevel: LanguageSubLevel) => void
 }
 
 const LANGUAGES: SupportedLanguage[] = ['en', 'fr', 'zh', 'he', 'de', 'it']
-
-const LEVELS: { code: LanguageLevel; description: string }[] = [
-  { code: 'A1', description: 'Beginner' },
-  { code: 'A2', description: 'Elementary' },
-  { code: 'B1', description: 'Intermediate' },
-  { code: 'B2', description: 'Upper Intermediate' },
-  { code: 'C1', description: 'Advanced' },
-  { code: 'C2', description: 'Proficient' },
-]
 
 const SUB_LEVELS: { code: LanguageSubLevel; label: string; description: string }[] = [
   { code: 'novice', label: 'Novice', description: 'Lower range' },
@@ -39,7 +31,8 @@ export function LanguageSelector({ onSelect }: LanguageSelectorProps) {
   useEffect(() => {
     if (!selectedLang) return
     const saved = getLanguageLevel(selectedLang)
-    if (saved) {
+    // Ignore a saved level from the wrong scale (e.g. a CEFR level stored for Chinese before HSK was introduced)
+    if (saved && isLevelForLanguage(saved.cefr, selectedLang)) {
       setSelectedLevel(saved.cefr)
       setSelectedSubLevel(saved.sub)
     } else {
@@ -47,6 +40,8 @@ export function LanguageSelector({ onSelect }: LanguageSelectorProps) {
       setSelectedSubLevel(null)
     }
   }, [selectedLang, getLanguageLevel])
+
+  const levels: LanguageLevel[] = selectedLang ? [...levelsForLanguage(selectedLang)] : []
 
   return (
     <div className="max-w-lg mx-auto">
@@ -76,22 +71,22 @@ export function LanguageSelector({ onSelect }: LanguageSelectorProps) {
             {t('common.selectLevel')}
           </h2>
           <div className="grid grid-cols-3 gap-3 mb-8" role="group" aria-label={t('common.selectLevel')}>
-            {LEVELS.map((lvl) => (
+            {levels.map((code) => (
               <button
-                key={lvl.code}
+                key={code}
                 type="button"
-                aria-pressed={selectedLevel === lvl.code}
+                aria-pressed={selectedLevel === code}
                 onClick={() => {
-                  setSelectedLevel(lvl.code)
-                  // Reset sub-level when changing CEFR level
-                  if (lvl.code !== selectedLevel) {
+                  setSelectedLevel(code)
+                  // Reset sub-level when changing main level
+                  if (code !== selectedLevel) {
                     setSelectedSubLevel(null)
                   }
                 }}
-                className={`p-3 text-center ${optionClass(selectedLevel === lvl.code)}`}
+                className={`p-3 text-center ${optionClass(selectedLevel === code)}`}
               >
-                <span className="block display text-xl">{lvl.code}</span>
-                <span className="block text-xs font-bold text-ink-2">{lvl.description}</span>
+                <span className="block display text-xl">{code}</span>
+                <span className="block text-xs font-bold text-ink-2">{LEVEL_DESCRIPTIONS[code]}</span>
               </button>
             ))}
           </div>

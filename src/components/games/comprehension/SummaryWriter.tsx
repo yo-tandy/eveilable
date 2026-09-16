@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef } from 'react'
 import { preciseNow } from '../../../utils/timing'
+import { countWords, lengthUnit, summaryLimits } from '../../../utils/levelScale'
 
 interface SummaryWriterProps {
   mode: 'complete' | 'race'
@@ -8,16 +9,13 @@ interface SummaryWriterProps {
   error: string | null
 }
 
-const MIN_WORDS = 30
-const MAX_WORDS = 60
-
 export function SummaryWriter({ language, onSubmit, error }: SummaryWriterProps) {
   const [text, setText] = useState('')
   const startRef = useRef(preciseNow())
+  const { min: MIN_WORDS, max: MAX_WORDS } = summaryLimits(language, 'comprehension')
+  const unit = lengthUnit(language)
 
-  const wordCount = useMemo(() => {
-    return text.trim().split(/\s+/).filter(Boolean).length
-  }, [text])
+  const wordCount = useMemo(() => countWords(text, language), [text, language])
 
   const wordCountColor = wordCount < MIN_WORDS
     ? 'text-red-500'
@@ -31,7 +29,7 @@ export function SummaryWriter({ language, onSubmit, error }: SummaryWriterProps)
     <div className="max-w-2xl mx-auto p-6">
       <h2 className="display text-[30px] leading-tight mb-2">Write a Summary</h2>
       <p className="text-ink-2 mb-6">
-        Write a {MIN_WORDS}-{MAX_WORDS} word summary of the article you just read.
+        Write a {MIN_WORDS}-{MAX_WORDS} {unit === 'words' ? 'word' : 'character'} summary of the article you just read.
       </p>
 
       {error && (
@@ -49,7 +47,7 @@ export function SummaryWriter({ language, onSubmit, error }: SummaryWriterProps)
       />
 
       <div className={`mt-2 text-right font-medium ${wordCountColor}`}>
-        {wordCount} words
+        {wordCount} {unit}
         <span className="text-ink-3 ml-1">
           ({MIN_WORDS}-{MAX_WORDS} required)
         </span>

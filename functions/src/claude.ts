@@ -5,9 +5,9 @@ import { callClaudeStructured } from './jsonUtils.js'
 import { aiHttpsError } from './aiErrors.js'
 import {
   validateLanguage, validateLevel, validateSubLevel, validateString,
-  checkRateLimit, langName, subLevelDescription,
+  checkRateLimit, langName, subLevelDescription, levelTier, scaleName, countWords, coerceArray,
 } from './validate.js'
-import { CEFR_BANDS, ASSESSED_LEVEL_SCHEMA, levelRubric, levelDrift, retryNote } from './levelRubric.js'
+import { bandsFor, assessedLevelSchema, levelRubric, levelDrift, retryNote } from './levelRubric.js'
 
 // Lazy-initialize: secret is only available at request time, not module load
 function getClient() {
@@ -29,7 +29,7 @@ export const generateArticle = onCall(
     const uid = request.auth.uid
     const headline = validateString(request.data.headline, 'headline', 500)
     const language = validateLanguage(request.data.language)
-    const level = validateLevel(request.data.level)
+    const level = validateLevel(request.data.level, language)
     const subLevel = validateSubLevel(request.data.subLevel)
 
     await checkRateLimit(uid)
@@ -40,7 +40,8 @@ export const generateArticle = onCall(
       ? `\nLearner Profile for ${langName(language)}:\n"${langProfile.summary}"\n\nIncorporate vocabulary and sentence structures that gently stretch the learner's weak areas, but only within the level constraints above. Use constructions they've been struggling with so they encounter them in reading context.\n`
       : ''
 
-    const isBeginner = level === 'A1' || level === 'A2'
+    const isBeginner = levelTier(level) === 'beginner'
+    const unit = language === 'zh' ? 'characters' : 'words'
     const toneLine = isBeginner
       ? '- Simple, clear and factual. Tell the 3-4 main facts plainly; leave out secondary details.'
       : '- Factual and informative tone'
@@ -51,7 +52,7 @@ Requirements:
 - Language: ${langName(language)}
 - ${levelRubric(level, subLevel)}
 - Exactly 3 paragraphs
-- Approximately ${isBeginner ? 250 : 350} words total
+- Approximately ${isBeginner ? 250 : 350} ${unit} total
 ${toneLine}
 - The article should be self-contained and understandable without prior knowledge
 ${profileSection}`
@@ -67,7 +68,7 @@ ${profileSection}`
           maxItems: 3,
           description: 'Exactly 3 paragraphs',
         },
-        assessedLevel: ASSESSED_LEVEL_SCHEMA,
+        assessedLevel: assessedLevelSchema(level),
       },
       required: ['title', 'paragraphs', 'assessedLevel'],
     }
@@ -89,7 +90,7 @@ ${profileSection}`
       }
 
       const paragraphs = extractParagraphs(article.paragraphs)
-      const wordCount = paragraphs.join(' ').split(/\s+/).length
+      const wordCount = countWords(paragraphs.join(' '), language)
 
       return {
         title: article.title || '',
@@ -97,7 +98,7 @@ ${profileSection}`
         wordCount,
         language,
         level,
-        assessedLevel: CEFR_BANDS.includes(article.assessedLevel) ? article.assessedLevel : null,
+        assessedLevel: bandsFor(level).includes(article.assessedLevel) ? article.assessedLevel : null,
       }
     } catch (error: unknown) {
       if (error instanceof HttpsError) throw error
@@ -179,7 +180,7 @@ Requirements:
         { maxTokens: 4096 },
       )
 
-      return { questions: result.questions }
+      return { questions: coerceArray(result.questions, 'questions') }
     } catch (error: unknown) {
       if (error instanceof HttpsError) throw error
       throw aiHttpsError(error, 'generateQuestions', 'Failed to generate questions')
@@ -198,13 +199,15 @@ export const evaluateSummary = onCall(
     const article = validateString(request.data.article, 'article', 10000)
     const summary = validateString(request.data.summary, 'summary', 1000)
     const language = validateLanguage(request.data.language)
-    const level = validateLevel(request.data.level)
+    const level = validateLevel(request.data.level, language)
     const subLevel = validateSubLevel(request.data.subLevel)
 
     await checkRateLimit(uid)
 
     const wl = request.data.wordLimit ?? { min: 10, max: 100 }
     const levelLabel = subLevelDescription(level, subLevel)
+    const scale = scaleName(level)
+    const unit = language === 'zh' ? 'characters' : 'words'
     const langProfile = await getLanguageProfile(uid, language)
 
     const profileContext = langProfile
@@ -223,17 +226,17 @@ Summary:
 ${summary}
 
 Language: ${langName(language)}
-Expected CEFR level: ${levelLabel}
-Word limit: ${wl.min}–${wl.max} words
-Actual word count: ${summary.trim().split(/\s+/).filter(Boolean).length} words (use this count; do not count words independently)
+Expected ${scale} level: ${levelLabel}
+Length limit: ${wl.min}–${wl.max} ${unit}
+Actual length: ${countWords(summary, language)} ${unit} (use this count; do not count independently)
 
 IMPORTANT SCORING GUIDELINES:
 
 Score each dimension from 1-10:
 
-- accuracy: Does the summary capture the MAIN IDEA or central message of the article? The summary is constrained to only ${wl.min}–${wl.max} words, so it is IMPOSSIBLE to include every detail. Do NOT penalize for omitting specific details like names, cities, statistics, lists, or secondary points. A summary that correctly conveys the core message in ${wl.min}–${wl.max} words should score 8-10 for accuracy.
+- accuracy: Does the summary capture the MAIN IDEA or central message of the article? The summary is constrained to only ${wl.min}–${wl.max} ${unit}, so it is IMPOSSIBLE to include every detail. Do NOT penalize for omitting specific details like names, cities, statistics, lists, or secondary points. A summary that correctly conveys the core message in ${wl.min}–${wl.max} ${unit} should score 8-10 for accuracy.
 
-- vocabulary: REWARD the use of vocabulary that is MORE ADVANCED than the expected ${levelLabel} level. Using words above the expected CEFR level demonstrates strong language skills and should INCREASE the score (8-10). Only lower the score if the vocabulary is significantly BELOW the expected level or if words are used incorrectly. Do NOT penalize for using advanced words correctly.
+- vocabulary: REWARD the use of vocabulary that is MORE ADVANCED than the expected ${levelLabel} level. Using words above the expected ${scale} level demonstrates strong language skills and should INCREASE the score (8-10). Only lower the score if the vocabulary is significantly BELOW the expected level or if words are used incorrectly. Do NOT penalize for using advanced words correctly.
 
 - grammar: REWARD sophisticated sentence structures (complex sentences, varied syntax, subordinate clauses) that go beyond the expected ${levelLabel} level. Only flag actual grammatical ERRORS (wrong tense, subject-verb disagreement, missing articles, etc.). Correct but advanced grammar should INCREASE the score, not decrease it.
 
@@ -256,7 +259,7 @@ If the summary has no genuine issues, return an empty sentenceIssues array.
 
 --- LEVEL ASSESSMENT ---
 
-Independently of the expected level, assess the CEFR level the summary itself demonstrates, based on its vocabulary range, grammatical complexity and control, and cohesion. Report it in "assessedLevel" as a CEFR band with an optional modifier: "+" means solidly in the upper part of the band, approaching the next one; "-" means the lower part of the band. Examples: "A2+", "B1", "C1-". Judge only what is on the page; a short summary can still show C1 control, and a long one can still be A2.
+Independently of the expected level, assess the ${scale} level the summary itself demonstrates, based on its vocabulary range, grammatical complexity and control, and cohesion. Report it in "assessedLevel" as a ${scale} band with an optional modifier: "+" means solidly in the upper part of the band, approaching the next one; "-" means the lower part of the band. Examples: ${scale === 'HSK' ? '"HSK2+", "HSK4", "HSK7-"' : '"A2+", "B1", "C1-"'}. Judge only what is on the page; a short summary can still show top-band control, and a long one can still be at the bottom band.
 
 --- LEARNER PROFILE UPDATE ---
 ${profileContext}
@@ -285,8 +288,8 @@ Based on this evaluation session${langProfile ? ' and the existing profile' : ''
             },
             assessedLevel: {
               type: 'string',
-              enum: CEFR_BANDS,
-              description: 'CEFR level demonstrated by the summary, e.g. "A2+", "B1", "C1-"',
+              enum: bandsFor(level),
+              description: `${scale} level demonstrated by the summary, with optional + or - modifier`,
             },
             profileUpdate: { type: 'string', description: 'Updated learner profile summary (100-180 words)' },
           },

@@ -22,6 +22,7 @@ import { LoadingSpinner } from '../../common/LoadingSpinner'
 import type { Article, ComprehensionQuestion, SummaryScore } from '../../../types/comprehension'
 import type { GameSession } from '../../../types/game'
 import type { SupportedLanguage, LanguageLevel, LanguageSubLevel } from '../../../types/user'
+import { summaryLimits } from '../../../utils/levelScale'
 
 type Phase =
   | 'language-select'
@@ -178,7 +179,7 @@ export function ComprehensionGame() {
     setPhase('evaluating')
     try {
       const articleText = article!.paragraphs.join('\n\n')
-      const evaluation = await evaluateSummary(articleText, summaryText, language, level, { min: 30, max: 60 }, subLevel)
+      const evaluation = await evaluateSummary(articleText, summaryText, language, level, summaryLimits(language, 'comprehension'), subLevel)
       evaluation.readingTimeSeconds = readingTimeSeconds
       setSummaryEvaluation(evaluation)
       console.log('[Comprehension] handleSummarySubmit: calling saveSession with', questionAnswers.length, 'answers')

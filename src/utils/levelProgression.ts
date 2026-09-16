@@ -1,6 +1,6 @@
-import type { LanguageLevel, LanguageSubLevel, LanguageLevelConfig } from '../types/user'
+import type { LanguageSubLevel, LanguageLevelConfig } from '../types/user'
+import { levelOrderOf } from './levelScale'
 
-const CEFR_ORDER: LanguageLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 const SUB_ORDER: LanguageSubLevel[] = ['novice', 'well-placed', 'advanced']
 
 interface ProgressionResult {
@@ -13,7 +13,7 @@ interface ProgressionResult {
  * Check if the user should advance or regress based on recent scores.
  * - Upgrade: last 2 sessions with overallScore >= 8
  * - Downgrade: last 2 sessions with overallScore <= 4
- * Capped at C2-advanced (top) and A1-novice (bottom).
+ * Capped at the top and bottom of the language's scale (C2 / HSK9 advanced, A1 / HSK1 novice).
  */
 export function checkLevelProgression(
   current: LanguageLevelConfig,
@@ -45,7 +45,8 @@ export function checkLevelProgression(
 }
 
 function stepUp(config: LanguageLevelConfig): LanguageLevelConfig | null {
-  const cefrIdx = CEFR_ORDER.indexOf(config.cefr)
+  const order = levelOrderOf(config.cefr)
+  const cefrIdx = order.indexOf(config.cefr)
   const subIdx = SUB_ORDER.indexOf(config.sub)
 
   if (subIdx < SUB_ORDER.length - 1) {
@@ -53,17 +54,18 @@ function stepUp(config: LanguageLevelConfig): LanguageLevelConfig | null {
     return { cefr: config.cefr, sub: SUB_ORDER[subIdx + 1] }
   }
 
-  if (cefrIdx < CEFR_ORDER.length - 1) {
-    // Move to novice of next CEFR level
-    return { cefr: CEFR_ORDER[cefrIdx + 1], sub: 'novice' }
+  if (cefrIdx < order.length - 1) {
+    // Move to novice of next level
+    return { cefr: order[cefrIdx + 1], sub: 'novice' }
   }
 
-  // Already at C2-advanced, can't go higher
+  // Already at the top of the scale, can't go higher
   return null
 }
 
 function stepDown(config: LanguageLevelConfig): LanguageLevelConfig | null {
-  const cefrIdx = CEFR_ORDER.indexOf(config.cefr)
+  const order = levelOrderOf(config.cefr)
+  const cefrIdx = order.indexOf(config.cefr)
   const subIdx = SUB_ORDER.indexOf(config.sub)
 
   if (subIdx > 0) {
@@ -72,10 +74,10 @@ function stepDown(config: LanguageLevelConfig): LanguageLevelConfig | null {
   }
 
   if (cefrIdx > 0) {
-    // Move to advanced of previous CEFR level
-    return { cefr: CEFR_ORDER[cefrIdx - 1], sub: 'advanced' }
+    // Move to advanced of previous level
+    return { cefr: order[cefrIdx - 1], sub: 'advanced' }
   }
 
-  // Already at A1-novice, can't go lower
+  // Already at the bottom of the scale, can't go lower
   return null
 }

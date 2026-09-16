@@ -5,7 +5,7 @@ import { callClaudeStructured } from './jsonUtils.js'
 import { aiHttpsError } from './aiErrors.js'
 import {
   validateLanguage, validateLevel, validateSubLevel,
-  checkRateLimit, langName, subLevelDescription,
+  checkRateLimit, langName, subLevelDescription, levelTier, scaleName,
 } from './validate.js'
 
 function getClient() {
@@ -17,10 +17,10 @@ function getClient() {
 const SECRETS = ['ANTHROPIC_API_KEY'] as const
 
 function getComplexityGuidance(level: string): string {
-  if (level === 'A1' || level === 'A2') {
+  if (levelTier(level) === 'beginner') {
     return 'Use simple, everyday vocabulary and short sentences. Basic punctuation (periods, commas, question marks). Include common words with accents/diacritics for the language.'
   }
-  if (level === 'B1' || level === 'B2') {
+  if (levelTier(level) === 'intermediate') {
     return 'Use varied vocabulary with moderately complex sentences. Include semicolons, colons, dashes, and parentheses occasionally. Use words with accents/diacritics naturally throughout.'
   }
   return 'Use sophisticated vocabulary and complex sentence structures. Include varied punctuation (semicolons, colons, em-dashes, quotation marks). Use literary or formal register with rich diacritics.'
@@ -35,7 +35,7 @@ export const generateDictationText = onCall(
 
     const uid = request.auth.uid
     const language = validateLanguage(request.data.language)
-    const level = validateLevel(request.data.level)
+    const level = validateLevel(request.data.level, language)
     const subLevel = validateSubLevel(request.data.subLevel)
 
     await checkRateLimit(uid)
@@ -55,7 +55,7 @@ export const generateDictationText = onCall(
 
 Requirements:
 - Language: ${langName(language)}
-- CEFR level: ${levelLabel}
+- ${scaleName(level)} level: ${levelLabel}
 - Write a coherent, natural text of approximately 50 words (45-55 words) on a random everyday topic (travel, cooking, daily routine, sports, nature, work, school, hobbies, weather, culture, technology, etc.)
 - The text should be 2-4 sentences long
 - ${complexityGuidance}

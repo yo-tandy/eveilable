@@ -5,9 +5,9 @@ import { callClaudeStructured } from './jsonUtils.js'
 import { aiHttpsError } from './aiErrors.js'
 import {
   validateLanguage, validateLevel, validateSubLevel, validateString,
-  checkRateLimit, langName, subLevelDescription,
+  checkRateLimit, langName, subLevelDescription, levelTier, countWords,
 } from './validate.js'
-import { CEFR_BANDS, ASSESSED_LEVEL_SCHEMA, levelRubric, levelDrift, retryNote } from './levelRubric.js'
+import { bandsFor, assessedLevelSchema, levelRubric, levelDrift, retryNote } from './levelRubric.js'
 
 function getClient() {
   return new Anthropic({
@@ -27,7 +27,7 @@ export const generateParagraph = onCall(
     const uid = request.auth.uid
     const headline = validateString(request.data.headline, 'headline', 500)
     const language = validateLanguage(request.data.language)
-    const level = validateLevel(request.data.level)
+    const level = validateLevel(request.data.level, language)
     const subLevel = validateSubLevel(request.data.subLevel)
 
     await checkRateLimit(uid)
@@ -38,7 +38,8 @@ export const generateParagraph = onCall(
       ? `\nLearner Profile for ${langName(language)}:\n"${langProfile.summary}"\n\nIncorporate vocabulary and sentence structures that gently challenge the learner's known weak areas, but only within the level constraints above.\n`
       : ''
 
-    const isBeginner = level === 'A1' || level === 'A2'
+    const isBeginner = levelTier(level) === 'beginner'
+    const lengthLine = language === 'zh' ? '150-220 characters' : '80-120 words'
     const densityLine = isBeginner
       ? '- Cover only the 2-3 main facts, each told plainly'
       : '- Dense and informative — pack in key facts'
@@ -48,7 +49,7 @@ export const generateParagraph = onCall(
 Requirements:
 - Language: ${langName(language)}
 - ${levelRubric(level, subLevel)}
-- Exactly ONE paragraph, 80-120 words
+- Exactly ONE paragraph, ${lengthLine}
 ${densityLine}
 - The paragraph should be self-contained and understandable without prior knowledge
 ${profileSection}`
@@ -57,8 +58,8 @@ ${profileSection}`
       type: 'object',
       properties: {
         title: { type: 'string', description: 'The paragraph title, obeying the same level constraints' },
-        paragraph: { type: 'string', description: 'The news paragraph (80-120 words)' },
-        assessedLevel: ASSESSED_LEVEL_SCHEMA,
+        paragraph: { type: 'string', description: `The news paragraph (${lengthLine})` },
+        assessedLevel: assessedLevelSchema(level),
       },
       required: ['title', 'paragraph', 'assessedLevel'],
     }
@@ -79,7 +80,7 @@ ${profileSection}`
       }
 
       const paragraph = String(result.paragraph)
-      const wordCount = paragraph.split(/\s+/).length
+      const wordCount = countWords(paragraph, language)
 
       return {
         title: result.title,
@@ -87,7 +88,7 @@ ${profileSection}`
         wordCount,
         language,
         level,
-        assessedLevel: CEFR_BANDS.includes(result.assessedLevel) ? result.assessedLevel : null,
+        assessedLevel: bandsFor(level).includes(result.assessedLevel) ? result.assessedLevel : null,
       }
     } catch (error: unknown) {
       if (error instanceof HttpsError) throw error
