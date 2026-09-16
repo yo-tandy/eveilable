@@ -1,4 +1,5 @@
 import { useEffect, lazy, Suspense } from 'react'
+import type { ComponentType } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from './config/firebase'
@@ -13,52 +14,76 @@ import { HomePage } from './pages/HomePage'
 import { LoginPage } from './components/auth/LoginPage'
 import { RegisterPage } from './components/auth/RegisterPage'
 
-const GameSelectPage = lazy(() =>
+/**
+ * Lazy route that survives a deploy: when the chunk from a previous build has been
+ * replaced (import fails with a 404), reload once so the browser fetches the new
+ * index.html and chunk map instead of showing a broken page.
+ */
+function lazyRoute<T extends ComponentType>(load: () => Promise<{ default: T }>) {
+  const key = 'eveilable-chunk-reload'
+  return lazy(() =>
+    load()
+      .then((mod) => {
+        sessionStorage.removeItem(key)
+        return mod
+      })
+      .catch((err) => {
+        if (!sessionStorage.getItem(key)) {
+          sessionStorage.setItem(key, '1')
+          window.location.reload()
+          return new Promise<{ default: T }>(() => {})
+        }
+        throw err
+      })
+  )
+}
+
+const GameSelectPage = lazyRoute(() =>
   import('./pages/GameSelectPage').then((m) => ({ default: m.GameSelectPage }))
 )
-const DividedAttentionPage = lazy(() =>
+const DividedAttentionPage = lazyRoute(() =>
   import('./pages/DividedAttentionPage').then((m) => ({ default: m.DividedAttentionPage }))
 )
-const DoubleDecisionPage = lazy(() =>
+const DoubleDecisionPage = lazyRoute(() =>
   import('./pages/DoubleDecisionPage').then((m) => ({ default: m.DoubleDecisionPage }))
 )
-const ComprehensionPage = lazy(() =>
+const ComprehensionPage = lazyRoute(() =>
   import('./pages/ComprehensionPage').then((m) => ({ default: m.ComprehensionPage }))
 )
-const SpeedSummaryPage = lazy(() =>
+const SpeedSummaryPage = lazyRoute(() =>
   import('./pages/SpeedSummaryPage').then((m) => ({ default: m.SpeedSummaryPage }))
 )
-const IconSwapPage = lazy(() =>
+const IconSwapPage = lazyRoute(() =>
   import('./pages/IconSwapPage').then((m) => ({ default: m.IconSwapPage }))
 )
-const TenseRewritePage = lazy(() =>
+const TenseRewritePage = lazyRoute(() =>
   import('./pages/TenseRewritePage').then((m) => ({ default: m.TenseRewritePage }))
 )
-const VerbFillPage = lazy(() =>
+const VerbFillPage = lazyRoute(() =>
   import('./pages/VerbFillPage').then((m) => ({ default: m.VerbFillPage }))
 )
-const CardRecallPage = lazy(() =>
+const CardRecallPage = lazyRoute(() =>
   import('./pages/CardRecallPage').then((m) => ({ default: m.CardRecallPage }))
 )
-const SentenceMemoryPage = lazy(() =>
+const SentenceMemoryPage = lazyRoute(() =>
   import('./pages/SentenceMemoryPage').then((m) => ({ default: m.SentenceMemoryPage }))
 )
-const OralWritingPage = lazy(() =>
+const OralWritingPage = lazyRoute(() =>
   import('./pages/OralWritingPage').then((m) => ({ default: m.OralWritingPage }))
 )
-const ProgressPage = lazy(() =>
+const ProgressPage = lazyRoute(() =>
   import('./pages/ProgressPage').then((m) => ({ default: m.ProgressPage }))
 )
-const AboutPage = lazy(() =>
+const AboutPage = lazyRoute(() =>
   import('./pages/AboutPage').then((m) => ({ default: m.AboutPage }))
 )
-const ContactPage = lazy(() =>
+const ContactPage = lazyRoute(() =>
   import('./pages/ContactPage').then((m) => ({ default: m.ContactPage }))
 )
-const PrivacyPage = lazy(() =>
+const PrivacyPage = lazyRoute(() =>
   import('./pages/PrivacyPage').then((m) => ({ default: m.PrivacyPage }))
 )
-const TermsPage = lazy(() =>
+const TermsPage = lazyRoute(() =>
   import('./pages/TermsPage').then((m) => ({ default: m.TermsPage }))
 )
 

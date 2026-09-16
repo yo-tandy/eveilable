@@ -304,7 +304,7 @@ export function CardRecallGame() {
     : 0
 
   return (
-    <div className="relative max-w-lg mx-auto">
+    <div className="relative max-w-lg mx-auto min-h-[440px]">
       {/* Trial counter + level */}
       <div className="flex justify-between text-xs text-ink-3 mb-4 px-1">
         <span>Trial {trialCountRef.current + (phase === 'feedback' ? 0 : 1)}</span>
