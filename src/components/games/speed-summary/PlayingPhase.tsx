@@ -52,8 +52,8 @@ export function PlayingPhase({ paragraph, language, onSubmit }: PlayingPhaseProp
 
       {/* Paragraph */}
       <div className="glass rounded-2xl p-6">
-        <h3 className="font-bold text-lg mb-1">{paragraph.title}</h3>
-        <div className="mb-3"><StoryByline story={paragraph} compact /></div>
+        {/* No title here: a headline is a ready-made summary and would defeat the exercise. */}
+        <div className="mb-3"><StoryByline story={paragraph} compact linkSource={false} /></div>
         <p
           className="text-gray-700 leading-relaxed text-lg"
           dir={isRTL ? 'rtl' : 'ltr'}

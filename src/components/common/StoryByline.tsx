@@ -7,6 +7,11 @@ interface StoryBylineProps {
   story: StoryMeta & { language: string }
   /** Compact variant for the results page, where the story is secondary. */
   compact?: boolean
+  /**
+   * Link the publisher name to the original article. Off during timed play
+   * where the original's headline would give the answer away.
+   */
+  linkSource?: boolean
 }
 
 /**
@@ -14,12 +19,12 @@ interface StoryBylineProps {
  * Shown under the title wherever a story is presented so learners know the
  * news it was based on and the level it was written for.
  */
-export function StoryByline({ story, compact = false }: StoryBylineProps) {
+export function StoryByline({ story, compact = false, linkSource = true }: StoryBylineProps) {
   const { t } = useTranslation()
   const date = formatStoryDate(story.publishedAt, story.language)
   const level = formatTargetLevel(story.level, story.subLevel)
   // Only ever link to what the feed parser accepted (https).
-  const href = story.sourceUrl?.startsWith('https://') ? story.sourceUrl : undefined
+  const href = linkSource && story.sourceUrl?.startsWith('https://') ? story.sourceUrl : undefined
 
   const sourceNode = story.source
     ? href
