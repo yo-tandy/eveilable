@@ -1,4 +1,4 @@
-import { callFunction } from './api'
+import { callFunction, expectArray } from './api'
 import type { Article, ComprehensionQuestion } from '../types/comprehension'
 import type { SupportedLanguage, LanguageLevel, LanguageSubLevel } from '../types/user'
 
@@ -48,5 +48,5 @@ export async function fetchAndGenerateArticle(
     { article: articleText, language }
   )
 
-  return { article, questions }
+  return { article, questions: expectArray<ComprehensionQuestion>(questions, 'questions') }
 }

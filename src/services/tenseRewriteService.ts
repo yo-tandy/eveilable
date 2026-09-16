@@ -1,4 +1,4 @@
-import { callFunction } from './api'
+import { callFunction, expectArray } from './api'
 import type { TenseExercise, TenseRewriteEvaluation } from '../types/tenseRewrite'
 import type { SupportedLanguage, LanguageLevel, LanguageSubLevel } from '../types/user'
 
@@ -11,7 +11,7 @@ export async function fetchTenseExercises(
     'generateTenseExercises',
     { language, level, subLevel },
   )
-  return exercises
+  return expectArray<TenseExercise>(exercises, 'exercises')
 }
 
 export async function submitTenseRewrites(

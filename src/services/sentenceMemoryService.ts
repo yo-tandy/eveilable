@@ -1,4 +1,4 @@
-import { callFunction } from './api'
+import { callFunction, expectArray } from './api'
 import type { SentenceMemoryResult, SentenceScore } from '../types/sentenceMemory'
 import type { SupportedLanguage, LanguageLevel, LanguageSubLevel } from '../types/user'
 
@@ -11,7 +11,7 @@ export async function fetchSentences(
     'generateMemorySentences',
     { language, level, subLevel },
   )
-  return sentences
+  return expectArray<string>(sentences, 'sentences')
 }
 
 /** Levenshtein edit distance */

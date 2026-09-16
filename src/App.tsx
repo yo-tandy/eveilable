@@ -1,6 +1,6 @@
 import { useEffect, lazy, Suspense } from 'react'
 import type { ComponentType } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from './config/firebase'
 import { useAuthStore } from './stores/authStore'
@@ -10,6 +10,7 @@ import { Navbar } from './components/common/Navbar'
 import { Footer } from './components/common/Footer'
 import { ProtectedRoute } from './components/common/ProtectedRoute'
 import { LoadingSpinner } from './components/common/LoadingSpinner'
+import { ErrorBoundary } from './components/common/ErrorBoundary'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './components/auth/LoginPage'
 import { RegisterPage } from './components/auth/RegisterPage'
@@ -91,6 +92,7 @@ function App() {
   const { setUser } = useAuthStore()
   const { uiLanguage, reducedMotion } = useSettingsStore()
   const { i18n } = useTranslation()
+  const location = useLocation()
 
   // Honour the user's own reduced-motion setting on top of the OS preference (see index.css)
   useEffect(() => {
@@ -115,6 +117,7 @@ function App() {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-1">
+        <ErrorBoundary resetKey={location.pathname}>
         <Suspense fallback={<LoadingSpinner />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
@@ -223,6 +226,7 @@ function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
+        </ErrorBoundary>
       </main>
       <Footer />
     </div>

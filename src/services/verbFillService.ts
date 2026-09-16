@@ -1,4 +1,4 @@
-import { callFunction } from './api'
+import { callFunction, expectArray } from './api'
 import type { VerbFillExercise, VerbFillEvaluation, VerbFillSegment } from '../types/verbFill'
 import type { SupportedLanguage, LanguageLevel, LanguageSubLevel } from '../types/user'
 
@@ -11,6 +11,7 @@ export async function fetchVerbFillExercise(
     'generateVerbFillExercise',
     { language, level, subLevel },
   )
+  expectArray(result.segments, 'segments')
   return result
 }
 
