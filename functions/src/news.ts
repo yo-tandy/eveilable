@@ -4,29 +4,74 @@ import { validateLanguage } from './validate.js'
 
 initializeApp()
 
-const GOOGLE_NEWS_TOPICS = ['WORLD', 'BUSINESS', 'TECHNOLOGY', 'SCIENCE', 'SPORTS', 'HEALTH', 'ENTERTAINMENT']
-
-const GOOGLE_NEWS_LOCALES: Record<string, { hl: string; gl: string; ceid: string }> = {
-  en: { hl: 'en', gl: 'US', ceid: 'US:en' },
-  fr: { hl: 'fr', gl: 'FR', ceid: 'FR:fr' },
-  de: { hl: 'de', gl: 'DE', ceid: 'DE:de' },
-  it: { hl: 'it', gl: 'IT', ceid: 'IT:it' },
-  zh: { hl: 'zh-Hans', gl: 'CN', ceid: 'CN:zh-Hans' },
-  he: { hl: 'he', gl: 'IL', ceid: 'IL:he' },
+/**
+ * Publisher RSS feeds per language. Several per language so one outage or
+ * block doesn't take out live news, and so consecutive sessions vary.
+ *
+ * Google News RSS was the previous source; it started returning 503 / timing
+ * out for every request from Cloud Run egress IPs in September 2026. Direct
+ * publisher feeds are keyless, want to be consumed, and don't block cloud IPs.
+ * All entries below were verified as RSS 2.0 with pubDate on 2026-09-16.
+ */
+const NEWS_FEEDS: Record<string, { name: string; url: string }[]> = {
+  en: [
+    { name: 'BBC News', url: 'https://feeds.bbci.co.uk/news/world/rss.xml' },
+    { name: 'BBC News', url: 'https://feeds.bbci.co.uk/news/technology/rss.xml' },
+    { name: 'BBC News', url: 'https://feeds.bbci.co.uk/news/science_and_environment/rss.xml' },
+    { name: 'NPR', url: 'https://feeds.npr.org/1001/rss.xml' },
+    { name: 'The Guardian', url: 'https://www.theguardian.com/world/rss' },
+  ],
+  fr: [
+    { name: 'Le Monde', url: 'https://www.lemonde.fr/rss/une.xml' },
+    { name: 'France Info', url: 'https://www.francetvinfo.fr/titres.rss' },
+    { name: 'Le Figaro', url: 'https://www.lefigaro.fr/rss/figaro_actualites.xml' },
+    { name: 'RFI', url: 'https://www.rfi.fr/fr/rss' },
+  ],
+  de: [
+    { name: 'Tagesschau', url: 'https://www.tagesschau.de/xml/rss2/' },
+    { name: 'Der Spiegel', url: 'https://www.spiegel.de/schlagzeilen/index.rss' },
+    { name: 'Die Zeit', url: 'https://newsfeed.zeit.de/index' },
+    { name: 'Deutsche Welle', url: 'https://rss.dw.com/xml/rss-de-all' },
+  ],
+  it: [
+    { name: 'ANSA', url: 'https://www.ansa.it/sito/notizie/topnews/topnews_rss.xml' },
+    { name: 'La Repubblica', url: 'https://www.repubblica.it/rss/homepage/rss2.0.xml' },
+    { name: 'Corriere della Sera', url: 'https://xml2.corriereobjects.it/rss/homepage.xml' },
+  ],
+  // Simplified only. BBC's /zhongwen/simp/ feed now 301s to /trad/ and serves
+  // Traditional characters, so it is deliberately absent.
+  zh: [
+    { name: '德国之声', url: 'https://rss.dw.com/xml/rss-chi-all' },
+    { name: '法广', url: 'https://www.rfi.fr/cn/rss' },
+    { name: '纽约时报中文网', url: 'https://cn.nytimes.com/rss/' },
+    { name: 'FT中文网', url: 'https://www.ftchinese.com/rss/news' },
+  ],
+  he: [
+    { name: 'ynet', url: 'https://www.ynet.co.il/Integration/StoryRss2.xml' },
+    { name: 'וואלה', url: 'https://rss.walla.co.il/feed/1?type=main' },
+    { name: 'ישראל היום', url: 'https://www.israelhayom.co.il/rss' },
+    { name: 'N12', url: 'https://rcs.mako.co.il/rss/news-israel.xml' },
+    { name: 'גלובס', url: 'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=1725' },
+  ],
 }
 
 // Max age of headlines in milliseconds (3 days)
 const MAX_ARTICLE_AGE_MS = 3 * 24 * 60 * 60 * 1000
 
-// Google News intermittently 503s requests from Cloud Run IPs, so retry across
-// distinct topic feeds before giving up on live headlines.
-const MAX_TOPIC_ATTEMPTS = 3
+// Try several distinct publishers before giving up on live headlines.
+const MAX_FEED_ATTEMPTS = 3
 const RETRY_DELAY_MS = 400
 const REQUEST_TIMEOUT_MS = 8000
 
 function shuffleAndTake<T>(arr: T[], n: number): T[] {
   const shuffled = [...arr].sort(() => Math.random() - 0.5)
   return shuffled.slice(0, n)
+}
+
+/** Unwrap <![CDATA[...]]>, which many publisher feeds use for titles. */
+function stripCdata(s: string): string {
+  const m = s.match(/^<!\[CDATA\[([\s\S]*?)\]\]>$/)
+  return m ? m[1] : s
 }
 
 /** Decode common HTML/XML entities in RSS content */
@@ -42,8 +87,15 @@ function decodeEntities(s: string): string {
     .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
 }
 
-/** Parse a Google News RSS feed. Returns items filtered to last 3 days. */
-function parseRssFeed(xml: string): { title: string; description: string; source: string }[] {
+/**
+ * Parse an RSS 2.0 feed. Returns items filtered to the last 3 days.
+ *
+ * When `publisher` is given it is used as every item's source. Publisher feeds
+ * don't need an in-item <source>, and some (RFI) repurpose that tag for photo
+ * credits, so it is only consulted for aggregator feeds where it is the only
+ * way to learn the origin.
+ */
+function parseRssFeed(xml: string, publisher = ''): { title: string; description: string; source: string }[] {
   const itemMatches = xml.match(/<item>([\s\S]*?)<\/item>/g) || []
   const now = Date.now()
   const items: { title: string; description: string; source: string }[] = []
@@ -61,10 +113,10 @@ function parseRssFeed(xml: string): { title: string; description: string; source
       if (!isNaN(pubDate) && now - pubDate > MAX_ARTICLE_AGE_MS) continue
     }
 
-    let rawTitle = decodeEntities(titleMatch[1].trim())
-    const source = sourceMatch ? decodeEntities(sourceMatch[1].trim()) : ''
+    let rawTitle = decodeEntities(stripCdata(titleMatch[1].trim()).trim())
+    const source = publisher || (sourceMatch ? decodeEntities(stripCdata(sourceMatch[1].trim()).trim()) : '')
 
-    // Google News titles are formatted "Headline - Source". Strip the source suffix.
+    // Aggregator-style titles are formatted "Headline - Source". Strip the suffix if present.
     if (source) {
       const suffix = ` - ${source}`
       if (rawTitle.endsWith(suffix)) {
@@ -77,7 +129,7 @@ function parseRssFeed(xml: string): { title: string; description: string; source
 
     items.push({
       title: rawTitle,
-      description: '', // Google News description is just a related-articles list; not useful as a topic seed
+      description: '', // Feed descriptions are teasers or HTML; the headline alone is the topic seed
       source,
     })
   }
@@ -132,40 +184,33 @@ const FALLBACK_HEADLINES: Record<string, { title: string; description: string; s
 }
 
 /**
- * Fetch one Google News RSS topic feed.
- *
- * Google serves 503 to Cloud Run egress IPs intermittently, and the topic URL
- * now 302-redirects to /rss/topics/<id> (fetch follows it). Returns null on any
- * failure so the caller can try another topic rather than falling straight back
- * to canned headlines.
+ * Fetch one publisher feed. Returns null on any failure so the caller can try
+ * another publisher rather than falling straight back to canned headlines.
  */
-async function fetchTopic(
-  topic: string,
-  locale: { hl: string; gl: string; ceid: string },
+async function fetchFeed(
+  feed: { name: string; url: string },
 ): Promise<{ title: string; description: string; source: string }[] | null> {
-  const url = `https://news.google.com/rss/headlines/section/topic/${topic}?hl=${locale.hl}&gl=${locale.gl}&ceid=${encodeURIComponent(locale.ceid)}`
-
   try {
-    const response = await fetch(url, {
+    const response = await fetch(feed.url, {
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; EveilableBot/1.0)' },
       redirect: 'follow',
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     })
 
     if (!response.ok) {
-      console.warn(`Google News RSS ${topic} returned ${response.status}`)
+      console.warn(`News feed ${feed.name} returned ${response.status}`)
       return null
     }
 
-    const items = parseRssFeed(await response.text())
+    const items = parseRssFeed(await response.text(), feed.name)
     if (items.length === 0) {
-      console.warn(`Google News RSS ${topic} returned no items within the freshness window`)
+      console.warn(`News feed ${feed.name} returned no items within the freshness window`)
       return null
     }
 
     return items
   } catch (error: unknown) {
-    console.warn(`Google News RSS ${topic} fetch failed:`, error)
+    console.warn(`News feed ${feed.name} fetch failed:`, error)
     return null
   }
 }
@@ -178,17 +223,17 @@ export const fetchNews = onCall(
     }
 
     const language = validateLanguage(request.data.language ?? 'en')
-    const locale = GOOGLE_NEWS_LOCALES[language] || GOOGLE_NEWS_LOCALES['en']
+    const feeds = NEWS_FEEDS[language] || NEWS_FEEDS['en']
 
-    // Each attempt uses a different topic: it varies the content across sessions
-    // and routes around a single topic feed being unavailable.
-    const topics = shuffleAndTake(GOOGLE_NEWS_TOPICS, MAX_TOPIC_ATTEMPTS)
-    for (let i = 0; i < topics.length; i++) {
-      const items = await fetchTopic(topics[i], locale)
+    // Each attempt uses a different publisher: it varies the content across
+    // sessions and routes around a single feed being down.
+    const attempts = shuffleAndTake(feeds, MAX_FEED_ATTEMPTS)
+    for (let i = 0; i < attempts.length; i++) {
+      const items = await fetchFeed(attempts[i])
       if (items) {
         return { headlines: shuffleAndTake(items, 5), source: 'live' as const }
       }
-      if (i < topics.length - 1) {
+      if (i < attempts.length - 1) {
         await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS))
       }
     }
@@ -196,7 +241,7 @@ export const fetchNews = onCall(
     // Every attempt failed. Serve canned headlines so the games still work, but
     // say so loudly — this line means users are reading stale sample content.
     console.error(
-      `[NEWS FALLBACK] All ${MAX_TOPIC_ATTEMPTS} Google News attempts failed for ` +
+      `[NEWS FALLBACK] All ${attempts.length} publisher feeds failed for ` +
       `${language}; serving static fallback headlines.`,
     )
     return {
