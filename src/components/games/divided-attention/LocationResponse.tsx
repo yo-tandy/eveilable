@@ -18,7 +18,7 @@ export function LocationResponse({ onSelect, containerSize, peripheralDistance }
         <button
           key={index}
           onClick={() => onSelect(index)}
-          className="absolute pointer-events-auto rounded-full border-2 border-dashed border-gray-300 hover:border-brand-500 hover:bg-brand-50/50 transition-colors flex items-center justify-center"
+          className="absolute pointer-events-auto rounded-full border-2 border-dashed border-gray-300 hover:border-blue hover:bg-butter/50 transition-colors flex items-center justify-center"
           style={{
             left: pos.x - ZONE_SIZE / 2,
             top: pos.y - ZONE_SIZE / 2,
@@ -27,7 +27,7 @@ export function LocationResponse({ onSelect, containerSize, peripheralDistance }
           }}
           aria-label={`Position ${index + 1}`}
         >
-          <span className="text-xs text-gray-400 font-medium">{index + 1}</span>
+          <span className="text-xs text-ink-3 font-medium">{index + 1}</span>
         </button>
       ))}
     </div>

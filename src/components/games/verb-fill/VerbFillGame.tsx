@@ -5,6 +5,7 @@ import { useAuthStore } from '../../../stores/authStore'
 import { useSettingsStore } from '../../../stores/settingsStore'
 import { updateAggregateStats } from '../../../services/firestoreService'
 import { recordSessionPlayed } from '../../../utils/streak'
+import { recordLastPlayed } from '../../../utils/lastPlayed'
 import { fetchVerbFillExercise, submitVerbFillAnswers } from '../../../services/verbFillService'
 import { checkLevelProgression } from '../../../utils/levelProgression'
 import { fetchRecentLanguageScores } from '../../../services/firestoreService'
@@ -108,6 +109,7 @@ export function VerbFillGame() {
       await setDoc(sessionDoc, sessionData)
       await updateAggregateStats(user.uid, 'verb-fill', sessionData)
       recordSessionPlayed()
+      recordLastPlayed('verb-fill', language)
 
       // Check level progression
       try {

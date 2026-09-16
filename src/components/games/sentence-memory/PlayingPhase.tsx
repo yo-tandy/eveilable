@@ -93,7 +93,7 @@ export function PlayingPhase({ sentences, language, onComplete }: PlayingPhasePr
               : t('games.sentenceMemory.typeFromMemory')}
           </span>
         </div>
-        <div className="flex items-center gap-2 text-gray-500">
+        <div className="flex items-center gap-2 text-ink-2">
           <Clock size={16} />
           <span className="font-mono text-sm">
             {minutes}:{seconds.toString().padStart(2, '0')}
@@ -117,17 +117,17 @@ export function PlayingPhase({ sentences, language, onComplete }: PlayingPhasePr
         ))}
       </div>
 
-      <div className="text-sm text-gray-500 text-center">
+      <div className="text-sm text-ink-2 text-center">
         {currentIndex + 1} / {total}
       </div>
 
       {/* Sentence card */}
       {subPhase === 'memorize' ? (
         <div
-          className="glass rounded-2xl p-8 text-center"
+          className="sticker-sm p-8 text-center"
           dir={isRTL ? 'rtl' : 'ltr'}
         >
-          <p className="text-xl leading-relaxed font-medium text-gray-800">
+          <p className="text-xl leading-relaxed font-medium text-ink">
             {sentences[currentIndex]}
           </p>
         </div>
@@ -138,7 +138,7 @@ export function PlayingPhase({ sentences, language, onComplete }: PlayingPhasePr
             value={currentInput}
             onChange={e => setCurrentInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="glass-input w-full p-4 rounded-2xl text-lg leading-relaxed resize-none focus:ring-2 focus:ring-cyan-300"
+            className="field w-full p-4 rounded-2xl text-lg leading-relaxed resize-none focus:ring-2 focus:ring-cyan-300"
             rows={3}
             placeholder={t('games.sentenceMemory.placeholder')}
             dir={isRTL ? 'rtl' : 'ltr'}
@@ -152,7 +152,7 @@ export function PlayingPhase({ sentences, language, onComplete }: PlayingPhasePr
       {subPhase === 'memorize' ? (
         <button
           onClick={handleContinue}
-          className="w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 bg-black/75 backdrop-blur-sm text-white hover:scale-[1.02] transition-transform"
+          className="w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 btn btn-sun transition-transform"
         >
           <ArrowRight size={18} />
           {t('common.continue')}
@@ -163,8 +163,8 @@ export function PlayingPhase({ sentences, language, onComplete }: PlayingPhasePr
           disabled={currentInput.trim().length === 0}
           className={`w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-transform ${
             currentInput.trim().length > 0
-              ? 'bg-black/75 backdrop-blur-sm text-white hover:scale-[1.02]'
-              : 'bg-white/30 text-gray-400 cursor-not-allowed'
+              ? 'btn btn-sun'
+              : 'bg-white/30 text-ink-3 cursor-not-allowed'
           }`}
         >
           {isLast ? <Send size={18} /> : <ArrowRight size={18} />}

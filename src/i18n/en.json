@@ -6,13 +6,33 @@
     "logout": "Log Out",
     "login": "Log In",
     "register": "Register",
-    "streakTooltip": "{{count}}-day streak"
+    "streakTooltip": "{{count}}-day streak",
+    "play": "Play",
+    "language": "Language",
+    "menu": "Menu"
   },
   "home": {
     "title": "Eveilable",
     "subtitle": "Boost your thought processing abilities",
     "getStarted": "Get Started",
-    "loginPrompt": "Already have an account?"
+    "loginPrompt": "Already have an account?",
+    "heroTitle": "Give your brain a",
+    "heroHighlight": "workout!",
+    "heroSubtitle": "Ten minutes of games that get harder as you get better. Attention, memory, and languages.",
+    "playToday": "Play today's set",
+    "browse": "All games",
+    "continueLabel": "Continue",
+    "playAgain": "Play again",
+    "playAgainIn": "Play again in {{language}}",
+    "lastPlayedToday": "Played today",
+    "lastPlayedYesterday": "Played yesterday",
+    "lastPlayedDaysAgo": "Played {{count}} days ago",
+    "firstTime": "Pick any game to start your streak.",
+    "chooseGame": "Choose a game",
+    "statGames": "Games",
+    "statLanguages": "Languages",
+    "statLevels": "Levels",
+    "statsBlurb": "Every game adapts to you: get it right and it gets harder, slip and it eases off."
   },
   "auth": {
     "email": "Email",
@@ -197,7 +217,19 @@
     "responseTime": "Response Time",
     "difficulty": "Difficulty Level",
     "performance": "Performance Rating",
-    "trials": "Trials"
+    "trials": "Trials",
+    "niceOne": "Nice one!",
+    "score": "Score",
+    "median": "Median",
+    "levelUp": "Level up! {{from}} → {{to}}",
+    "levelDown": "Level {{from}} → {{to}}",
+    "responseTimePerTrial": "Response time per trial",
+    "difficultyProgression": "Difficulty progression",
+    "speedBreakdown": "Speed breakdown",
+    "correctAvg": "Correct answers avg",
+    "incorrectAvg": "Incorrect answers avg",
+    "fastestCorrect": "Fastest correct",
+    "slowestCorrect": "Slowest correct"
   },
   "progress": {
     "title": "Your Progress",
@@ -208,7 +240,9 @@
     "declining": "Declining",
     "lifetimeAccuracy": "Lifetime Accuracy",
     "noSessions": "No sessions yet. Play a game to see your progress!",
-    "loadError": "Could not load progress data"
+    "loadError": "Could not load progress data",
+    "performanceOverTime": "Performance over time",
+    "sessionHistory": "Session history"
   },
   "feedback": {
     "correct": "Correct!",
@@ -222,7 +256,10 @@
     "language": "Language Games",
     "languageDescription": "Boost reading comprehension and summarization skills",
     "puzzles": "Puzzles",
-    "puzzlesDescription": "Plan ahead and solve logic challenges at your own pace"
+    "puzzlesDescription": "Plan ahead and solve logic challenges at your own pace",
+    "attentionTag": "Fast & focused",
+    "languageTag": "Read, write, listen",
+    "puzzlesTag": "No timer"
   },
   "common": {
     "continue": "Continue",
@@ -234,7 +271,24 @@
     "retry": "Retry",
     "startGame": "Start Game",
     "trial": "Trial",
-    "selectLanguage": "Select language"
+    "selectLanguage": "Select language",
+    "level": "Level",
+    "checkpoint": "Checkpoint",
+    "trialsDone": "{{count}} trials",
+    "or": "or",
+    "go": "Go!",
+    "back": "Back",
+    "selectLevel": "Select your level",
+    "whereWithin": "Where within {{level}}?",
+    "chooseMode": "Choose your mode",
+    "modeComplete": "Complete the tasks",
+    "modeCompleteDesc": "Work at your own pace. Time is recorded but not enforced.",
+    "modeRace": "Race the clock",
+    "modeRaceDesc": "Beat the clock. Reading and questions are timed.",
+    "tapToRetry": "Tap a mode to retry.",
+    "keyboardCheck": "Keyboard check",
+    "keyboardCheckHint": "Make sure your keyboard is set to {{language}}. Type a word below to check:",
+    "typeHere": "Type here..."
   },
   "footer": {
     "about": "About",
@@ -276,5 +330,13 @@
   },
   "terms": {
     "title": "Terms of Service"
+  },
+  "languages": {
+    "en": "English",
+    "fr": "Français",
+    "zh": "中文",
+    "he": "עברית",
+    "de": "Deutsch",
+    "it": "Italiano"
   }
 }

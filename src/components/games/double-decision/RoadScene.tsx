@@ -47,7 +47,7 @@ export function RoadScene({
               transform: direction === 'left' ? 'scaleX(-1)' : 'none',
             }}
           >
-            <Car size={40} className="text-brand-700" />
+            <Car size={40} className="text-blue" />
           </div>
 
           {/* Peripheral sign target */}
@@ -78,7 +78,7 @@ export function RoadScene({
                   opacity,
                 }}
               >
-                <SignpostBig size={ICON_SIZE - 8} className="text-gray-400" />
+                <SignpostBig size={ICON_SIZE - 8} className="text-ink-3" />
               </div>
             )
           })}

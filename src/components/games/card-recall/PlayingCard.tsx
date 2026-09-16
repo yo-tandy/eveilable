@@ -55,7 +55,7 @@ export function PlayingCard({
 }: PlayingCardProps) {
   const symbol = SUIT_SYMBOL[card.suit]
   const red = isRed(card.suit)
-  const colorClass = red ? 'text-red-600' : 'text-gray-900'
+  const colorClass = red ? 'text-red-600' : 'text-ink'
 
   const ringClass =
     correct === true ? 'ring-2 ring-green-500 ring-offset-2' :
@@ -90,7 +90,7 @@ export function PlayingCard({
           }}
         />
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-white/30 text-2xl font-bold">🃏</div>
+          <div className="text-white/30 display text-[28px]">🃏</div>
         </div>
       </div>
     )

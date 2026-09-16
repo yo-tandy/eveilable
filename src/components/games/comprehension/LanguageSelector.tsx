@@ -8,14 +8,7 @@ interface LanguageSelectorProps {
   onSelect: (language: SupportedLanguage, level: LanguageLevel, subLevel: LanguageSubLevel) => void
 }
 
-const LANGUAGES: { code: SupportedLanguage; name: string; flag: string }[] = [
-  { code: 'en', name: 'English', flag: 'EN' },
-  { code: 'fr', name: 'Français', flag: 'FR' },
-  { code: 'zh', name: '中文', flag: 'ZH' },
-  { code: 'he', name: 'עברית', flag: 'HE' },
-  { code: 'de', name: 'Deutsch', flag: 'DE' },
-  { code: 'it', name: 'Italiano', flag: 'IT' },
-]
+const LANGUAGES: SupportedLanguage[] = ['en', 'fr', 'zh', 'he', 'de', 'it']
 
 const LEVELS: { code: LanguageLevel; description: string }[] = [
   { code: 'A1', description: 'Beginner' },
@@ -31,6 +24,11 @@ const SUB_LEVELS: { code: LanguageSubLevel; label: string; description: string }
   { code: 'well-placed', label: 'Well-placed', description: 'Mid range' },
   { code: 'advanced', label: 'Advanced', description: 'Upper range' },
 ]
+
+const optionClass = (selected: boolean) =>
+  `rounded-2xl text-left transition-all border-3 border-ink ${
+    selected ? 'bg-sun shadow-[4px_4px_0_#1b1a2e] -translate-x-0.5 -translate-y-0.5' : 'bg-paper hover:bg-butter'
+  }`
 
 export function LanguageSelector({ onSelect }: LanguageSelectorProps) {
   const { t } = useTranslation()
@@ -53,38 +51,38 @@ export function LanguageSelector({ onSelect }: LanguageSelectorProps) {
   }, [selectedLang, getLanguageLevel])
 
   return (
-    <div className="max-w-lg mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-        <Globe size={24} />
+    <div className="max-w-lg mx-auto">
+      <h2 className="display text-[26px] mb-4 flex items-center gap-2">
+        <Globe size={24} aria-hidden="true" />
         {t('common.selectLanguage')}
       </h2>
-      <div className="grid grid-cols-2 gap-3 mb-8">
-        {LANGUAGES.map((lang) => (
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8" role="group" aria-label={t('common.selectLanguage')}>
+        {LANGUAGES.map((code) => (
           <button
-            key={lang.code}
-            onClick={() => setSelectedLang(lang.code)}
-            className={`p-4 rounded-xl text-left transition-all ${
-              selectedLang === lang.code
-                ? 'bg-white/70 ring-2 ring-indigo-500 shadow-md'
-                : 'glass hover:bg-white/50'
-            }`}
+            key={code}
+            type="button"
+            aria-pressed={selectedLang === code}
+            onClick={() => setSelectedLang(code)}
+            className={`p-4 ${optionClass(selectedLang === code)}`}
           >
-            <span className="text-lg font-bold">{lang.flag}</span>
-            <span className="block mt-1 font-medium">{lang.name}</span>
+            <span className="display text-lg">{code.toUpperCase()}</span>
+            <span className="block mt-0.5 font-bold text-sm">{t(`languages.${code}`)}</span>
           </button>
         ))}
       </div>
 
       {selectedLang && (
         <>
-          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-            <GraduationCap size={24} />
-            Select Your Level
+          <h2 className="display text-[26px] mb-4 flex items-center gap-2">
+            <GraduationCap size={24} aria-hidden="true" />
+            {t('common.selectLevel')}
           </h2>
-          <div className="grid grid-cols-3 gap-3 mb-8">
+          <div className="grid grid-cols-3 gap-3 mb-8" role="group" aria-label={t('common.selectLevel')}>
             {LEVELS.map((lvl) => (
               <button
                 key={lvl.code}
+                type="button"
+                aria-pressed={selectedLevel === lvl.code}
                 onClick={() => {
                   setSelectedLevel(lvl.code)
                   // Reset sub-level when changing CEFR level
@@ -92,14 +90,10 @@ export function LanguageSelector({ onSelect }: LanguageSelectorProps) {
                     setSelectedSubLevel(null)
                   }
                 }}
-                className={`p-3 rounded-xl text-center transition-all ${
-                  selectedLevel === lvl.code
-                    ? 'bg-white/70 ring-2 ring-indigo-500 shadow-md'
-                    : 'glass hover:bg-white/50'
-                }`}
+                className={`p-3 text-center ${optionClass(selectedLevel === lvl.code)}`}
               >
-                <span className="block text-lg font-bold">{lvl.code}</span>
-                <span className="block text-sm text-gray-500">{lvl.description}</span>
+                <span className="block display text-xl">{lvl.code}</span>
+                <span className="block text-xs font-bold text-ink-2">{lvl.description}</span>
               </button>
             ))}
           </div>
@@ -108,23 +102,21 @@ export function LanguageSelector({ onSelect }: LanguageSelectorProps) {
 
       {selectedLang && selectedLevel && (
         <>
-          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-            <Layers size={24} />
-            Where within {selectedLevel}?
+          <h2 className="display text-[26px] mb-4 flex items-center gap-2">
+            <Layers size={24} aria-hidden="true" />
+            {t('common.whereWithin', { level: selectedLevel })}
           </h2>
-          <div className="grid grid-cols-3 gap-3 mb-8">
+          <div className="grid grid-cols-3 gap-3 mb-8" role="group">
             {SUB_LEVELS.map((sub) => (
               <button
                 key={sub.code}
+                type="button"
+                aria-pressed={selectedSubLevel === sub.code}
                 onClick={() => setSelectedSubLevel(sub.code)}
-                className={`p-3 rounded-xl text-center transition-all ${
-                  selectedSubLevel === sub.code
-                    ? 'bg-white/70 ring-2 ring-indigo-500 shadow-md'
-                    : 'glass hover:bg-white/50'
-                }`}
+                className={`p-3 text-center ${optionClass(selectedSubLevel === sub.code)}`}
               >
-                <span className="block text-sm font-bold">{sub.label}</span>
-                <span className="block text-xs text-gray-500">{sub.description}</span>
+                <span className="block font-extrabold text-sm">{sub.label}</span>
+                <span className="block text-xs font-bold text-ink-2">{sub.description}</span>
               </button>
             ))}
           </div>
@@ -133,8 +125,9 @@ export function LanguageSelector({ onSelect }: LanguageSelectorProps) {
 
       {selectedLang && selectedLevel && selectedSubLevel && (
         <button
+          type="button"
           onClick={() => onSelect(selectedLang, selectedLevel, selectedSubLevel)}
-          className="w-full py-3 bg-black/75 backdrop-blur-sm text-white rounded-xl font-semibold hover:scale-[1.02] transition-transform"
+          className="w-full btn btn-sun pop-in"
         >
           {t('common.continue')}
         </button>

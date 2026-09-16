@@ -6,40 +6,33 @@ import type { SupportedLanguage, LanguageLevel, LanguageSubLevel } from '../../t
 interface LanguageGameIntroProps {
   gameKey: string
   icon: LucideIcon
-  color: string
+  /** Kept for call-site compatibility; colour now comes from the category. */
+  color?: string
   error?: string | null
   onSelect: (language: SupportedLanguage, level: LanguageLevel, subLevel: LanguageSubLevel) => void
 }
 
-const COLOR_MAP: Record<string, string> = {
-  emerald: 'text-emerald-600',
-  purple: 'text-purple-600',
-  rose: 'text-rose-600',
-  amber: 'text-amber-600',
-  cyan: 'text-cyan-600',
-  sky: 'text-sky-600',
-}
-
-export function LanguageGameIntro({ gameKey, icon: Icon, color, error, onSelect }: LanguageGameIntroProps) {
+export function LanguageGameIntro({ gameKey, icon: Icon, error, onSelect }: LanguageGameIntroProps) {
   const { t } = useTranslation()
-  const iconColor = COLOR_MAP[color] ?? 'text-indigo-600'
 
   return (
-    <div className="max-w-lg mx-auto py-8">
-      <div className="text-center">
-        <Icon size={48} className={`mx-auto ${iconColor} mb-4`} />
-        <h2 className="text-2xl font-bold mb-2">{t(`games.${gameKey}.name`)}</h2>
-        <p className="text-gray-500 mb-6">{t(`games.${gameKey}.description`)}</p>
+    <div className="max-w-lg mx-auto py-4">
+      <div className="text-center mb-6">
+        <div className="art art-language w-20 h-20 mx-auto mb-4 -rotate-3">
+          <Icon size={40} strokeWidth={2.4} aria-hidden="true" />
+        </div>
+        <h2 className="display text-[34px] leading-tight mb-2">{t(`games.${gameKey}.name`)}</h2>
+        <p className="text-ink-2 font-bold">{t(`games.${gameKey}.description`)}</p>
       </div>
 
-      <div className="glass rounded-xl p-4 text-sm text-gray-600 mb-8 text-left space-y-2">
-        <p>{t(`games.${gameKey}.instructions1`)}</p>
-        <p>{t(`games.${gameKey}.instructions2`)}</p>
-        <p>{t(`games.${gameKey}.instructions3`)}</p>
-      </div>
+      <ol className="sticker-flat p-5 text-[15px] text-ink-2 font-bold mb-8 text-left space-y-2 list-decimal list-inside marker:text-coral marker:font-black">
+        <li>{t(`games.${gameKey}.instructions1`)}</li>
+        <li>{t(`games.${gameKey}.instructions2`)}</li>
+        <li>{t(`games.${gameKey}.instructions3`)}</li>
+      </ol>
 
       {error && (
-        <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 text-red-700 rounded-xl text-sm">
+        <div className="mb-4 alert-error" role="alert">
           {error}
         </div>
       )}

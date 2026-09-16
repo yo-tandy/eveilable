@@ -59,14 +59,14 @@ export function LevelComparison({ story, assessedLevel }: LevelComparisonProps) 
   return (
     <div className="grid grid-cols-2 gap-4 text-center mt-4 pt-4 border-t border-white/30">
       <div>
-        <div className="text-2xl font-bold">{formatTargetLevel(story.level, story.subLevel)}</div>
-        <div className="text-sm text-gray-500">{t('games.story.textLevel')}</div>
+        <div className="display text-[28px]">{formatTargetLevel(story.level, story.subLevel)}</div>
+        <div className="text-sm text-ink-2">{t('games.story.textLevel')}</div>
       </div>
       <div>
-        <div className="text-2xl font-bold">
-          {assessedLevel ?? <span className="text-gray-400">&mdash;</span>}
+        <div className="display text-[28px]">
+          {assessedLevel ?? <span className="text-ink-3">&mdash;</span>}
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-ink-2">
           {assessedLevel ? t('games.story.summaryLevel') : t('games.story.summaryLevelUnavailable')}
         </div>
       </div>

@@ -5,6 +5,7 @@ import { useAuthStore } from '../../../stores/authStore'
 import { useSettingsStore } from '../../../stores/settingsStore'
 import { updateAggregateStats } from '../../../services/firestoreService'
 import { recordSessionPlayed } from '../../../utils/streak'
+import { recordLastPlayed } from '../../../utils/lastPlayed'
 import { fetchDictationText, evaluateDictation } from '../../../services/dictationService'
 import { checkLevelProgression } from '../../../utils/levelProgression'
 import { fetchRecentLanguageScores } from '../../../services/firestoreService'
@@ -103,6 +104,7 @@ export function OralWritingGame() {
       await setDoc(sessionDoc, sessionData)
       await updateAggregateStats(user.uid, 'oral-writing', sessionData)
       recordSessionPlayed()
+      recordLastPlayed('oral-writing', language)
 
       try {
         const recentScores = await fetchRecentLanguageScores(user.uid, 'oral-writing', language, level, subLevel)

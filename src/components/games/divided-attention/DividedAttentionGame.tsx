@@ -71,14 +71,14 @@ function GameArea() {
       {/* Central response buttons at bottom of canvas */}
       {phase === 'response-central' && (
         <div className="absolute bottom-4 left-0 right-0 px-4">
-          <p className="text-center text-sm text-gray-500 mb-2">{t('games.dividedAttention.whatWasCentral')}</p>
+          <p className="text-center text-sm text-ink-2 mb-2">{t('games.dividedAttention.whatWasCentral')}</p>
           <CentralResponse onSelect={handleCentralResponse} />
         </div>
       )}
 
       {/* Trial counter */}
       {phase !== 'idle' && phase !== 'end' && (
-        <div className="absolute top-2 right-3 text-xs text-gray-500">
+        <div className="absolute top-2 right-3 text-xs text-ink-2">
           {t('common.trial')} {currentTrial + (phase === 'feedback' ? 0 : 1)}
         </div>
       )}
@@ -114,10 +114,10 @@ export function DividedAttentionGame() {
   if (phase === 'idle') {
     return (
       <div className="max-w-md mx-auto text-center py-12">
-        <Eye size={48} className="mx-auto text-blue-600 mb-4" />
-        <h2 className="text-2xl font-bold mb-2">{t('games.dividedAttention.name')}</h2>
-        <p className="text-gray-500 mb-6">{t('games.dividedAttention.description')}</p>
-        <div className="glass rounded-xl p-4 text-sm text-gray-600 mb-6 text-left space-y-2">
+        <div className="art art-attention w-20 h-20 mx-auto mb-4 -rotate-3"><Eye size={40} strokeWidth={2.4} aria-hidden="true" /></div>
+        <h2 className="display text-[30px] leading-tight mb-2">{t('games.dividedAttention.name')}</h2>
+        <p className="text-ink-2 font-bold mb-6">{t('games.dividedAttention.description')}</p>
+        <div className="sticker-flat p-5 text-[15px] text-ink-2 font-bold mb-6 text-left space-y-2">
           <p>{t('games.dividedAttention.instructions1')}</p>
           <p>{t('games.dividedAttention.instructions2')}</p>
           <p>{t('games.dividedAttention.instructions3')}</p>
@@ -125,7 +125,7 @@ export function DividedAttentionGame() {
         </div>
         <button
           onClick={() => beginGame()}
-          className="px-8 py-3 bg-black/75 backdrop-blur-sm text-white rounded-xl font-semibold hover:scale-[1.02] transition-transform"
+          className="btn btn-sun"
         >
           {t('common.startGame')}
         </button>
@@ -140,21 +140,21 @@ export function DividedAttentionGame() {
 
     return (
       <div className="max-w-md mx-auto text-center py-12">
-        <h2 className="text-2xl font-bold mb-4">{t('stats.sessionComplete')}</h2>
+        <div className="flex items-center justify-center gap-3 mb-6"><h2 className="display text-[36px]">{t('stats.niceOne')}</h2><span className="tag tag-sun">{t('stats.sessionComplete')}</span></div>
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="glass rounded-xl p-4">
-            <div className="text-3xl font-bold">{trials.length}</div>
-            <div className="text-sm text-gray-500">{t('stats.trials')}</div>
+          <div className="sticker-sm p-4">
+            <div className="display text-3xl leading-none">{trials.length}</div>
+            <div className="text-xs font-extrabold uppercase tracking-wider text-ink-2 mt-1">{t('stats.trials')}</div>
           </div>
-          <div className="glass rounded-xl p-4">
-            <div className="text-3xl font-bold">{Math.round(accuracy * 100)}%</div>
-            <div className="text-sm text-gray-500">{t('stats.accuracy')}</div>
+          <div className="sticker-sm p-4">
+            <div className="display text-3xl leading-none">{Math.round(accuracy * 100)}%</div>
+            <div className="text-xs font-extrabold uppercase tracking-wider text-ink-2 mt-1">{t('stats.accuracy')}</div>
           </div>
         </div>
         <div className="flex gap-3 justify-center">
           <button
             onClick={() => resetGame()}
-            className="px-6 py-2.5 glass rounded-xl font-medium hover:bg-white/50 transition-all"
+            className="btn btn-blue"
           >
             {t('common.playAgain')}
           </button>

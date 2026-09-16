@@ -75,28 +75,28 @@ export function SentenceMemoryResult({ result, timesMs, language, levelNotificat
       )}
 
       {/* Summary stats */}
-      <div className="glass rounded-2xl p-6">
+      <div className="sticker-sm p-6">
         <h2 className="text-lg font-semibold text-gray-700 mb-4 text-center">
           {t('games.sentenceMemory.results')}
         </h2>
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
-            <div className="text-2xl font-bold text-cyan-600">
+            <div className="display text-[28px] text-cyan-600">
               {result.correctCount}/{result.scores.length}
             </div>
-            <div className="text-xs text-gray-500">{t('games.sentenceMemory.correct')}</div>
+            <div className="text-xs text-ink-2">{t('games.sentenceMemory.correct')}</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-cyan-600">
+            <div className="display text-[28px] text-cyan-600">
               {avgSimilarity}%
             </div>
-            <div className="text-xs text-gray-500">{t('games.sentenceMemory.avgSimilarity')}</div>
+            <div className="text-xs text-ink-2">{t('games.sentenceMemory.avgSimilarity')}</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-cyan-600">
+            <div className="display text-[28px] text-cyan-600">
               {(avgTimeMs / 1000).toFixed(1)}s
             </div>
-            <div className="text-xs text-gray-500">{t('games.sentenceMemory.avgTime')}</div>
+            <div className="text-xs text-ink-2">{t('games.sentenceMemory.avgTime')}</div>
           </div>
         </div>
       </div>
@@ -106,7 +106,7 @@ export function SentenceMemoryResult({ result, timesMs, language, levelNotificat
         {result.scores.map((score, i) => (
           <div
             key={i}
-            className={`glass rounded-xl p-4 border-l-4 ${
+            className={`sticker-sm p-4 border-l-4 ${
               score.correct ? 'border-green-500' : 'border-red-400'
             }`}
             dir={isRTL ? 'rtl' : 'ltr'}
@@ -119,20 +119,20 @@ export function SentenceMemoryResult({ result, timesMs, language, levelNotificat
               </div>
               <div className="flex-1 space-y-2 min-w-0">
                 <div>
-                  <div className="text-xs text-gray-400 mb-0.5">{t('games.sentenceMemory.original')}</div>
+                  <div className="text-xs text-ink-3 mb-0.5">{t('games.sentenceMemory.original')}</div>
                   <p className="text-sm text-gray-700">{score.original}</p>
                 </div>
                 {!score.correct && (
                   <div>
-                    <div className="text-xs text-gray-400 mb-0.5">{t('games.sentenceMemory.yourInput')}</div>
+                    <div className="text-xs text-ink-3 mb-0.5">{t('games.sentenceMemory.yourInput')}</div>
                     <DiffView original={score.original} userInput={score.userInput} />
-                    <div className="text-xs text-gray-400 mt-1">
+                    <div className="text-xs text-ink-3 mt-1">
                       {Math.round(score.similarity * 100)}% match
                     </div>
                   </div>
                 )}
               </div>
-              <div className="text-xs text-gray-400 whitespace-nowrap">
+              <div className="text-xs text-ink-3 whitespace-nowrap">
                 {(timesMs[i] / 1000).toFixed(1)}s
               </div>
             </div>
@@ -144,14 +144,14 @@ export function SentenceMemoryResult({ result, timesMs, language, levelNotificat
       <div className="flex gap-3">
         <button
           onClick={() => window.location.reload()}
-          className="flex-1 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 bg-black/75 backdrop-blur-sm text-white hover:scale-[1.02] transition-transform"
+          className="flex-1 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 btn btn-sun transition-transform"
         >
           <RotateCcw size={18} />
           {t('common.playAgain')}
         </button>
         <button
           onClick={() => navigate('/progress?game=sentence-memory')}
-          className="flex-1 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 glass hover:scale-[1.02] transition-transform text-gray-700"
+          className="flex-1 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 sticker-flat hover:scale-[1.02] transition-transform text-gray-700"
         >
           <BarChart3 size={18} />
           {t('common.viewProgress')}

@@ -64,8 +64,13 @@ const TermsPage = lazy(() =>
 
 function App() {
   const { setUser } = useAuthStore()
-  const { uiLanguage } = useSettingsStore()
+  const { uiLanguage, reducedMotion } = useSettingsStore()
   const { i18n } = useTranslation()
+
+  // Honour the user's own reduced-motion setting on top of the OS preference (see index.css)
+  useEffect(() => {
+    document.documentElement.dataset.reducedMotion = reducedMotion ? 'true' : 'false'
+  }, [reducedMotion])
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {

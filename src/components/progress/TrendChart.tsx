@@ -21,9 +21,9 @@ export function TrendChart({ sessions }: TrendChartProps) {
         <YAxis yAxisId="right" orientation="right" domain={[1, 20]} tick={{ fontSize: 12 }} />
         <Tooltip />
         <Legend />
-        <Line yAxisId="left" type="monotone" dataKey="accuracy" stroke="#3b82f6"
+        <Line yAxisId="left" type="monotone" dataKey="accuracy" stroke="#2f6bff"
               name="Accuracy %" strokeWidth={2} dot={{ r: 3 }} />
-        <Line yAxisId="left" type="monotone" dataKey="rating" stroke="#22c55e"
+        <Line yAxisId="left" type="monotone" dataKey="rating" stroke="#1fae74"
               name="Rating" strokeWidth={2} dot={{ r: 3 }} />
         <Line yAxisId="right" type="stepAfter" dataKey="difficulty" stroke="#8b5cf6"
               name="Difficulty" strokeWidth={1} strokeDasharray="4 2" dot={{ r: 2 }} />

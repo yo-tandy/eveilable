@@ -11,7 +11,7 @@ export function FeedbackDisplay({ trial }: FeedbackDisplayProps) {
   const hasSplitFeedback = trial.centralCorrect !== undefined || trial.peripheralCorrect !== undefined
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center z-10" style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' }}>
+    <div className="overlay">
       <div className="text-center">
         {trial.correct ? (
           <CheckCircle size={64} className="mx-auto text-correct mb-2" />
@@ -43,7 +43,7 @@ export function FeedbackDisplay({ trial }: FeedbackDisplayProps) {
           </div>
         )}
 
-        <p className="text-sm text-gray-500 mt-2">
+        <p className="text-sm text-ink-2 mt-2">
           {Math.round(trial.responseTimeMs)}ms
         </p>
       </div>

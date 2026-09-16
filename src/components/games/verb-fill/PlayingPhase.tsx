@@ -66,7 +66,7 @@ export function PlayingPhase({ exercise, language, onComplete }: PlayingPhasePro
       {/* Header: title + timer */}
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-gray-700">{exercise.title}</h2>
-        <div className="flex items-center gap-2 text-gray-500">
+        <div className="flex items-center gap-2 text-ink-2">
           <Clock size={16} />
           <span className="font-mono text-sm">
             {minutes}:{seconds.toString().padStart(2, '0')}
@@ -75,13 +75,13 @@ export function PlayingPhase({ exercise, language, onComplete }: PlayingPhasePro
       </div>
 
       {/* Progress indicator */}
-      <div className="text-sm text-gray-500 text-center">
+      <div className="text-sm text-ink-2 text-center">
         {filledCount} / {exercise.verbCount} {t('games.verbFill.filled')}
       </div>
 
       {/* Cloze text with inline inputs */}
       <div
-        className="glass rounded-2xl p-6 leading-[2.5] text-lg"
+        className="sticker-sm p-6 leading-[2.5] text-lg"
         dir={isRTL ? 'rtl' : 'ltr'}
       >
         {exercise.segments.map((seg, i) => {
@@ -98,14 +98,14 @@ export function PlayingPhase({ exercise, language, onComplete }: PlayingPhasePro
                 value={answers[verbIdx]}
                 onChange={e => handleInputChange(verbIdx, e.target.value)}
                 onKeyDown={e => handleKeyDown(e, verbIdx)}
-                className="glass-input px-2 py-0.5 rounded-lg text-lg font-medium text-center border-b-2 border-amber-400/50 focus:border-amber-500"
+                className="field px-2 py-0.5 rounded-lg text-lg font-medium text-center border-b-2 border-amber-400/50 focus:border-amber-500"
                 style={{ width: `${Math.max(seg.correctForm!.length * 1.2, 5)}ch` }}
                 dir={isRTL ? 'rtl' : 'ltr'}
                 autoFocus={verbIdx === 0}
                 autoComplete="off"
                 spellCheck={false}
               />
-              <span className="text-xs text-gray-400 italic whitespace-nowrap">
+              <span className="text-xs text-ink-3 italic whitespace-nowrap">
                 ({seg.infinitive})
               </span>
             </span>
@@ -119,8 +119,8 @@ export function PlayingPhase({ exercise, language, onComplete }: PlayingPhasePro
         disabled={!allFilled}
         className={`w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-transform ${
           allFilled
-            ? 'bg-black/75 backdrop-blur-sm text-white hover:scale-[1.02]'
-            : 'bg-white/30 text-gray-400 cursor-not-allowed'
+            ? 'btn btn-sun'
+            : 'bg-white/30 text-ink-3 cursor-not-allowed'
         }`}
       >
         <Send size={18} />

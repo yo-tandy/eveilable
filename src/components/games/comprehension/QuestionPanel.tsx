@@ -42,7 +42,7 @@ export function QuestionPanel({ questions, onComplete }: QuestionPanelProps) {
   return (
     <div className="max-w-2xl mx-auto p-6">
       <div className="flex items-center justify-between mb-6">
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-ink-2">
           Question {currentIndex + 1} of {questions.length}
         </span>
         <div className="flex gap-1">
@@ -71,8 +71,8 @@ export function QuestionPanel({ questions, onComplete }: QuestionPanelProps) {
               aria-pressed={isSelected}
               className={`w-full p-4 text-left rounded-xl transition-all flex items-start gap-3 ${
                 isSelected
-                  ? 'bg-white/70 ring-2 ring-indigo-500 shadow-md'
-                  : 'glass hover:bg-white/50'
+                  ? 'bg-white/70 ring-2 ring-blue shadow-md'
+                  : 'sticker-flat hover:bg-butter'
               }`}
             >
               <span
@@ -92,7 +92,7 @@ export function QuestionPanel({ questions, onComplete }: QuestionPanelProps) {
       <button
         onClick={handleNext}
         disabled={selectedOption === null}
-        className="w-full py-3 bg-black/75 backdrop-blur-sm text-white rounded-xl font-semibold hover:scale-[1.02] transition-transform disabled:opacity-50"
+        className="w-full py-3 btn btn-sun disabled:opacity-50"
       >
         {isLastQuestion ? 'Finish Questions' : 'Next Question'}
       </button>

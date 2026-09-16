@@ -5,6 +5,7 @@ import { useAuthStore } from '../../../stores/authStore'
 import { useSettingsStore } from '../../../stores/settingsStore'
 import { updateAggregateStats } from '../../../services/firestoreService'
 import { recordSessionPlayed } from '../../../utils/streak'
+import { recordLastPlayed } from '../../../utils/lastPlayed'
 import { fetchSentences, evaluateLocally } from '../../../services/sentenceMemoryService'
 import { checkLevelProgression } from '../../../utils/levelProgression'
 import { fetchRecentLanguageScores } from '../../../services/firestoreService'
@@ -103,6 +104,7 @@ export function SentenceMemoryGame() {
       await setDoc(sessionDoc, sessionData)
       await updateAggregateStats(user.uid, 'sentence-memory', sessionData)
       recordSessionPlayed()
+      recordLastPlayed('sentence-memory', language)
 
       try {
         const recentScores = await fetchRecentLanguageScores(user.uid, 'sentence-memory', language, level, subLevel)

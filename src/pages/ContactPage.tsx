@@ -31,18 +31,18 @@ export function ContactPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-12">
-      <div className="glass rounded-2xl p-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('contact.title')}</h1>
-        <p className="text-gray-500 mb-8">{t('contact.subtitle')}</p>
+      <div className="sticker-sm p-8">
+        <h1 className="display text-[36px] mb-2">{t('contact.title')}</h1>
+        <p className="text-ink-2 mb-8">{t('contact.subtitle')}</p>
 
         {status === 'success' ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <CheckCircle size={48} className="text-emerald-500 mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('contact.successTitle')}</h2>
-            <p className="text-gray-500 mb-6">{t('contact.successMessage')}</p>
+            <h2 className="text-xl font-semibold text-ink mb-2">{t('contact.successTitle')}</h2>
+            <p className="text-ink-2 mb-6">{t('contact.successMessage')}</p>
             <button
               onClick={() => setStatus('idle')}
-              className="px-5 py-2.5 bg-black/75 backdrop-blur-sm text-white rounded-xl font-semibold hover:scale-[1.02] transition-transform"
+              className="px-5 py-2.5 btn btn-sun"
             >
               {t('contact.sendAnother')}
             </button>
@@ -59,7 +59,7 @@ export function ContactPage() {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="glass-input w-full px-4 py-2.5 rounded-xl"
+                className="field w-full px-4 py-2.5 rounded-xl"
                 placeholder={t('contact.namePlaceholder')}
               />
             </div>
@@ -74,7 +74,7 @@ export function ContactPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="glass-input w-full px-4 py-2.5 rounded-xl"
+                className="field w-full px-4 py-2.5 rounded-xl"
                 placeholder={t('contact.emailPlaceholder')}
               />
             </div>
@@ -89,7 +89,7 @@ export function ContactPage() {
                 rows={6}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="glass-input w-full px-4 py-2.5 rounded-xl resize-none"
+                className="field w-full px-4 py-2.5 rounded-xl resize-none"
                 placeholder={t('contact.messagePlaceholder')}
               />
             </div>
@@ -104,7 +104,7 @@ export function ContactPage() {
             <button
               type="submit"
               disabled={status === 'sending'}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-black/75 backdrop-blur-sm text-white rounded-xl font-semibold hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 px-6 py-3 btn btn-sun disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Send size={18} />
               {status === 'sending' ? t('contact.sending') : t('contact.send')}

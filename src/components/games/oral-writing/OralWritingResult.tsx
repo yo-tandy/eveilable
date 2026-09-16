@@ -43,7 +43,7 @@ function WordDiffView({ diffs }: { diffs: WordDiff[] }) {
         return (
           <span key={i}>
             <span className="text-red-600 bg-red-100 rounded-sm">{d.userWord}</span>
-            <span className="text-gray-400 text-xs mx-0.5">→{d.original}</span>
+            <span className="text-ink-3 text-xs mx-0.5">→{d.original}</span>
             {' '}
           </span>
         )
@@ -82,7 +82,7 @@ export function OralWritingResult({ result, elapsedMs, language, levelNotificati
       )}
 
       {/* Score summary */}
-      <div className="glass rounded-2xl p-6 text-center">
+      <div className="sticker-sm p-6 text-center">
         <h2 className="text-lg font-semibold text-gray-700 mb-4">
           {t('games.oralWriting.results')}
         </h2>
@@ -91,35 +91,35 @@ export function OralWritingResult({ result, elapsedMs, language, levelNotificati
             <div className={`text-3xl font-bold ${getScoreColor(similarity)}`}>
               {similarity}%
             </div>
-            <div className="text-xs text-gray-500">{t('games.oralWriting.similarity')}</div>
+            <div className="text-xs text-ink-2">{t('games.oralWriting.similarity')}</div>
           </div>
           <div>
-            <div className={`text-2xl font-bold ${getScoreColor(similarity)}`}>
+            <div className={`display text-[28px] ${getScoreColor(similarity)}`}>
               {result.score.correctWords}/{result.score.totalWords}
             </div>
-            <div className="text-xs text-gray-500">{t('games.oralWriting.wordsCorrect')}</div>
+            <div className="text-xs text-ink-2">{t('games.oralWriting.wordsCorrect')}</div>
           </div>
           <div>
             <div className="text-3xl font-bold text-sky-600">
               {(elapsedMs / 1000).toFixed(0)}s
             </div>
-            <div className="text-xs text-gray-500">{t('games.oralWriting.timeTaken')}</div>
+            <div className="text-xs text-ink-2">{t('games.oralWriting.timeTaken')}</div>
           </div>
         </div>
       </div>
 
       {/* Original text */}
-      <div className="glass rounded-2xl p-5" dir={isRTL ? 'rtl' : 'ltr'}>
-        <h3 className="text-sm font-medium text-gray-500 mb-2">
+      <div className="sticker-sm p-5" dir={isRTL ? 'rtl' : 'ltr'}>
+        <h3 className="text-sm font-medium text-ink-2 mb-2">
           {t('games.oralWriting.originalText')}
         </h3>
-        <p className="text-gray-800 leading-relaxed">{result.score.original}</p>
+        <p className="text-ink leading-relaxed">{result.score.original}</p>
       </div>
 
       {/* Word-level diff */}
       {!result.score.correct && (
-        <div className="glass rounded-2xl p-5" dir={isRTL ? 'rtl' : 'ltr'}>
-          <h3 className="text-sm font-medium text-gray-500 mb-2">
+        <div className="sticker-sm p-5" dir={isRTL ? 'rtl' : 'ltr'}>
+          <h3 className="text-sm font-medium text-ink-2 mb-2">
             {t('games.oralWriting.yourInput')}
           </h3>
           <WordDiffView diffs={result.score.wordDiffs} />
@@ -130,14 +130,14 @@ export function OralWritingResult({ result, elapsedMs, language, levelNotificati
       <div className="flex gap-3">
         <button
           onClick={() => window.location.reload()}
-          className="flex-1 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 bg-black/75 backdrop-blur-sm text-white hover:scale-[1.02] transition-transform"
+          className="flex-1 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 btn btn-sun transition-transform"
         >
           <RotateCcw size={18} />
           {t('common.playAgain')}
         </button>
         <button
           onClick={() => navigate('/progress?game=oral-writing')}
-          className="flex-1 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 glass hover:scale-[1.02] transition-transform text-gray-700"
+          className="flex-1 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 sticker-flat hover:scale-[1.02] transition-transform text-gray-700"
         >
           <BarChart3 size={18} />
           {t('common.viewProgress')}

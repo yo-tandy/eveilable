@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface CountdownOverlayProps {
   onComplete: () => void
 }
 
 export function CountdownOverlay({ onComplete }: CountdownOverlayProps) {
+  const { t } = useTranslation()
   const [count, setCount] = useState(3)
 
   useEffect(() => {
@@ -21,12 +23,12 @@ export function CountdownOverlay({ onComplete }: CountdownOverlayProps) {
   }, [count, onComplete])
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center z-10" style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)' }}>
+    <div className="overlay" aria-live="assertive">
       <span
         key={count}
-        className="text-7xl font-bold text-gray-800 animate-pulse"
+        className="pop-in display text-[96px] leading-none bg-sun border-3 border-ink rounded-3xl px-8 py-2 shadow-[6px_6px_0_#1b1a2e]"
       >
-        {count === 0 ? 'Go!' : count}
+        {count === 0 ? t('common.go') : count}
       </span>
     </div>
   )

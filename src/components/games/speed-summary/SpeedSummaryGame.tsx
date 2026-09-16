@@ -5,6 +5,7 @@ import { useAuthStore } from '../../../stores/authStore'
 import { useSettingsStore } from '../../../stores/settingsStore'
 import { updateAggregateStats } from '../../../services/firestoreService'
 import { recordSessionPlayed } from '../../../utils/streak'
+import { recordLastPlayed } from '../../../utils/lastPlayed'
 import { fetchAndGenerateParagraph } from '../../../services/paragraphService'
 import type { ParagraphResult } from '../../../services/paragraphService'
 import { evaluateSummary } from '../../../services/claudeService'
@@ -107,6 +108,7 @@ export function SpeedSummaryGame() {
       await setDoc(sessionDoc, sessionData)
       await updateAggregateStats(user.uid, 'speed-summary', sessionData)
       recordSessionPlayed()
+      recordLastPlayed('speed-summary', language)
 
       // Check level progression
       try {

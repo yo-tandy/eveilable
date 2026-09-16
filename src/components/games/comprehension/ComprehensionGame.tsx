@@ -5,6 +5,7 @@ import { useAuthStore } from '../../../stores/authStore'
 import { useSettingsStore } from '../../../stores/settingsStore'
 import { updateAggregateStats } from '../../../services/firestoreService'
 import { recordSessionPlayed } from '../../../utils/streak'
+import { recordLastPlayed } from '../../../utils/lastPlayed'
 import { fetchAndGenerateArticle } from '../../../services/newsService'
 import { evaluateSummary } from '../../../services/claudeService'
 import { checkLevelProgression } from '../../../utils/levelProgression'
@@ -150,6 +151,7 @@ export function ComprehensionGame() {
       console.log('[Comprehension] saveSession: session saved, updating aggregate stats...')
       await updateAggregateStats(user.uid, 'comprehension', sessionData)
       recordSessionPlayed()
+      recordLastPlayed('comprehension', language)
       console.log('[Comprehension] saveSession: done!')
 
       // Check level progression

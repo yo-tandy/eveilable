@@ -65,7 +65,7 @@ export function CardGrid({
               aspect-square rounded-2xl border-2 flex items-center justify-center
               transition-all duration-150
               ${borderColor} ${bgColor}
-              ${isClickable ? 'cursor-pointer hover:border-brand-400 hover:shadow-md active:scale-95' : ''}
+              ${isClickable ? 'cursor-pointer hover:border-blue hover:shadow-md active:scale-95' : ''}
               ${isBlink ? 'bg-gray-100' : ''}
             `}
           >

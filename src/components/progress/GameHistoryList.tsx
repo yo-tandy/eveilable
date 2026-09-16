@@ -24,7 +24,7 @@ export function GameHistoryList({ sessions }: GameHistoryListProps) {
               className="w-full p-4 flex items-center justify-between hover:bg-gray-50"
             >
               <div className="flex items-center gap-4 text-sm">
-                <span className="text-gray-500">{date}</span>
+                <span className="text-ink-2">{date}</span>
                 <span className="font-medium">{session.totalTrials} trials</span>
                 <span className={`font-bold ${
                   session.accuracy >= 0.8 ? 'text-green-600' :
@@ -32,7 +32,7 @@ export function GameHistoryList({ sessions }: GameHistoryListProps) {
                 }`}>
                   {Math.round(session.accuracy * 100)}%
                 </span>
-                <span className="text-gray-400">
+                <span className="text-ink-3">
                   Level {session.finalDifficulty}
                 </span>
               </div>
@@ -43,15 +43,15 @@ export function GameHistoryList({ sessions }: GameHistoryListProps) {
               <div className="px-4 pb-4 border-t bg-gray-50">
                 <div className="grid grid-cols-2 gap-3 mt-3 text-sm">
                   <div>
-                    <span className="text-gray-500">Avg Response Time: </span>
+                    <span className="text-ink-2">Avg Response Time: </span>
                     <span className="font-medium">{Math.round(session.averageResponseTimeMs)}ms</span>
                   </div>
                   <div>
-                    <span className="text-gray-500">Performance: </span>
+                    <span className="text-ink-2">Performance: </span>
                     <span className="font-medium">{session.performanceRating}/100</span>
                   </div>
                   <div>
-                    <span className="text-gray-500">Correct: </span>
+                    <span className="text-ink-2">Correct: </span>
                     <span className="font-medium">{session.correctTrials}/{session.totalTrials}</span>
                   </div>
                 </div>

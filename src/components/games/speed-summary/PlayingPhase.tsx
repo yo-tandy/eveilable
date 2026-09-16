@@ -43,7 +43,7 @@ export function PlayingPhase({ paragraph, language, onSubmit }: PlayingPhaseProp
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-6">
       {/* Timer */}
-      <div className="flex items-center justify-center gap-2 text-gray-500">
+      <div className="flex items-center justify-center gap-2 text-ink-2">
         <Clock size={18} />
         <span className="font-mono text-lg">
           {minutes}:{seconds.toString().padStart(2, '0')}
@@ -51,7 +51,7 @@ export function PlayingPhase({ paragraph, language, onSubmit }: PlayingPhaseProp
       </div>
 
       {/* Paragraph */}
-      <div className="glass rounded-2xl p-6">
+      <div className="sticker-sm p-6">
         {/* No title here: a headline is a ready-made summary and would defeat the exercise. */}
         <div className="mb-3"><StoryByline story={paragraph} compact linkSource={false} /></div>
         <p
@@ -72,7 +72,7 @@ export function PlayingPhase({ paragraph, language, onSubmit }: PlayingPhaseProp
           onChange={(e) => setSummary(e.target.value)}
           dir={isRTL ? 'rtl' : 'ltr'}
           rows={3}
-          className="glass-input w-full px-4 py-3 rounded-xl resize-none text-lg"
+          className="field w-full px-4 py-3 rounded-xl resize-none text-lg"
           autoFocus
         />
 
@@ -81,7 +81,7 @@ export function PlayingPhase({ paragraph, language, onSubmit }: PlayingPhaseProp
           <span
             className={`text-sm font-medium ${
               wordCount === 0
-                ? 'text-gray-400'
+                ? 'text-ink-3'
                 : wordCount < 10
                   ? 'text-amber-600'
                   : wordCount > 20
@@ -93,7 +93,7 @@ export function PlayingPhase({ paragraph, language, onSubmit }: PlayingPhaseProp
             {wordCount > 0 && wordCount < 10 && ` — ${t('games.speedSummary.tooFew')}`}
             {wordCount > 20 && ` — ${t('games.speedSummary.tooMany')}`}
           </span>
-          <span className="text-xs text-gray-400">10–20</span>
+          <span className="text-xs text-ink-3">10–20</span>
         </div>
       </div>
 
@@ -103,8 +103,8 @@ export function PlayingPhase({ paragraph, language, onSubmit }: PlayingPhaseProp
         disabled={!isValid}
         className={`w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-transform ${
           isValid
-            ? 'bg-black/75 backdrop-blur-sm text-white hover:scale-[1.02]'
-            : 'bg-white/30 text-gray-400 cursor-not-allowed'
+            ? 'btn btn-sun'
+            : 'bg-white/30 text-ink-3 cursor-not-allowed'
         }`}
       >
         <Send size={18} />

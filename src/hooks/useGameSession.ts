@@ -4,6 +4,7 @@ import { db } from '../config/firebase'
 import { useAuthStore } from '../stores/authStore'
 import { updateAggregateStats } from '../services/firestoreService'
 import { recordSessionPlayed } from '../utils/streak'
+import { recordLastPlayed } from '../utils/lastPlayed'
 import type { GameType, Trial, GameSession } from '../types/game'
 
 export function useGameSession(gameType: GameType) {
@@ -110,6 +111,7 @@ export function useGameSession(gameType: GameType) {
 
       // Update local daily streak
       recordSessionPlayed()
+      recordLastPlayed(gameType)
 
       sessionIdRef.current = null
       sessionStartRef.current = null

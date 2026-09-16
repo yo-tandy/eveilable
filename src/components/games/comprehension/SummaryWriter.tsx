@@ -29,13 +29,13 @@ export function SummaryWriter({ language, onSubmit, error }: SummaryWriterProps)
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-2">Write a Summary</h2>
-      <p className="text-gray-500 mb-6">
+      <h2 className="display text-[30px] leading-tight mb-2">Write a Summary</h2>
+      <p className="text-ink-2 mb-6">
         Write a {MIN_WORDS}-{MAX_WORDS} word summary of the article you just read.
       </p>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-700 text-sm">
+        <div className="mb-4 alert-error">
           {error}. Edit your summary and try again.
         </div>
       )}
@@ -44,13 +44,13 @@ export function SummaryWriter({ language, onSubmit, error }: SummaryWriterProps)
         value={text}
         onChange={(e) => setText(e.target.value)}
         dir={language === 'he' ? 'rtl' : 'ltr'}
-        className="glass-input w-full h-48 p-4 rounded-xl resize-none text-lg leading-relaxed"
+        className="field w-full h-48 p-4 rounded-xl resize-none text-lg leading-relaxed"
         placeholder="Write your summary here..."
       />
 
       <div className={`mt-2 text-right font-medium ${wordCountColor}`}>
         {wordCount} words
-        <span className="text-gray-400 ml-1">
+        <span className="text-ink-3 ml-1">
           ({MIN_WORDS}-{MAX_WORDS} required)
         </span>
       </div>
@@ -58,7 +58,7 @@ export function SummaryWriter({ language, onSubmit, error }: SummaryWriterProps)
       <button
         onClick={() => onSubmit(text.trim(), preciseNow() - startRef.current)}
         disabled={!isValid}
-        className="mt-6 w-full py-3 bg-black/75 backdrop-blur-sm text-white rounded-xl font-semibold hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+        className="mt-6 w-full py-3 btn btn-sun disabled:opacity-50 disabled:cursor-not-allowed"
       >
         Submit Summary
       </button>

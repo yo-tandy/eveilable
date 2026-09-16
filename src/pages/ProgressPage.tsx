@@ -7,7 +7,7 @@ import { TrendChart } from '../components/progress/TrendChart'
 import { GoalTracker } from '../components/progress/GoalTracker'
 import { GameHistoryList } from '../components/progress/GameHistoryList'
 import { LoadingSpinner } from '../components/common/LoadingSpinner'
-import { CATEGORIES, GAMES, getGamesByCategory, getGameClasses } from '../config/games'
+import { CATEGORIES, GAMES, getGamesByCategory } from '../config/games'
 import type { GameType, GameSession } from '../types/game'
 import type { AggregateStats } from '../types/user'
 
@@ -49,35 +49,31 @@ export function ProgressPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">{t('progress.title')}</h1>
+      <h1 className="display text-[36px] mb-6">{t('progress.title')}</h1>
 
       {/* Grouped game tabs */}
-      <div className="mb-6 space-y-3">
+      <div className="mb-8 space-y-4">
         {CATEGORIES.map((category) => {
           const games = getGamesByCategory(category.key)
           return (
             <div key={category.key}>
-              {/* Category label */}
-              <div className="flex items-center gap-1.5 mb-1.5 px-1">
-                <span className="text-sm">{category.emoji}</span>
-                <span className="text-xs font-medium text-gray-600 uppercase tracking-wide">
-                  {t(category.i18nKey)}
-                </span>
+              <div className="flex items-center gap-2 mb-2">
+                <span className={`tag ${category.tag} !rotate-0 text-xs`}>{t(category.i18nKey)}</span>
               </div>
-              {/* Tab buttons */}
-              <div className="flex gap-2 overflow-x-auto">
+              <div className="flex gap-2 overflow-x-auto pb-1" role="tablist">
                 {games.map((game) => {
-                  const cls = getGameClasses(game)
+                  const Icon = game.icon
+                  const active = activeTab === game.id
                   return (
                     <button
                       key={game.id}
+                      role="tab"
+                      aria-selected={active}
                       onClick={() => setActiveTab(game.id)}
-                      className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 ${
-                        activeTab === game.id
-                          ? `${cls.iconBg} ${cls.iconText} shadow-sm`
-                          : 'bg-white/30 text-gray-500 hover:bg-white/50'
-                      }`}
+                      className={`chip ${active ? 'bg-sun' : 'chip-muted'}`}
+                      type="button"
                     >
+                      <Icon size={15} aria-hidden="true" />
                       {t(`games.${game.key}.name`)}
                     </button>
                   )
@@ -91,36 +87,34 @@ export function ProgressPage() {
       {loading ? (
         <LoadingSpinner />
       ) : error ? (
-        <div className="glass rounded-2xl p-6 text-center border border-red-300/50">
-          <div className="text-red-600 font-medium mb-2">{t('progress.loadError') ?? 'Could not load progress data'}</div>
-          <div className="text-sm text-gray-500">{error}</div>
+        <div className="alert-error text-center" role="alert">
+          <div className="mb-1">{t('progress.loadError')}</div>
+          <div className="text-xs font-semibold">{error}</div>
         </div>
       ) : !stats || sessions.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
+        <div className="sticker-flat text-center py-12 px-6 text-ink-2 font-bold">
           {t('progress.noSessions')}
         </div>
       ) : (
         <div className="space-y-8">
           {/* Current level and trend */}
-          <div className="glass rounded-2xl p-6 grid grid-cols-3 gap-4 text-center">
-            <div>
-              <div className="text-sm text-gray-500">{t('progress.currentLevel')}</div>
-              <div className="text-4xl font-bold">{stats.currentDifficultyLevel}</div>
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div className="sticker-sm p-4">
+              <div className="display text-[40px] leading-none">{stats.currentDifficultyLevel}</div>
+              <div className="text-xs font-extrabold uppercase tracking-wider text-ink-2 mt-1">{t('progress.currentLevel')}</div>
             </div>
-            <div>
-              <div className="text-sm text-gray-500">{t('progress.trend')}</div>
-              <div className={`text-lg font-bold ${
-                stats.recentTrend === 'improving' ? 'text-green-600' :
-                stats.recentTrend === 'declining' ? 'text-red-600' : 'text-gray-600'
+            <div className="sticker-sm p-4">
+              <div className={`display text-2xl leading-none ${
+                stats.recentTrend === 'improving' ? 'text-correct' :
+                stats.recentTrend === 'declining' ? 'text-incorrect' : 'text-ink'
               }`}>
                 {t(`progress.${stats.recentTrend}`)}
               </div>
+              <div className="text-xs font-extrabold uppercase tracking-wider text-ink-2 mt-1">{t('progress.trend')}</div>
             </div>
-            <div>
-              <div className="text-sm text-gray-500">{t('progress.lifetimeAccuracy')}</div>
-              <div className="text-2xl font-bold">
-                {Math.round(stats.lifetimeAccuracy * 100)}%
-              </div>
+            <div className="sticker-sm p-4">
+              <div className="display text-[40px] leading-none">{Math.round(stats.lifetimeAccuracy * 100)}%</div>
+              <div className="text-xs font-extrabold uppercase tracking-wider text-ink-2 mt-1">{t('progress.lifetimeAccuracy')}</div>
             </div>
           </div>
 
@@ -129,15 +123,15 @@ export function ProgressPage() {
 
           {/* Trend chart */}
           {stats.recentSessions.length >= 2 && (
-            <div className="glass rounded-2xl p-6">
-              <h3 className="font-bold text-lg mb-4">Performance Over Time</h3>
+            <div className="sticker-flat p-6">
+              <h3 className="display text-xl mb-4">{t('progress.performanceOverTime')}</h3>
               <TrendChart sessions={stats.recentSessions} />
             </div>
           )}
 
           {/* Session history */}
           <div>
-            <h3 className="font-bold text-lg mb-4">Session History</h3>
+            <h3 className="display text-xl mb-4">{t('progress.sessionHistory')}</h3>
             <GameHistoryList sessions={sessions} />
           </div>
         </div>

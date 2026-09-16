@@ -62,10 +62,10 @@ export function PlayingPhase({ exercises, language, onComplete }: PlayingPhasePr
     <div className="max-w-2xl mx-auto p-6 space-y-6">
       {/* Header: progress + timer */}
       <div className="flex items-center justify-between">
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-ink-2">
           {currentIndex + 1} {t('games.tenseRewrite.of')} {exercises.length}
         </span>
-        <div className="flex items-center gap-2 text-gray-500">
+        <div className="flex items-center gap-2 text-ink-2">
           <Clock size={16} />
           <span className="font-mono text-sm">
             {minutes}:{seconds.toString().padStart(2, '0')}
@@ -87,9 +87,9 @@ export function PlayingPhase({ exercises, language, onComplete }: PlayingPhasePr
       </div>
 
       {/* Original sentence */}
-      <div className="glass rounded-2xl p-6">
+      <div className="sticker-sm p-6">
         <p
-          className="text-lg leading-relaxed text-gray-800"
+          className="text-lg leading-relaxed text-ink"
           dir={isRTL ? 'rtl' : 'ltr'}
         >
           {exercise.original}
@@ -110,7 +110,7 @@ export function PlayingPhase({ exercises, language, onComplete }: PlayingPhasePr
           onChange={(e) => setCurrentText(e.target.value)}
           dir={isRTL ? 'rtl' : 'ltr'}
           rows={3}
-          className="glass-input w-full px-4 py-3 rounded-xl resize-none text-lg"
+          className="field w-full px-4 py-3 rounded-xl resize-none text-lg"
           placeholder={t('games.tenseRewrite.yourRewrite')}
           autoFocus
         />
@@ -122,8 +122,8 @@ export function PlayingPhase({ exercises, language, onComplete }: PlayingPhasePr
         disabled={!canSubmit}
         className={`w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-transform ${
           canSubmit
-            ? 'bg-black/75 backdrop-blur-sm text-white hover:scale-[1.02]'
-            : 'bg-white/30 text-gray-400 cursor-not-allowed'
+            ? 'btn btn-sun'
+            : 'bg-white/30 text-ink-3 cursor-not-allowed'
         }`}
       >
         {isLast ? (

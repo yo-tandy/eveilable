@@ -93,7 +93,7 @@ export function PlayingPhase({ text, language, onComplete }: PlayingPhaseProps) 
   if (!tts.supported) {
     return (
       <div className="max-w-2xl mx-auto p-6">
-        <div className="glass rounded-2xl p-6 text-center text-red-600">
+        <div className="sticker-sm p-6 text-center text-red-600">
           {t('games.oralWriting.notSupported')}
         </div>
       </div>
@@ -103,12 +103,12 @@ export function PlayingPhase({ text, language, onComplete }: PlayingPhaseProps) 
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-5">
       {/* Audio controls */}
-      <div className="glass rounded-2xl p-4">
+      <div className="sticker-sm p-4">
         <div className="flex items-center justify-center gap-2 mb-3">
           {/* Restart */}
           <button
             onClick={tts.restart}
-            className="p-2.5 rounded-xl glass hover:scale-105 transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500"
+            className="p-2.5 rounded-xl sticker-flat hover:scale-105 transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500"
             title={t('games.oralWriting.restart')}
             aria-label={t('games.oralWriting.restart')}
           >
@@ -118,7 +118,7 @@ export function PlayingPhase({ text, language, onComplete }: PlayingPhaseProps) 
           {/* Jump back */}
           <button
             onClick={() => tts.jumpBack()}
-            className="p-2.5 rounded-xl glass hover:scale-105 transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500"
+            className="p-2.5 rounded-xl sticker-flat hover:scale-105 transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500"
             title={t('games.oralWriting.jumpBack')}
             aria-label={t('games.oralWriting.jumpBack')}
           >
@@ -144,7 +144,7 @@ export function PlayingPhase({ text, language, onComplete }: PlayingPhaseProps) 
             className={`p-2.5 rounded-xl transition-all hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 ${
               repeatMode
                 ? 'bg-sky-500 text-white shadow-md'
-                : 'glass text-gray-600'
+                : 'sticker-flat text-gray-600'
             }`}
             title={t('games.oralWriting.repeatMode')}
             aria-label={t('games.oralWriting.repeatMode')}
@@ -159,7 +159,7 @@ export function PlayingPhase({ text, language, onComplete }: PlayingPhaseProps) 
             className={`p-2.5 rounded-xl transition-all hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 ${
               pacedMode
                 ? 'bg-sky-500 text-white shadow-md'
-                : 'glass text-gray-600'
+                : 'sticker-flat text-gray-600'
             }`}
             title={t('games.oralWriting.pacedMode')}
             aria-label={t('games.oralWriting.pacedMode')}
@@ -191,7 +191,7 @@ export function PlayingPhase({ text, language, onComplete }: PlayingPhaseProps) 
         </div>
 
         {/* Progress bar */}
-        <div className="flex items-center gap-2 text-xs text-gray-500">
+        <div className="flex items-center gap-2 text-xs text-ink-2">
           <span>{formatTime(tts.currentTime)}</span>
           <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
             <div
@@ -211,7 +211,7 @@ export function PlayingPhase({ text, language, onComplete }: PlayingPhaseProps) 
       </div>
 
       {/* Text input */}
-      <div className="glass rounded-2xl p-4">
+      <div className="sticker-sm p-4">
         <textarea
           ref={textareaRef}
           value={userInput}
@@ -219,9 +219,9 @@ export function PlayingPhase({ text, language, onComplete }: PlayingPhaseProps) 
           onKeyDown={handleKeyDown}
           dir={isRTL ? 'rtl' : 'ltr'}
           placeholder={t('games.oralWriting.typeWhatYouHear')}
-          className="w-full h-48 bg-transparent resize-none outline-none text-gray-800 placeholder:text-gray-400 text-lg leading-relaxed"
+          className="w-full h-48 bg-transparent resize-none outline-none text-ink placeholder:text-ink-3 text-lg leading-relaxed"
         />
-        <div className="flex justify-between items-center text-xs text-gray-400 mt-2">
+        <div className="flex justify-between items-center text-xs text-ink-3 mt-2">
           <span>{userWordCount} {t('games.oralWriting.words')}</span>
           <span className="text-gray-300">Ctrl+Enter {t('games.oralWriting.toSubmit')}</span>
         </div>
@@ -231,7 +231,7 @@ export function PlayingPhase({ text, language, onComplete }: PlayingPhaseProps) 
       <button
         onClick={handleSubmit}
         disabled={!userInput.trim()}
-        className="w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 bg-black/75 backdrop-blur-sm text-white hover:scale-[1.02] transition-transform disabled:opacity-40 disabled:cursor-not-allowed"
+        className="w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 btn btn-sun transition-transform disabled:opacity-40 disabled:cursor-not-allowed"
       >
         <Send size={18} />
         {t('games.oralWriting.submit')}

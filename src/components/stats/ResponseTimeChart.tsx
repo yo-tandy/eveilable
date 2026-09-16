@@ -18,7 +18,7 @@ function CustomDot({ cx, cy, payload }: DotProps) {
       cx={cx}
       cy={cy}
       r={4}
-      fill={payload.correct ? '#22c55e' : '#ef4444'}
+      fill={payload.correct ? '#1fae74' : '#e0413f'}
       stroke="none"
     />
   )
@@ -43,7 +43,7 @@ export function ResponseTimeChart({ trials }: ResponseTimeChartProps) {
         <Line
           type="monotone"
           dataKey="time"
-          stroke="#3b82f6"
+          stroke="#2f6bff"
           strokeWidth={2}
           dot={<CustomDot />}
           activeDot={{ r: 6 }}

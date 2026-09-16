@@ -47,7 +47,7 @@ export function StimulusDisplay({
           height: 32,
         }}
       >
-        <Plus size={24} className="text-gray-400" strokeWidth={1.5} />
+        <Plus size={24} className="text-ink-3" strokeWidth={1.5} />
       </div>
 
       {showStimulus && (
@@ -62,7 +62,7 @@ export function StimulusDisplay({
               height: 48,
             }}
           >
-            {CentralIcon && <CentralIcon size={40} className="text-brand-700" />}
+            {CentralIcon && <CentralIcon size={40} className="text-blue" />}
           </div>
 
           {/* Peripheral target */}
@@ -75,7 +75,7 @@ export function StimulusDisplay({
               height: ICON_SIZE,
             }}
           >
-            <PERIPHERAL_ICON size={ICON_SIZE - 4} className="text-brand-600" />
+            <PERIPHERAL_ICON size={ICON_SIZE - 4} className="text-blue" />
           </div>
 
           {/* Distractors */}
@@ -94,7 +94,7 @@ export function StimulusDisplay({
                   opacity,
                 }}
               >
-                <DistractorIcon size={ICON_SIZE - 8} className="text-gray-500" />
+                <DistractorIcon size={ICON_SIZE - 8} className="text-ink-2" />
               </div>
             )
           })}

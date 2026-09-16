@@ -1,62 +1,54 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { Shield, FileText } from 'lucide-react'
-import { CATEGORIES, getGamesByCategory } from '../config/games'
+import { CATEGORIES, getGamesByCategory, getCategory } from '../config/games'
 import { PuzzleSection } from '../components/common/PuzzleSection'
+import { SectionHeader } from '../components/common/SectionHeader'
+import { Mascot } from '../components/common/Mascot'
 
 export function AboutPage() {
   const { t } = useTranslation()
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-12">
+    <div className="max-w-3xl mx-auto px-4 py-10">
       {/* Header */}
-      <div className="glass-strong rounded-3xl p-10 text-center mb-12 specular-top">
-        <div className="text-5xl mb-4">🧠</div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-3">
+      <div className="sticker p-8 sm:p-10 text-center mb-12 relative overflow-hidden">
+        <Mascot className="w-24 mx-auto mb-3" animate={false} />
+        <h1 className="display text-[38px] leading-tight mb-3">
           {t('about.title')}
         </h1>
-        <p className="text-lg text-gray-500 max-w-xl mx-auto">
+        <p className="text-lg font-bold text-ink-2 max-w-xl mx-auto">
           {t('about.description')}
         </p>
       </div>
 
       {/* Games */}
       <div className="mb-10">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">
+        <h2 className="display text-[30px] mb-6">
           {t('about.ourGames')}
         </h2>
 
         {CATEGORIES.map((category) => {
           const games = getGamesByCategory(category.key)
+          const cat = getCategory(category.key)
           return (
-            <div key={category.key} className="mb-6">
-              {/* Category pill */}
-              <div
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-3"
-                style={{
-                  background: category.pillBg,
-                  border: `1px solid ${category.pillBorder}`,
-                }}
-              >
-                <span className="text-base">{category.emoji}</span>
-                <span className="text-sm font-semibold" style={{ color: category.pillText }}>
-                  {t(category.i18nKey)}
-                </span>
-              </div>
-
-              <div className="space-y-3">
-                {games.map((game) => (
-                  <div
-                    key={game.id}
-                    className="glass rounded-xl p-4 flex items-start gap-4"
-                  >
-                    <span className="text-3xl shrink-0">{game.emoji}</span>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">{t(`games.${game.key}.name`)}</h4>
-                      <p className="text-sm text-gray-500">{t(`games.${game.key}.description`)}</p>
+            <div key={category.key} className="mb-8">
+              <SectionHeader category={category} as="h3" size="md" />
+              <div className="flex flex-col gap-3">
+                {games.map((game) => {
+                  const Icon = game.icon
+                  return (
+                    <div key={game.id} className="sticker-flat p-4 flex items-center gap-4">
+                      <div className={`art ${cat.art} w-14 h-14 shrink-0`}>
+                        <Icon size={26} strokeWidth={2.4} aria-hidden="true" />
+                      </div>
+                      <div>
+                        <h4 className="display text-lg">{t(`games.${game.key}.name`)}</h4>
+                        <p className="text-sm text-ink-2">{t(`games.${game.key}.description`)}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           )
@@ -67,49 +59,33 @@ export function AboutPage() {
 
       {/* Features */}
       <div className="mb-10">
-        <h2 className="text-xl font-semibold text-gray-900 mb-3">
+        <h2 className="display text-[30px] mb-4">
           {t('about.features')}
         </h2>
-        <ul className="space-y-2 text-gray-600">
-          <li className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0" />
-            {t('about.feature1')}
-          </li>
-          <li className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0" />
-            {t('about.feature2')}
-          </li>
-          <li className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0" />
-            {t('about.feature3')}
-          </li>
-          <li className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0" />
-            {t('about.feature4')}
-          </li>
+        <ul className="space-y-2 text-ink-2 font-bold">
+          {['feature1', 'feature2', 'feature3', 'feature4'].map((k) => (
+            <li key={k} className="flex items-center gap-3">
+              <span className="w-3 h-3 rounded-full bg-coral border-2 border-ink shrink-0" aria-hidden="true" />
+              {t(`about.${k}`)}
+            </li>
+          ))}
         </ul>
       </div>
 
       {/* Company */}
-      <div className="mb-10 glass rounded-2xl p-6 text-center">
-        <p className="text-gray-600 mb-1">{t('about.createdBy')}</p>
-        <p className="text-lg font-semibold text-gray-900">Taveyo SARL</p>
+      <div className="mb-10 sticker-flat p-6 text-center">
+        <p className="text-ink-2 font-bold mb-1">{t('about.createdBy')}</p>
+        <p className="display text-2xl">Taveyo SARL</p>
       </div>
 
       {/* Policy links */}
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-        <Link
-          to="/privacy"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl glass text-gray-700 hover:bg-white/50 transition-all"
-        >
-          <Shield size={18} />
+        <Link to="/privacy" className="btn btn-ghost">
+          <Shield size={18} aria-hidden="true" />
           {t('about.privacyPolicy')}
         </Link>
-        <Link
-          to="/terms"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl glass text-gray-700 hover:bg-white/50 transition-all"
-        >
-          <FileText size={18} />
+        <Link to="/terms" className="btn btn-ghost">
+          <FileText size={18} aria-hidden="true" />
           {t('about.termsOfService')}
         </Link>
       </div>

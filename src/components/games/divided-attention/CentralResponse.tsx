@@ -16,10 +16,10 @@ export function CentralResponse({ onSelect }: CentralResponseProps) {
         <button
           key={key}
           onClick={() => onSelect(key)}
-          className="flex flex-col items-center gap-2 px-8 py-4 rounded-xl border-2 border-gray-200 hover:border-brand-500 hover:bg-brand-50 transition-colors min-w-[100px]"
+          className="flex flex-col items-center gap-2 px-8 py-4 sticker-sm hover:bg-butter transition-colors min-w-[100px]"
         >
-          <Icon size={32} className="text-gray-700" />
-          <span className="text-sm font-medium">{label}</span>
+          <Icon size={32} className="text-ink" />
+          <span className="display text-base">{label}</span>
         </button>
       ))}
     </div>

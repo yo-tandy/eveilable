@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Mascot } from '../common/Mascot'
 import { Link, useNavigate } from 'react-router-dom'
 import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
 import { doc, setDoc, Timestamp } from 'firebase/firestore'
@@ -68,14 +69,14 @@ export function RegisterPage() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4">
-      <div className="max-w-sm w-full glass-strong rounded-3xl p-8 specular-top">
+      <div className="max-w-sm w-full sticker p-8">
         <div className="text-center mb-8">
-          <div className="text-4xl mb-3">🧠</div>
-          <h1 className="text-2xl font-bold">{t('auth.signUp')}</h1>
+          <Mascot className="w-24 mx-auto mb-2" />
+          <h1 className="display text-[28px]">{t('auth.signUp')}</h1>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-700 text-sm">
+          <div className="mb-4 alert-error">
             {error}
           </div>
         )}
@@ -90,7 +91,7 @@ export function RegisterPage() {
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               required
-              className="glass-input w-full px-4 py-2.5 rounded-xl"
+              className="field w-full px-4 py-2.5 rounded-xl"
             />
           </div>
           <div>
@@ -102,7 +103,7 @@ export function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="glass-input w-full px-4 py-2.5 rounded-xl"
+              className="field w-full px-4 py-2.5 rounded-xl"
             />
           </div>
           <div>
@@ -114,7 +115,7 @@ export function RegisterPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="glass-input w-full px-4 py-2.5 rounded-xl"
+              className="field w-full px-4 py-2.5 rounded-xl"
             />
           </div>
           <div>
@@ -126,35 +127,35 @@ export function RegisterPage() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              className="glass-input w-full px-4 py-2.5 rounded-xl"
+              className="field w-full px-4 py-2.5 rounded-xl"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-black/75 backdrop-blur-sm text-white rounded-xl font-semibold hover:scale-[1.02] transition-transform disabled:opacity-50"
+            className="w-full py-3 btn btn-sun disabled:opacity-50"
           >
             {t('auth.signUp')}
           </button>
         </form>
 
         <div className="my-5 flex items-center gap-3">
-          <div className="flex-1 h-px bg-white/40" />
-          <span className="text-sm text-gray-400">or</span>
-          <div className="flex-1 h-px bg-white/40" />
+          <div className="flex-1 h-px bg-ink/15" />
+          <span className="text-sm font-bold text-ink-2">{t('common.or')}</span>
+          <div className="flex-1 h-px bg-ink/15" />
         </div>
 
         <button
           onClick={handleGoogleSignUp}
           disabled={loading}
-          className="w-full py-3 glass rounded-xl font-medium hover:bg-white/50 transition-all disabled:opacity-50"
+          className="w-full btn btn-ghost disabled:opacity-50"
         >
           {t('auth.signUpWithGoogle')}
         </button>
 
-        <p className="mt-6 text-center text-sm text-gray-500">
+        <p className="mt-6 text-center text-sm text-ink-2">
           {t('auth.hasAccount')}{' '}
-          <Link to="/login" className="text-gray-800 font-medium hover:underline">
+          <Link to="/login" className="text-ink font-medium hover:underline">
             {t('auth.signIn')}
           </Link>
         </p>

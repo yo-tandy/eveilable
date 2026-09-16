@@ -241,10 +241,10 @@ export function CardRecallGame() {
   if (phase === 'idle') {
     return (
       <div className="max-w-md mx-auto text-center py-12">
-        <Layers size={48} className="mx-auto text-violet-600 mb-4" />
-        <h2 className="text-2xl font-bold mb-2">{t('games.cardRecall.name')}</h2>
-        <p className="text-gray-500 mb-6">{t('games.cardRecall.description')}</p>
-        <div className="glass rounded-xl p-4 text-sm text-gray-600 mb-6 text-left space-y-2">
+        <div className="art art-attention w-20 h-20 mx-auto mb-4 -rotate-3"><Layers size={40} strokeWidth={2.4} aria-hidden="true" /></div>
+        <h2 className="display text-[30px] leading-tight mb-2">{t('games.cardRecall.name')}</h2>
+        <p className="text-ink-2 font-bold mb-6">{t('games.cardRecall.description')}</p>
+        <div className="sticker-flat p-5 text-[15px] text-ink-2 font-bold mb-6 text-left space-y-2">
           <p>{t('games.cardRecall.instructions1')}</p>
           <p>{t('games.cardRecall.instructions2')}</p>
           <p>{t('games.cardRecall.instructions3')}</p>
@@ -252,7 +252,7 @@ export function CardRecallGame() {
         </div>
         <button
           onClick={beginGame}
-          className="px-8 py-3 bg-black/75 backdrop-blur-sm text-white rounded-xl font-semibold hover:scale-[1.02] transition-transform"
+          className="btn btn-sun"
         >
           {t('common.startGame')}
         </button>
@@ -271,25 +271,25 @@ export function CardRecallGame() {
 
     return (
       <div className="max-w-md mx-auto text-center py-12">
-        <h2 className="text-2xl font-bold mb-4">{t('stats.sessionComplete')}</h2>
+        <div className="flex items-center justify-center gap-3 mb-6"><h2 className="display text-[36px]">{t('stats.niceOne')}</h2><span className="tag tag-sun">{t('stats.sessionComplete')}</span></div>
         <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="glass rounded-xl p-4">
-            <div className="text-3xl font-bold">{trials.length}</div>
-            <div className="text-sm text-gray-500">{t('stats.trials')}</div>
+          <div className="sticker-sm p-4">
+            <div className="display text-3xl leading-none">{trials.length}</div>
+            <div className="text-xs font-extrabold uppercase tracking-wider text-ink-2 mt-1">{t('stats.trials')}</div>
           </div>
-          <div className="glass rounded-xl p-4">
-            <div className="text-3xl font-bold">{Math.round(accuracy * 100)}%</div>
-            <div className="text-sm text-gray-500">{t('stats.accuracy')}</div>
+          <div className="sticker-sm p-4">
+            <div className="display text-3xl leading-none">{Math.round(accuracy * 100)}%</div>
+            <div className="text-xs font-extrabold uppercase tracking-wider text-ink-2 mt-1">{t('stats.accuracy')}</div>
           </div>
-          <div className="glass rounded-xl p-4">
-            <div className="text-3xl font-bold">{(avgTime / 1000).toFixed(1)}s</div>
-            <div className="text-sm text-gray-500">{t('stats.responseTime')}</div>
+          <div className="sticker-sm p-4">
+            <div className="display text-3xl leading-none">{(avgTime / 1000).toFixed(1)}s</div>
+            <div className="text-xs font-extrabold uppercase tracking-wider text-ink-2 mt-1">{t('stats.responseTime')}</div>
           </div>
         </div>
         <div className="flex gap-3 justify-center">
           <button
             onClick={resetGame}
-            className="px-6 py-2.5 glass rounded-xl font-medium hover:bg-white/50 transition-all"
+            className="btn btn-blue"
           >
             {t('common.playAgain')}
           </button>
@@ -306,7 +306,7 @@ export function CardRecallGame() {
   return (
     <div className="relative max-w-lg mx-auto">
       {/* Trial counter + level */}
-      <div className="flex justify-between text-xs text-gray-400 mb-4 px-1">
+      <div className="flex justify-between text-xs text-ink-3 mb-4 px-1">
         <span>Trial {trialCountRef.current + (phase === 'feedback' ? 0 : 1)}</span>
         <span>Level {levelRef.current}</span>
       </div>
@@ -314,7 +314,7 @@ export function CardRecallGame() {
       {/* Show phase: one card at a time */}
       {phase === 'show' && (
         <div className="flex flex-col items-center py-8">
-          <div className="text-sm text-gray-500 mb-4">
+          <div className="text-sm text-ink-2 mb-4">
             Card {showIndex + 1} of {sequence.length}
           </div>
           <div key={showIndex} className="card-enter">
@@ -339,10 +339,10 @@ export function CardRecallGame() {
       {/* Recall phase: grid of options */}
       {phase === 'recall' && (
         <div className="flex flex-col items-center">
-          <div className="text-sm text-gray-500 mb-1">
+          <div className="text-sm text-ink-2 mb-1">
             Recall in <span className="font-semibold text-violet-600">reverse</span> order
           </div>
-          <div className="text-xs text-gray-400 mb-4">
+          <div className="text-xs text-ink-3 mb-4">
             {userSelections.length} / {sequence.length} selected
           </div>
           <div className={`grid gap-3 mb-6 ${
@@ -370,7 +370,7 @@ export function CardRecallGame() {
             className={`px-8 py-3 rounded-xl font-semibold transition-all ${
               userSelections.length >= sequence.length
                 ? 'bg-violet-600 text-white hover:scale-[1.02] shadow-lg'
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-gray-200 text-ink-3 cursor-not-allowed'
             }`}
           >
             Submit
@@ -386,7 +386,7 @@ export function CardRecallGame() {
           </div>
 
           {/* Correct reverse sequence */}
-          <div className="text-xs text-gray-400 mb-2">Correct (reverse)</div>
+          <div className="text-xs text-ink-3 mb-2">Correct (reverse)</div>
           <div className="flex gap-2 mb-4">
             {[...sequence].reverse().map((card, i) => (
               <PlayingCard
@@ -399,7 +399,7 @@ export function CardRecallGame() {
           </div>
 
           {/* User's selections */}
-          <div className="text-xs text-gray-400 mb-2">Your answer</div>
+          <div className="text-xs text-ink-3 mb-2">Your answer</div>
           <div className="flex gap-2">
             {userSelections.map((card, i) => (
               <div key={`user-${i}`} className="flex flex-col items-center gap-1">

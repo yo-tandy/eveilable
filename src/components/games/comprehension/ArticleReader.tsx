@@ -81,13 +81,13 @@ export function ArticleReader({ article, mode, level, subLevel, onDoneReading }:
           variant="countdown"
         />
       ) : (
-        <div className="text-center text-sm text-gray-400 mb-4">
+        <div className="text-center text-sm text-ink-3 mb-4">
           {Math.floor(elapsedSeconds / 60)}:{String(elapsedSeconds % 60).padStart(2, '0')} elapsed
         </div>
       )}
 
       <article dir={dir} className="max-w-none">
-        <h1 className="text-2xl font-bold mb-2">{article.title}</h1>
+        <h1 className="display text-[28px] mb-2">{article.title}</h1>
         <StoryByline story={article} />
         {article.paragraphs.map((para, i) => (
           <p key={i} className="mb-4 leading-relaxed text-lg">{para}</p>
@@ -96,7 +96,7 @@ export function ArticleReader({ article, mode, level, subLevel, onDoneReading }:
 
       <button
         onClick={handleDone}
-        className="mt-8 w-full py-3 bg-black/75 backdrop-blur-sm text-white rounded-xl font-semibold hover:scale-[1.02] transition-transform"
+        className="mt-8 w-full py-3 btn btn-sun"
       >
         {t('games.comprehension.doneReading')}
       </button>

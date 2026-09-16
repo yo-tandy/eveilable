@@ -43,7 +43,7 @@ export function StoryByline({ story, compact = false, linkSource = true }: Story
     : null
 
   return (
-    <div className={`flex flex-wrap items-center gap-x-2 gap-y-1 text-gray-500 ${compact ? 'text-xs' : 'text-sm mb-6'}`}>
+    <div className={`flex flex-wrap items-center gap-x-2 gap-y-1 text-ink-2 ${compact ? 'text-xs' : 'text-sm mb-6'}`}>
       {sourceNode && (
         <span>
           <span className="sr-only">{t('games.story.source')}: </span>

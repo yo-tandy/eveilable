@@ -55,7 +55,7 @@ export function EvaluationResult({
 
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-8">
-      <h2 className="text-3xl font-bold text-center">Results</h2>
+      <h2 className="display text-[36px] text-center">Results</h2>
 
       {/* Level notification */}
       {levelNotification && (
@@ -86,34 +86,34 @@ export function EvaluationResult({
       />
 
       {/* Reading stats */}
-      <div className="glass rounded-2xl p-6">
+      <div className="sticker-sm p-6">
         <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
           <Clock size={20} /> Reading
         </h3>
         <div className="grid grid-cols-2 gap-4 text-center">
           <div>
             <div className="text-3xl font-bold">{readingTimeSeconds}s</div>
-            <div className="text-sm text-gray-500">Reading Time</div>
+            <div className="text-sm text-ink-2">Reading Time</div>
           </div>
           <div>
             <div className="text-3xl font-bold">{wpm}</div>
-            <div className="text-sm text-gray-500">Words/Minute</div>
+            <div className="text-sm text-ink-2">Words/Minute</div>
           </div>
         </div>
       </div>
 
       {/* Question results */}
-      <div className="glass rounded-2xl p-6">
-        <h3 className="font-bold text-lg mb-4">
+      <div className="sticker-sm p-6">
+        <h3 className="display text-xl mb-3">
           Questions: {questionsCorrect}/{questions.length} ({Math.round(questionsCorrect / questions.length * 100)}%)
         </h3>
         <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
           <div>
-            <span className="text-gray-500">Avg time per question: </span>
+            <span className="text-ink-2">Avg time per question: </span>
             <span className="font-medium">{Math.round(avgQuestionTimeMs / 1000)}s</span>
           </div>
           <div>
-            <span className="text-gray-500">Longest: </span>
+            <span className="text-ink-2">Longest: </span>
             <span className="font-medium">{Math.round(longestQuestionTimeMs / 1000)}s</span>
           </div>
         </div>
@@ -135,13 +135,13 @@ export function EvaluationResult({
               <div key={i}>
                 <button
                   onClick={() => toggleQuestion(i)}
-                  className="flex items-center gap-2 text-sm w-full text-left hover:bg-white/30 rounded-lg p-1 -m-1 transition-colors"
+                  className="flex items-center gap-2 text-sm w-full text-left hover:bg-butter rounded-lg p-1 -m-1 transition-colors"
                 >
                   <XCircle size={16} className="text-incorrect flex-shrink-0" />
                   <span className="truncate flex-1">{q.question}</span>
                   {isExpanded
-                    ? <ChevronUp size={16} className="text-gray-400 flex-shrink-0" />
-                    : <ChevronDown size={16} className="text-gray-400 flex-shrink-0" />
+                    ? <ChevronUp size={16} className="text-ink-3 flex-shrink-0" />
+                    : <ChevronDown size={16} className="text-ink-3 flex-shrink-0" />
                   }
                 </button>
                 {isExpanded && (
@@ -149,20 +149,20 @@ export function EvaluationResult({
                     <div className="flex items-start gap-2">
                       <XCircle size={14} className="text-incorrect mt-0.5 flex-shrink-0" />
                       <span>
-                        <span className="text-gray-500">{t('games.comprehension.results.yourAnswer')}: </span>
+                        <span className="text-ink-2">{t('games.comprehension.results.yourAnswer')}: </span>
                         {q.options[answers[i]]}
                       </span>
                     </div>
                     <div className="flex items-start gap-2">
                       <CheckCircle size={14} className="text-correct mt-0.5 flex-shrink-0" />
                       <span>
-                        <span className="text-gray-500">{t('games.comprehension.results.correctAnswer')}: </span>
+                        <span className="text-ink-2">{t('games.comprehension.results.correctAnswer')}: </span>
                         <span className="font-medium">{q.options[q.correctIndex]}</span>
                       </span>
                     </div>
                     {q.supportingQuote && (
                       <blockquote className="border-l-2 border-gray-400/50 pl-3 text-gray-600 italic">
-                        <span className="text-gray-400 text-xs block mb-1">{t('games.comprehension.results.fromArticle')}:</span>
+                        <span className="text-ink-3 text-xs block mb-1">{t('games.comprehension.results.fromArticle')}:</span>
                         &ldquo;{q.supportingQuote}&rdquo;
                       </blockquote>
                     )}
@@ -175,9 +175,9 @@ export function EvaluationResult({
       </div>
 
       {/* Summary evaluation */}
-      <div className="glass rounded-2xl p-6">
-        <h3 className="font-bold text-lg mb-2">Summary Evaluation</h3>
-        <p className="text-sm text-gray-500 mb-4">
+      <div className="sticker-sm p-6">
+        <h3 className="display text-xl mb-2">Summary Evaluation</h3>
+        <p className="text-sm text-ink-2 mb-4">
           Writing time: {Math.round(writingTimeMs / 1000)}s &middot; {summaryScore.wordCount} words
         </p>
         <div className="space-y-3">
@@ -201,15 +201,15 @@ export function EvaluationResult({
           ))}
 
           <div className="text-center mt-4 pt-4 border-t border-white/30">
-            <div className="text-4xl font-bold">
+            <div className="display text-[40px] leading-none">
               {summaryScore.overallScore}/10
             </div>
-            <div className="text-sm text-gray-500">Overall Score</div>
+            <div className="text-sm text-ink-2">Overall Score</div>
           </div>
 
           <LevelComparison story={article} assessedLevel={summaryScore.assessedLevel} />
 
-          <div className="mt-4 p-4 glass rounded-xl">
+          <div className="mt-4 p-4 sticker-sm">
             <p className="text-sm leading-relaxed">{summaryScore.feedback}</p>
           </div>
 
@@ -220,7 +220,7 @@ export function EvaluationResult({
                 {t('games.comprehension.results.detailedFeedback')}
               </h4>
               {summaryScore.sentenceIssues.map((issue, i) => (
-                <div key={i} className="p-3 glass rounded-lg text-sm space-y-1.5">
+                <div key={i} className="p-3 sticker-flat rounded-lg text-sm space-y-1.5">
                   <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
                     issue.issueType === 'grammar' ? 'bg-amber-500/10 text-amber-800' :
                     issue.issueType === 'vocabulary' ? 'bg-blue-500/10 text-blue-800' :
@@ -228,9 +228,9 @@ export function EvaluationResult({
                   }`}>
                     {issue.issueType}
                   </span>
-                  <p className="text-gray-500 line-through">{issue.sentence}</p>
-                  <p className="text-gray-900">{issue.suggestion}</p>
-                  <p className="text-gray-500 text-xs">{issue.explanation}</p>
+                  <p className="text-ink-2 line-through">{issue.sentence}</p>
+                  <p className="text-ink">{issue.suggestion}</p>
+                  <p className="text-ink-2 text-xs">{issue.explanation}</p>
                 </div>
               ))}
             </div>
@@ -242,13 +242,13 @@ export function EvaluationResult({
       <div className="flex gap-4">
         <button
           onClick={() => window.location.reload()}
-          className="flex-1 py-3 glass rounded-xl font-medium hover:bg-white/50 transition-all"
+          className="flex-1 btn btn-ghost"
         >
           {t('common.playAgain')}
         </button>
         <button
           onClick={() => navigate('/progress?game=comprehension')}
-          className="flex-1 py-3 bg-black/75 backdrop-blur-sm text-white rounded-xl font-semibold hover:scale-[1.02] transition-transform"
+          className="flex-1 py-3 btn btn-sun"
         >
           {t('common.viewProgress')}
         </button>

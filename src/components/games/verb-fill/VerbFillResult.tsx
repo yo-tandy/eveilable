@@ -31,7 +31,7 @@ export function VerbFillResult({
 
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-8">
-      <h2 className="text-3xl font-bold text-center">
+      <h2 className="display text-[36px] text-center">
         {t('games.verbFill.results')}
       </h2>
 
@@ -56,29 +56,29 @@ export function VerbFillResult({
       )}
 
       {/* Summary stats */}
-      <div className="glass rounded-2xl p-6 grid grid-cols-3 gap-4 text-center">
+      <div className="sticker-sm p-6 grid grid-cols-3 gap-4 text-center">
         <div>
           <div className="text-3xl font-bold">{evaluation.overallScore}/10</div>
-          <div className="text-sm text-gray-500">{t('games.verbFill.overallScore')}</div>
+          <div className="text-sm text-ink-2">{t('games.verbFill.overallScore')}</div>
         </div>
         <div>
           <div className="text-3xl font-bold">{correctCount}/{exercise.verbCount}</div>
-          <div className="text-sm text-gray-500">{t('games.verbFill.correct')}</div>
+          <div className="text-sm text-ink-2">{t('games.verbFill.correct')}</div>
         </div>
         <div>
           <div className="text-3xl font-bold">{avgTimeSec}s</div>
-          <div className="text-sm text-gray-500">{t('games.verbFill.avgTime')}</div>
+          <div className="text-sm text-ink-2">{t('games.verbFill.avgTime')}</div>
         </div>
       </div>
 
       {/* Overall feedback */}
-      <div className="glass rounded-2xl p-4">
+      <div className="sticker-sm p-4">
         <p className="text-sm leading-relaxed">{evaluation.feedback}</p>
       </div>
 
       {/* Full text with annotated results */}
       <div
-        className="glass rounded-2xl p-6 leading-[2.5] text-lg"
+        className="sticker-sm p-6 leading-[2.5] text-lg"
         dir={isRTL ? 'rtl' : 'ltr'}
       >
         {exercise.segments.map((seg, i) => {
@@ -109,7 +109,7 @@ export function VerbFillResult({
                   </span>
                 </>
               )}
-              <span className="text-xs text-gray-400 italic">({seg.infinitive})</span>
+              <span className="text-xs text-ink-3 italic">({seg.infinitive})</span>
             </span>
           )
         })}
@@ -128,7 +128,7 @@ export function VerbFillResult({
                 s => s.type === 'verb' && s.index === score.index
               )
               return (
-                <div key={score.index} className="glass rounded-xl p-3 text-sm space-y-1">
+                <div key={score.index} className="sticker-sm p-3 text-sm space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="inline-block px-2 py-0.5 bg-amber-500/10 text-amber-700 rounded-full text-xs font-medium">
                       {seg?.infinitive}
@@ -144,7 +144,7 @@ export function VerbFillResult({
                     {' → '}
                     <span className="text-green-700 font-medium">{score.correctForm}</span>
                   </div>
-                  <p className="text-gray-500 text-xs">{score.feedback}</p>
+                  <p className="text-ink-2 text-xs">{score.feedback}</p>
                 </div>
               )
             })}
@@ -155,13 +155,13 @@ export function VerbFillResult({
       <div className="flex gap-4">
         <button
           onClick={() => window.location.reload()}
-          className="flex-1 py-3 glass rounded-xl font-medium hover:bg-white/50 transition-all"
+          className="flex-1 btn btn-ghost"
         >
           {t('common.playAgain')}
         </button>
         <button
           onClick={() => navigate('/progress?game=verb-fill')}
-          className="flex-1 py-3 bg-black/75 backdrop-blur-sm text-white rounded-xl font-semibold hover:scale-[1.02] transition-transform"
+          className="flex-1 py-3 btn btn-sun"
         >
           {t('common.viewProgress')}
         </button>

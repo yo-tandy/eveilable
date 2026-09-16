@@ -5,9 +5,9 @@ export function TermsPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
-      <div className="glass rounded-2xl p-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('terms.title')}</h1>
-      <p className="text-sm text-gray-400 mb-8">Effective Date: February 15, 2026</p>
+      <div className="sticker-sm p-8">
+      <h1 className="display text-[36px] mb-2">{t('terms.title')}</h1>
+      <p className="text-sm text-ink-3 mb-8">Effective Date: February 15, 2026</p>
 
       <div className="space-y-8 text-gray-700 leading-relaxed">
         <p>
@@ -16,7 +16,7 @@ export function TermsPage() {
         </p>
 
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-3">1. Service Description</h2>
+          <h2 className="text-xl font-semibold text-ink mb-3">1. Service Description</h2>
           <p className="mb-3">
             Eveilable is a cognitive training platform that provides interactive brain games designed to improve thought processing abilities, attention, and language comprehension. The Service includes:
           </p>
@@ -25,13 +25,13 @@ export function TermsPage() {
             <li><strong>Double Decision</strong> — reaction speed and decision-making exercises</li>
             <li><strong>Comprehension</strong> — reading, quiz, and summary writing exercises with AI-powered feedback</li>
           </ul>
-          <p className="font-medium text-gray-800">
+          <p className="font-medium text-ink">
             Important: Eveilable is an educational and recreational tool. It is not a medical device, therapy, or substitute for professional medical advice, diagnosis, or treatment. No claims are made regarding clinical or therapeutic outcomes.
           </p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-3">2. Accounts</h2>
+          <h2 className="text-xl font-semibold text-ink mb-3">2. Accounts</h2>
           <ul className="list-disc list-inside space-y-1">
             <li>You must create an account to use the Service</li>
             <li>You are responsible for maintaining the security of your account credentials</li>
@@ -42,7 +42,7 @@ export function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-3">3. Acceptable Use</h2>
+          <h2 className="text-xl font-semibold text-ink mb-3">3. Acceptable Use</h2>
           <p className="mb-2">You agree not to:</p>
           <ul className="list-disc list-inside space-y-1">
             <li>Use the Service for any unlawful purpose</li>
@@ -55,20 +55,20 @@ export function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-3">4. AI-Generated Content</h2>
+          <h2 className="text-xl font-semibold text-ink mb-3">4. AI-Generated Content</h2>
           <p className="mb-3">The Comprehension game uses artificial intelligence (Anthropic&apos;s Claude API) to:</p>
           <ul className="list-disc list-inside space-y-1 mb-3">
             <li>Generate news-style articles based on real headlines</li>
             <li>Create comprehension questions</li>
             <li>Evaluate written summaries and provide feedback</li>
           </ul>
-          <p className="font-medium text-gray-800">
+          <p className="font-medium text-ink">
             Disclaimer: AI-generated articles are created for educational purposes and may not be fully accurate. They should not be relied upon as factual news sources. AI-generated feedback on summaries is provided as a learning aid and may not always be correct.
           </p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-3">5. Intellectual Property</h2>
+          <h2 className="text-xl font-semibold text-ink mb-3">5. Intellectual Property</h2>
           <ul className="list-disc list-inside space-y-1">
             <li>The Service, including its design, code, and branding, is owned by Eveilable</li>
             <li>AI-generated content (articles, questions, feedback) is provided for your personal educational use</li>
@@ -78,7 +78,7 @@ export function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-3">6. Third-Party Services</h2>
+          <h2 className="text-xl font-semibold text-ink mb-3">6. Third-Party Services</h2>
           <p className="mb-3">The Service relies on third-party providers:</p>
           <ul className="list-disc list-inside space-y-1 mb-3">
             <li><strong>Firebase (Google)</strong> — authentication and data storage</li>
@@ -90,16 +90,16 @@ export function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-3">7. Privacy</h2>
+          <h2 className="text-xl font-semibold text-ink mb-3">7. Privacy</h2>
           <p>
             Your use of the Service is also governed by our{' '}
-            <a href="/privacy" className="text-brand-600 hover:underline">Privacy Policy</a>,
+            <a href="/privacy" className="text-blue hover:underline">Privacy Policy</a>,
             which describes how we collect, use, and protect your data.
           </p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-3">8. Availability and Modifications</h2>
+          <h2 className="text-xl font-semibold text-ink mb-3">8. Availability and Modifications</h2>
           <ul className="list-disc list-inside space-y-1">
             <li>We may modify, suspend, or discontinue the Service at any time without notice</li>
             <li>We do not guarantee uninterrupted or error-free operation</li>
@@ -109,7 +109,7 @@ export function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-3">9. Limitation of Liability</h2>
+          <h2 className="text-xl font-semibold text-ink mb-3">9. Limitation of Liability</h2>
           <ul className="list-disc list-inside space-y-1">
             <li>The Service is provided &quot;as is&quot; and &quot;as available&quot; without warranties of any kind</li>
             <li>We disclaim all warranties, express or implied, including merchantability, fitness for a particular purpose, and non-infringement</li>
@@ -119,7 +119,7 @@ export function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-3">10. Termination</h2>
+          <h2 className="text-xl font-semibold text-ink mb-3">10. Termination</h2>
           <ul className="list-disc list-inside space-y-1">
             <li>You may delete your account at any time by contacting us</li>
             <li>We may suspend or terminate your account if you violate these Terms</li>
@@ -129,15 +129,15 @@ export function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-3">11. Governing Law</h2>
+          <h2 className="text-xl font-semibold text-ink mb-3">11. Governing Law</h2>
           <p>These Terms are governed by and construed in accordance with applicable law. Any disputes arising from these Terms or the Service shall be resolved through good-faith negotiation before pursuing formal proceedings.</p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-3">12. Contact</h2>
+          <h2 className="text-xl font-semibold text-ink mb-3">12. Contact</h2>
           <p>
             For questions about these Terms, contact:{' '}
-            <a href="mailto:legal@eveilable.com" className="text-brand-600 hover:underline">legal@eveilable.com</a>
+            <a href="mailto:legal@eveilable.com" className="text-blue hover:underline">legal@eveilable.com</a>
           </p>
         </section>
       </div>

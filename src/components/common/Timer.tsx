@@ -22,7 +22,7 @@ export function Timer({ totalSeconds, elapsedSeconds, variant }: TimerProps) {
       {variant === 'countdown' && (
         <div className="w-full h-1.5 bg-gray-200 rounded-full mt-2 overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-1000 ${isUrgent ? 'bg-red-500' : 'bg-brand-500'}`}
+            className={`h-full rounded-full transition-all duration-1000 ${isUrgent ? 'bg-red-500' : 'bg-blue'}`}
             style={{ width: `${progress * 100}%` }}
           />
         </div>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { BookOpen, Timer } from 'lucide-react'
 
 interface ModeSelectorProps {
@@ -6,37 +7,45 @@ interface ModeSelectorProps {
 }
 
 export function ModeSelector({ onSelect, error }: ModeSelectorProps) {
+  const { t } = useTranslation()
+
   return (
     <div className="max-w-lg mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-6 text-center">Choose Your Mode</h2>
+      <h2 className="display text-[30px] mb-6 text-center">{t('common.chooseMode')}</h2>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-700 text-sm">
-          {error}. Tap a mode to retry.
+        <div className="mb-4 alert-error" role="alert">
+          {error}. {t('common.tapToRetry')}
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 gap-5">
         <button
+          type="button"
           onClick={() => onSelect('complete')}
-          className="p-6 rounded-2xl glass hover:bg-white/50 transition-all text-left"
+          className="sticker sticker-lift tilt-a p-6 text-left flex gap-5 items-center"
         >
-          <BookOpen size={32} className="mb-3" />
-          <h3 className="text-lg font-bold">Complete the Tasks</h3>
-          <p className="text-gray-500 mt-1">
-            Work at your own pace. Time is recorded but not enforced.
-          </p>
+          <div className="art art-language w-16 h-16 shrink-0">
+            <BookOpen size={30} strokeWidth={2.4} aria-hidden="true" />
+          </div>
+          <div>
+            <h3 className="display text-2xl">{t('common.modeComplete')}</h3>
+            <p className="text-ink-2 font-bold text-sm mt-1">{t('common.modeCompleteDesc')}</p>
+          </div>
         </button>
 
         <button
+          type="button"
           onClick={() => onSelect('race')}
-          className="p-6 rounded-2xl glass hover:bg-white/50 transition-all text-left"
+          className="sticker sticker-lift tilt-b p-6 text-left flex gap-5 items-center"
         >
-          <Timer size={32} className="text-orange-600 mb-3" />
-          <h3 className="text-lg font-bold">Race the Clock</h3>
-          <p className="text-gray-500 mt-1">
-            Beat the clock. Reading and questions are timed with countdown timers.
-          </p>
+          <div className="art art-attention w-16 h-16 shrink-0">
+            <Timer size={30} strokeWidth={2.4} aria-hidden="true" />
+          </div>
+          <div>
+            <h3 className="display text-2xl">{t('common.modeRace')}</h3>
+            <p className="text-ink-2 font-bold text-sm mt-1">{t('common.modeRaceDesc')}</p>
+          </div>
         </button>
       </div>
     </div>

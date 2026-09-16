@@ -20,7 +20,7 @@ export function SpeedSummaryResult({ paragraph, summaryScore, writingTimeMs, lev
 
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-8">
-      <h2 className="text-3xl font-bold text-center">
+      <h2 className="display text-[36px] text-center">
         {t('games.speedSummary.summaryEvaluation')}
       </h2>
 
@@ -53,19 +53,19 @@ export function SpeedSummaryResult({ paragraph, summaryScore, writingTimeMs, lev
       />
 
       {/* Writing stats */}
-      <div className="glass rounded-2xl p-6 grid grid-cols-2 gap-4 text-center">
+      <div className="sticker-sm p-6 grid grid-cols-2 gap-4 text-center">
         <div>
           <div className="text-3xl font-bold">{writingSeconds}s</div>
-          <div className="text-sm text-gray-500">{t('games.speedSummary.writingTime')}</div>
+          <div className="text-sm text-ink-2">{t('games.speedSummary.writingTime')}</div>
         </div>
         <div>
           <div className="text-3xl font-bold">{summaryScore.wordCount}</div>
-          <div className="text-sm text-gray-500">{t('games.speedSummary.words')}</div>
+          <div className="text-sm text-ink-2">{t('games.speedSummary.words')}</div>
         </div>
       </div>
 
       {/* Scores */}
-      <div className="glass rounded-2xl p-6 space-y-3">
+      <div className="sticker-sm p-6 space-y-3">
         {[
           { label: t('games.speedSummary.accuracy'), score: summaryScore.accuracyScore },
           { label: t('games.speedSummary.vocabulary'), score: summaryScore.vocabularyScore },
@@ -86,16 +86,16 @@ export function SpeedSummaryResult({ paragraph, summaryScore, writingTimeMs, lev
         ))}
 
         <div className="text-center mt-4 pt-4 border-t border-white/30">
-          <div className="text-4xl font-bold">
+          <div className="display text-[40px] leading-none">
             {summaryScore.overallScore}/10
           </div>
-          <div className="text-sm text-gray-500">{t('games.speedSummary.overallScore')}</div>
+          <div className="text-sm text-ink-2">{t('games.speedSummary.overallScore')}</div>
         </div>
 
         <LevelComparison story={paragraph} assessedLevel={summaryScore.assessedLevel} />
 
         {/* Feedback */}
-        <div className="mt-4 p-4 glass rounded-xl">
+        <div className="mt-4 p-4 sticker-sm">
           <p className="text-sm leading-relaxed">{summaryScore.feedback}</p>
         </div>
 
@@ -106,7 +106,7 @@ export function SpeedSummaryResult({ paragraph, summaryScore, writingTimeMs, lev
               {t('games.speedSummary.detailedFeedback')}
             </h4>
             {summaryScore.sentenceIssues.map((issue, i) => (
-              <div key={i} className="p-3 glass rounded-lg text-sm space-y-1.5">
+              <div key={i} className="p-3 sticker-flat rounded-lg text-sm space-y-1.5">
                 <span
                   className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
                     issue.issueType === 'grammar'
@@ -118,9 +118,9 @@ export function SpeedSummaryResult({ paragraph, summaryScore, writingTimeMs, lev
                 >
                   {issue.issueType}
                 </span>
-                <p className="text-gray-500 line-through">{issue.sentence}</p>
-                <p className="text-gray-900">{issue.suggestion}</p>
-                <p className="text-gray-500 text-xs">{issue.explanation}</p>
+                <p className="text-ink-2 line-through">{issue.sentence}</p>
+                <p className="text-ink">{issue.suggestion}</p>
+                <p className="text-ink-2 text-xs">{issue.explanation}</p>
               </div>
             ))}
           </div>
@@ -131,13 +131,13 @@ export function SpeedSummaryResult({ paragraph, summaryScore, writingTimeMs, lev
       <div className="flex gap-4">
         <button
           onClick={() => window.location.reload()}
-          className="flex-1 py-3 glass rounded-xl font-medium hover:bg-white/50 transition-all"
+          className="flex-1 btn btn-ghost"
         >
           {t('common.playAgain')}
         </button>
         <button
           onClick={() => navigate('/progress?game=speed-summary')}
-          className="flex-1 py-3 bg-black/75 backdrop-blur-sm text-white rounded-xl font-semibold hover:scale-[1.02] transition-transform"
+          className="flex-1 py-3 btn btn-sun"
         >
           {t('common.viewProgress')}
         </button>
