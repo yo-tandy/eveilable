@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Clock, Send } from 'lucide-react'
+import { StoryByline } from '../../common/StoryByline'
 import type { ParagraphResult } from '../../../services/paragraphService'
 
 interface PlayingPhaseProps {
@@ -51,7 +52,8 @@ export function PlayingPhase({ paragraph, language, onSubmit }: PlayingPhaseProp
 
       {/* Paragraph */}
       <div className="glass rounded-2xl p-6">
-        <h3 className="font-bold text-lg mb-3">{paragraph.title}</h3>
+        <h3 className="font-bold text-lg mb-1">{paragraph.title}</h3>
+        <div className="mb-3"><StoryByline story={paragraph} compact /></div>
         <p
           className="text-gray-700 leading-relaxed text-lg"
           dir={isRTL ? 'rtl' : 'ltr'}

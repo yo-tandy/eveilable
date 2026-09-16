@@ -17,6 +17,9 @@ function getClient() {
 
 const SECRETS = ['ANTHROPIC_API_KEY'] as const
 
+/** CEFR bands with lower/upper modifiers: A1-, A1, A1+, ... C2+. */
+const CEFR_BANDS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].flatMap(b => [`${b}-`, b, `${b}+`])
+
 
 export const generateArticle = onCall(
   { timeoutSeconds: 60, memory: '256MiB', secrets: [...SECRETS] },
@@ -235,6 +238,10 @@ ONLY flag genuine errors (wrong grammar, incorrect word usage, factual inaccurac
 
 If the summary has no genuine issues, return an empty sentenceIssues array.
 
+--- LEVEL ASSESSMENT ---
+
+Independently of the expected level, assess the CEFR level the summary itself demonstrates, based on its vocabulary range, grammatical complexity and control, and cohesion. Report it in "assessedLevel" as a CEFR band with an optional modifier: "+" means solidly in the upper part of the band, approaching the next one; "-" means the lower part of the band. Examples: "A2+", "B1", "C1-". Judge only what is on the page; a short summary can still show C1 control, and a long one can still be A2.
+
 --- LEARNER PROFILE UPDATE ---
 ${profileContext}
 
@@ -260,9 +267,14 @@ Based on this evaluation session${langProfile ? ' and the existing profile' : ''
                 required: ['sentence', 'issueType', 'explanation', 'suggestion'],
               },
             },
+            assessedLevel: {
+              type: 'string',
+              enum: CEFR_BANDS,
+              description: 'CEFR level demonstrated by the summary, e.g. "A2+", "B1", "C1-"',
+            },
             profileUpdate: { type: 'string', description: 'Updated learner profile summary (100-180 words)' },
           },
-          required: ['accuracyScore', 'vocabularyScore', 'grammarScore', 'overallScore', 'feedback', 'sentenceIssues', 'profileUpdate'],
+          required: ['accuracyScore', 'vocabularyScore', 'grammarScore', 'overallScore', 'feedback', 'sentenceIssues', 'assessedLevel', 'profileUpdate'],
         },
         { maxTokens: 2048 },
       )

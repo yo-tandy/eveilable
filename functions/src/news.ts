@@ -55,6 +55,17 @@ const NEWS_FEEDS: Record<string, { name: string; url: string }[]> = {
   ],
 }
 
+/** A headline as returned to the client. url/publishedAt are absent for fallback items. */
+interface Headline {
+  title: string
+  description: string
+  source: string
+  /** Canonical article URL, https only. */
+  url?: string
+  /** Publication time as an ISO-8601 string. */
+  publishedAt?: string
+}
+
 // Max age of headlines in milliseconds (3 days)
 const MAX_ARTICLE_AGE_MS = 3 * 24 * 60 * 60 * 1000
 
@@ -95,23 +106,37 @@ function decodeEntities(s: string): string {
  * credits, so it is only consulted for aggregator feeds where it is the only
  * way to learn the origin.
  */
-function parseRssFeed(xml: string, publisher = ''): { title: string; description: string; source: string }[] {
+function parseRssFeed(xml: string, publisher = ''): Headline[] {
   const itemMatches = xml.match(/<item>([\s\S]*?)<\/item>/g) || []
   const now = Date.now()
-  const items: { title: string; description: string; source: string }[] = []
+  const items: Headline[] = []
 
   for (const itemXml of itemMatches) {
     const titleMatch = itemXml.match(/<title>([\s\S]*?)<\/title>/)
     const pubDateMatch = itemXml.match(/<pubDate>([\s\S]*?)<\/pubDate>/)
     const sourceMatch = itemXml.match(/<source[^>]*>([\s\S]*?)<\/source>/)
+    const linkMatch = itemXml.match(/<link>([\s\S]*?)<\/link>/)
+    // Some feeds leave <link> empty and put the URL in a permalink <guid>.
+    const guidMatch = itemXml.match(/<guid[^>]*>([\s\S]*?)<\/guid>/)
 
     if (!titleMatch) continue
 
-    // Filter by age (last 3 days)
+    // Filter by age (last 3 days); keep the parsed date for the client.
+    let publishedAt: string | undefined
     if (pubDateMatch) {
-      const pubDate = new Date(pubDateMatch[1].trim()).getTime()
-      if (!isNaN(pubDate) && now - pubDate > MAX_ARTICLE_AGE_MS) continue
+      const pubDate = new Date(stripCdata(pubDateMatch[1].trim()).trim()).getTime()
+      if (!isNaN(pubDate)) {
+        if (now - pubDate > MAX_ARTICLE_AGE_MS) continue
+        publishedAt = new Date(pubDate).toISOString()
+      }
     }
+
+    const linkCandidate = decodeEntities(stripCdata((linkMatch?.[1] ?? '').trim()).trim())
+      || decodeEntities(stripCdata((guidMatch?.[1] ?? '').trim()).trim())
+    // Every publisher here serves https; some (RFI) still advertise http links.
+    const url = /^https?:\/\//.test(linkCandidate)
+      ? linkCandidate.replace(/^http:/, 'https:')
+      : undefined
 
     let rawTitle = decodeEntities(stripCdata(titleMatch[1].trim()).trim())
     const source = publisher || (sourceMatch ? decodeEntities(stripCdata(sourceMatch[1].trim()).trim()) : '')
@@ -131,6 +156,8 @@ function parseRssFeed(xml: string, publisher = ''): { title: string; description
       title: rawTitle,
       description: '', // Feed descriptions are teasers or HTML; the headline alone is the topic seed
       source,
+      url,
+      publishedAt,
     })
   }
 
@@ -138,7 +165,7 @@ function parseRssFeed(xml: string, publisher = ''): { title: string; description
 }
 
 // Fallback headlines when RSS fetch fails
-const FALLBACK_HEADLINES: Record<string, { title: string; description: string; source: string }[]> = {
+const FALLBACK_HEADLINES: Record<string, Headline[]> = {
   en: [
     { title: 'Scientists Discover New Species in Deep Ocean Trench', description: 'Marine biologists have identified several previously unknown organisms living at extreme depths.', source: 'Science Daily' },
     { title: 'Global Renewable Energy Investment Reaches Record High', description: 'Clean energy spending surpassed $500 billion for the first time, driven by solar and wind expansion.', source: 'Reuters' },
@@ -189,7 +216,7 @@ const FALLBACK_HEADLINES: Record<string, { title: string; description: string; s
  */
 async function fetchFeed(
   feed: { name: string; url: string },
-): Promise<{ title: string; description: string; source: string }[] | null> {
+): Promise<Headline[] | null> {
   try {
     const response = await fetch(feed.url, {
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; EveilableBot/1.0)' },

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { CheckCircle, XCircle, Clock, ChevronDown, ChevronUp, TrendingUp, TrendingDown } from 'lucide-react'
+import { StoryReview, LevelComparison } from '../../common/StoryReview'
 import type { Article, ComprehensionQuestion, SummaryScore } from '../../../types/comprehension'
 
 interface EvaluationResultProps {
@@ -75,6 +76,14 @@ export function EvaluationResult({
           </span>
         </div>
       )}
+
+      {/* What was read and what was written, collapsed for reference */}
+      <StoryReview
+        story={article}
+        paragraphs={article.paragraphs}
+        summaryText={summaryScore.summaryText}
+        summaryWordCount={summaryScore.wordCount}
+      />
 
       {/* Reading stats */}
       <div className="glass rounded-2xl p-6">
@@ -197,6 +206,8 @@ export function EvaluationResult({
             </div>
             <div className="text-sm text-gray-500">Overall Score</div>
           </div>
+
+          <LevelComparison story={article} assessedLevel={summaryScore.assessedLevel} />
 
           <div className="mt-4 p-4 glass rounded-xl">
             <p className="text-sm leading-relaxed">{summaryScore.feedback}</p>

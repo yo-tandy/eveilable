@@ -172,6 +172,17 @@
       "originalText": "Original text",
       "yourInput": "Your input",
       "notSupported": "Your browser does not support text-to-speech. Please try a different browser."
+    },
+    "story": {
+      "source": "Source",
+      "writtenFor": "Written for {{level}}",
+      "article": "Article",
+      "yourSummary": "Your summary",
+      "wordCount": "{{count}} words",
+      "levels": "Level",
+      "textLevel": "Text written for",
+      "summaryLevel": "Your summary assessed at",
+      "summaryLevelUnavailable": "not assessed"
     }
   },
   "puzzles": {

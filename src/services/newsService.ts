@@ -6,6 +6,8 @@ interface Headline {
   title: string
   description: string
   source: string
+  url?: string
+  publishedAt?: string
 }
 
 export async function fetchAndGenerateArticle(
@@ -26,11 +28,18 @@ export async function fetchAndGenerateArticle(
   // Pick a headline
   const headline = headlines[Math.floor(Math.random() * headlines.length)]
 
-  // Step 2: Generate article
-  const article = await callFunction<Article>(
+  // Step 2: Generate article, then attach where the headline came from
+  const generated = await callFunction<Article>(
     'generateArticle',
     { headline: headline.title, language, level, subLevel }
   )
+  const article: Article = {
+    ...generated,
+    source: headline.source,
+    sourceUrl: headline.url,
+    publishedAt: headline.publishedAt,
+    subLevel,
+  }
 
   // Step 3: Generate questions
   const articleText = article.paragraphs.join('\n\n')

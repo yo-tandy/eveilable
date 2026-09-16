@@ -1,15 +1,18 @@
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { TrendingUp, TrendingDown } from 'lucide-react'
+import { StoryReview, LevelComparison } from '../../common/StoryReview'
 import type { SummaryScore } from '../../../types/comprehension'
+import type { ParagraphResult } from '../../../services/paragraphService'
 
 interface SpeedSummaryResultProps {
+  paragraph: ParagraphResult
   summaryScore: SummaryScore
   writingTimeMs: number
   levelNotification?: { direction: 'up' | 'down'; newLabel: string } | null
 }
 
-export function SpeedSummaryResult({ summaryScore, writingTimeMs, levelNotification }: SpeedSummaryResultProps) {
+export function SpeedSummaryResult({ paragraph, summaryScore, writingTimeMs, levelNotification }: SpeedSummaryResultProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
 
@@ -40,6 +43,14 @@ export function SpeedSummaryResult({ summaryScore, writingTimeMs, levelNotificat
           </span>
         </div>
       )}
+
+      {/* What was read and what was written, collapsed for reference */}
+      <StoryReview
+        story={paragraph}
+        paragraphs={[paragraph.paragraph]}
+        summaryText={summaryScore.summaryText}
+        summaryWordCount={summaryScore.wordCount}
+      />
 
       {/* Writing stats */}
       <div className="glass rounded-2xl p-6 grid grid-cols-2 gap-4 text-center">
@@ -80,6 +91,8 @@ export function SpeedSummaryResult({ summaryScore, writingTimeMs, levelNotificat
           </div>
           <div className="text-sm text-gray-500">{t('games.speedSummary.overallScore')}</div>
         </div>
+
+        <LevelComparison story={paragraph} assessedLevel={summaryScore.assessedLevel} />
 
         {/* Feedback */}
         <div className="mt-4 p-4 glass rounded-xl">

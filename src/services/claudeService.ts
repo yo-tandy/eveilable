@@ -17,6 +17,7 @@ export async function evaluateSummary(
     overallScore: number
     feedback: string
     sentenceIssues?: SentenceIssue[]
+    assessedLevel?: string
   }>('evaluateSummary', {
     article: articleText,
     summary,
@@ -36,5 +37,6 @@ export async function evaluateSummary(
     feedback: result.feedback,
     sentenceIssues: result.sentenceIssues || [],
     readingTimeSeconds: 0,
+    assessedLevel: result.assessedLevel,
   }
 }

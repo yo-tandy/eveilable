@@ -176,6 +176,7 @@ export function SpeedSummaryGame() {
     case 'results':
       return (
         <SpeedSummaryResult
+          paragraph={paragraph!}
           summaryScore={summaryEvaluation!}
           writingTimeMs={writingTimeMs}
           levelNotification={levelNotification}

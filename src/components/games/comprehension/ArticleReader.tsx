@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { preciseNow } from '../../../utils/timing'
 import { Timer } from '../../common/Timer'
+import { StoryByline } from '../../common/StoryByline'
 import type { Article } from '../../../types/comprehension'
 import type { LanguageLevel, LanguageSubLevel } from '../../../types/user'
 
@@ -86,7 +87,8 @@ export function ArticleReader({ article, mode, level, subLevel, onDoneReading }:
       )}
 
       <article dir={dir} className="max-w-none">
-        <h1 className="text-2xl font-bold mb-6">{article.title}</h1>
+        <h1 className="text-2xl font-bold mb-2">{article.title}</h1>
+        <StoryByline story={article} />
         {article.paragraphs.map((para, i) => (
           <p key={i} className="mb-4 leading-relaxed text-lg">{para}</p>
         ))}

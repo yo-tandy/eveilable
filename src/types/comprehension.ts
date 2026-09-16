@@ -1,10 +1,21 @@
-export interface Article {
+/** Where a generated story came from and who it was written for. */
+export interface StoryMeta {
+  /** Publisher of the headline the story was generated from. */
+  source?: string
+  /** Original article URL. */
+  sourceUrl?: string
+  /** Original article publication time, ISO-8601. */
+  publishedAt?: string
+  /** CEFR level the story was written for. */
+  level: string
+  subLevel?: string
+}
+
+export interface Article extends StoryMeta {
   title: string
   paragraphs: string[]
   wordCount: number
   language: string
-  level: string
-  source?: string
 }
 
 export interface ComprehensionQuestion {
@@ -31,4 +42,6 @@ export interface SummaryScore {
   feedback: string
   sentenceIssues: SentenceIssue[]
   readingTimeSeconds: number
+  /** CEFR level the summary itself demonstrates, e.g. "A2+", "B1", "C1-". */
+  assessedLevel?: string
 }
