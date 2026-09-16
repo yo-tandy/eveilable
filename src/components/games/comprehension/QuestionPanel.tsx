@@ -60,22 +60,33 @@ export function QuestionPanel({ questions, onComplete }: QuestionPanelProps) {
 
       <h3 className="text-xl font-medium mb-6">{currentQuestion.question}</h3>
 
-      <div className="space-y-3 mb-8">
-        {currentQuestion.options.map((option, i) => (
-          <button
-            key={i}
-            onClick={() => setSelectedOption(i)}
-            className={`w-full p-4 text-left rounded-xl transition-all ${
-              selectedOption === i
-                ? 'glass-strong shadow-sm'
-                : 'glass hover:bg-white/50'
-            }`}
-            style={selectedOption === i ? { borderColor: 'rgba(0,0,0,0.2)' } : undefined}
-          >
-            <span className="font-bold mr-3">{OPTION_LABELS[i]}</span>
-            {option}
-          </button>
-        ))}
+      {/* Selected state matches LanguageSelector: white fill + indigo ring, plus a filled letter badge. */}
+      <div className="space-y-3 mb-8" role="group" aria-label={currentQuestion.question}>
+        {currentQuestion.options.map((option, i) => {
+          const isSelected = selectedOption === i
+          return (
+            <button
+              key={i}
+              onClick={() => setSelectedOption(i)}
+              aria-pressed={isSelected}
+              className={`w-full p-4 text-left rounded-xl transition-all flex items-start gap-3 ${
+                isSelected
+                  ? 'bg-white/70 ring-2 ring-indigo-500 shadow-md'
+                  : 'glass hover:bg-white/50'
+              }`}
+            >
+              <span
+                className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
+                  isSelected ? 'bg-indigo-500 text-white' : 'bg-black/10 text-gray-700'
+                }`}
+                aria-hidden="true"
+              >
+                {OPTION_LABELS[i]}
+              </span>
+              <span className={`pt-0.5 ${isSelected ? 'font-medium' : ''}`}>{option}</span>
+            </button>
+          )
+        })}
       </div>
 
       <button
