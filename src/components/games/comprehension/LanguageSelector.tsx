@@ -26,9 +26,7 @@ const SUB_LEVELS: { code: LanguageSubLevel; label: string; description: string }
 ]
 
 const optionClass = (selected: boolean) =>
-  `rounded-2xl text-left transition-all border-3 border-ink ${
-    selected ? 'bg-sun shadow-[4px_4px_0_#1b1a2e] -translate-x-0.5 -translate-y-0.5' : 'bg-paper hover:bg-butter'
-  }`
+  `option text-left ${selected ? 'option-selected' : ''}`
 
 export function LanguageSelector({ onSelect }: LanguageSelectorProps) {
   const { t } = useTranslation()

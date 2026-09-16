@@ -306,3 +306,21 @@ html[data-reduced-motion="true"] *::after {
   color: var(--color-ink-2);
 }
 .chip-muted:hover { background: var(--color-paper); }
+
+/* Selectable option cards (language, level, answer). Hover lifts; selected fills sun. */
+.option {
+  background: var(--color-paper);
+  border: 3px solid var(--color-ink);
+  border-radius: 16px;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
+}
+.option:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--color-ink);
+}
+.option-selected,
+.option-selected:hover {
+  background: var(--color-sun);
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--color-ink);
+}

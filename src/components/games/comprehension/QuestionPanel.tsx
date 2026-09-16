@@ -69,11 +69,7 @@ export function QuestionPanel({ questions, onComplete }: QuestionPanelProps) {
               key={i}
               onClick={() => setSelectedOption(i)}
               aria-pressed={isSelected}
-              className={`w-full p-4 text-left rounded-xl transition-all flex items-start gap-3 ${
-                isSelected
-                  ? 'bg-white/70 ring-2 ring-blue shadow-md'
-                  : 'sticker-flat hover:bg-butter'
-              }`}
+              className={`w-full p-4 text-left flex items-start gap-3 option ${isSelected ? 'option-selected' : ''}`}
             >
               <span
                 className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
