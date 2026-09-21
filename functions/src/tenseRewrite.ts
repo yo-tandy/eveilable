@@ -63,7 +63,8 @@ Requirements:
 - Each exercise has a transformation task from this list: ${allowedTypes}
 - Use a DIVERSE MIX of transformation types — do NOT repeat the same type more than twice
 - The original sentence should be written so the transformation is natural and meaningful
-- Include a reference solution showing the correct transformation
+- The original sentence must NOT already be in the target form — the rewrite must actually change it. For example: for present-tense the original must be in the past or future; for past-tense or future-tense it must be in a different tense; for negation it must be affirmative; for question-form it must be a statement; for passive-voice it must be active (and vice versa); for reported-speech it must be direct speech
+- Include a reference solution showing the correct transformation; it must differ from the original sentence
 - The task description should be a short, clear instruction in ${langName(language)} (e.g., "Rewrite in the future tense", "Rewrite as a question", "Rewrite in the passive voice")
 ${profileSection}`,
         {
@@ -88,7 +89,20 @@ ${profileSection}`,
         { maxTokens: 4096 },
       )
 
-      return { exercises: coerceArray(result.exercises, 'exercises') }
+      const exercises = coerceArray(result.exercises, 'exercises') as Array<{
+        original: string
+        referenceSolution: string
+      }>
+      // Drop exercises where the "transformation" is a no-op — the original
+      // is already in the target form, so there is nothing for the learner to do
+      const normalize = (s: string) => s.trim().replace(/\s+/g, ' ').replace(/[.!?]+$/, '').toLowerCase()
+      const usable = exercises.filter(
+        (ex) => normalize(ex.original) !== normalize(ex.referenceSolution),
+      )
+      if (usable.length < exercises.length) {
+        console.warn(`generateTenseExercises: dropped ${exercises.length - usable.length} no-op exercise(s)`)
+      }
+      return { exercises: usable }
     } catch (error: unknown) {
       if (error instanceof HttpsError) throw error
       throw aiHttpsError(error, 'generateTenseExercises', 'Failed to generate exercises')
@@ -135,7 +149,7 @@ User's rewrite: "${userRewrites[i]}"`
     try {
       const evaluation = await callClaudeStructured(
         getClient(),
-        `Evaluate these 10 sentence transformation exercises.
+        `Evaluate these ${exercises.length} sentence transformation exercises.
 
 Language: ${langName(language)}
 Expected ${scaleName(level)} level: ${levelLabel}

@@ -86,9 +86,9 @@ export function TenseRewriteGame() {
         gameType: 'tense-rewrite',
         startedAt: sessionStartRef.current ?? Timestamp.now(),
         endedAt: Timestamp.now(),
-        totalTrials: 10,
+        totalTrials: exercises.length,
         correctTrials: correctCount,
-        accuracy: correctCount / 10,
+        accuracy: exercises.length ? correctCount / exercises.length : 0,
         averageResponseTimeMs: avgTimeMs,
         finalDifficulty: 1,
         difficultyProgression: [],
@@ -127,7 +127,7 @@ export function TenseRewriteGame() {
     } catch (err) {
       console.error('[TenseRewrite] Failed to save session:', err)
     }
-  }, [user, language, level, subLevel, setLanguageLevel])
+  }, [user, exercises.length, language, level, subLevel, setLanguageLevel])
 
   const handlePlayingComplete = useCallback(async (rewrites: string[], times: number[]) => {
     setUserRewrites(rewrites)
