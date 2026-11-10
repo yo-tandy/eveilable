@@ -65,6 +65,7 @@
       },
       "countHeading": "Combien de phrases ?",
       "sentences": "phrases",
+      "coverageHint": "Au moins {{count}} phrases, pour que chaque verbe et chaque temps apparaisse.",
       "start": "Commencer",
       "needVerbAndTense": "Ajoutez au moins un verbe et choisissez au moins un temps.",
       "generating": "Rédaction des phrases...",

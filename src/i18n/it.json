@@ -65,6 +65,7 @@
       },
       "countHeading": "Quante frasi?",
       "sentences": "frasi",
+      "coverageHint": "Almeno {{count}} frasi, così ogni verbo e ogni tempo compare.",
       "start": "Inizia",
       "needVerbAndTense": "Aggiungi almeno un verbo e scegli almeno un tempo.",
       "generating": "Scrittura delle frasi...",

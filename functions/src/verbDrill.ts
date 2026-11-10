@@ -162,6 +162,10 @@ export const generateVerbDrill = onCall(
     if (!SENTENCE_COUNTS.includes(count)) {
       throw new HttpsError('invalid-argument', 'Invalid sentence count')
     }
+    // Every chosen verb and tense must get at least one sentence
+    if (verbs.length > count || tenses.length > count) {
+      throw new HttpsError('invalid-argument', 'Choose at least as many sentences as verbs and tenses')
+    }
 
     await checkRateLimit(uid)
 
@@ -186,7 +190,7 @@ Rules:
 - The learner sees the sentence with the conjugated verb hidden and must type it. The context MUST make the required tense unambiguous: include time markers or clauses that force it (e.g. "yesterday", "since 2019", "if I had known", "by next year", "while ..."). For imperative, make it clearly a command.
 - The person, number${language === 'he' ? ', and gender' : ''} of the verb MUST be recoverable from the sentence (an explicit subject or an unambiguous context).${language === 'he' ? ' Write Hebrew without niqqud.' : ''}
 - "infinitive": the verb in dictionary form as a learner would look it up. Use the verb given above; if it was misspelled or given in a conjugated form, correct it to the dictionary form. If it is not a real ${langName(language)} verb, use the closest real verb.
-- "correctForm": the FULL conjugated verb as it appears in the sentence, including auxiliaries and particles that belong to the tense (e.g. "have been waiting", "suis allée", "hatte gekauft", "sarà partito", "吃了", "在看"). Do not include the subject pronoun, objects, adverbs, or negation. The hidden span must be ONE contiguous run of words: avoid structures that split the verb (questions with inversion, "ne ... pas" between auxiliary and participle, German main clauses like "Ich habe das Buch gelesen", separated prefixes). In German, use a subordinate clause to keep the parts together (e.g. "..., weil ich das Buch gelesen habe").
+- "correctForm": the FULL conjugated verb as it appears in the sentence, including auxiliaries and particles that belong to the tense (e.g. "have been waiting", "suis allée", "hatte gekauft", "sarà partito", "吃了", "在看"). Do not include the subject pronoun, objects, adverbs, or negation${language === 'zh' ? ' — except for the 没/没有 aspect option, where 没 or 没有 IS part of the answer (e.g. "没吃")' : ''}. The hidden span must be ONE contiguous run of words: avoid structures that split the verb (questions with inversion, "ne ... pas" between auxiliary and participle, German main clauses like "Ich habe das Buch gelesen", separated prefixes). In German, use a subordinate clause to keep the parts together (e.g. "..., weil ich das Buch gelesen habe").
 - "before" and "after": the exact text before and after the hidden verb, including spaces and punctuation, so that before + correctForm + after is the complete sentence.
 - "acceptedForms": other spellings of the same answer that are equally correct in this sentence (e.g. contractions like "don't"/"do not", "won't"/"will not", alternative valid spellings). Empty array if none. Never include a different tense.
 - The hidden verb must never already appear elsewhere in the sentence.`,

@@ -65,6 +65,7 @@
       },
       "countHeading": "多少个句子？",
       "sentences": "句",
+      "coverageHint": "至少 {{count}} 句，确保每个动词和时态都会出现。",
       "start": "开始练习",
       "needVerbAndTense": "请至少添加一个动词并选择一个时态。",
       "generating": "正在生成句子...",

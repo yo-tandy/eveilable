@@ -63,8 +63,10 @@ export function SetupPhase({ language, level, subLevel, error, onStart }: SetupP
   const [selectedTenses, setSelectedTenses] = useState<Set<string>>(() => {
     const valid = saved?.tenseIds?.filter(id => tenseOptions.some(o => o.id === id))
     if (valid && valid.length > 0) return new Set(valid)
-    // Default to the tenses taught at the learner's band
-    const tier = levelTier(level)
+    // Default to the tenses taught at the learner's band, or the highest
+    // band below it when the language has none there (Hebrew, Chinese)
+    const reachable = TIER_ORDER.slice(0, TIER_ORDER.indexOf(levelTier(level)) + 1)
+    const tier = reachable.reverse().find(tr => tenseOptions.some(o => o.tier === tr))
     return new Set(tenseOptions.filter(o => o.tier === tier).map(o => o.id))
   })
   const [count, setCount] = useState(() => SENTENCE_COUNTS.includes(saved?.count ?? 0) ? saved!.count : 10)
@@ -125,18 +127,21 @@ export function SetupPhase({ language, level, subLevel, error, onStart }: SetupP
   }, [])
 
   const tenses = tenseOptions.filter(o => selectedTenses.has(o.id))
-  const pendingDraft = parseVerbs(draft)
-  const canStart = (verbs.length > 0 || pendingDraft.length > 0) && tenses.length > 0
+  // Include whatever is still in the input box
+  const seen = new Set(verbs.map(v => v.toLowerCase()))
+  const allVerbs = [...verbs, ...parseVerbs(draft).filter(v => !seen.has(v.toLowerCase()))].slice(0, MAX_VERBS)
+  const canStart = allVerbs.length > 0 && tenses.length > 0
+  // Every verb and tense needs at least one sentence, so short rounds are
+  // unavailable once the selection outgrows them
+  const minCount = Math.max(allVerbs.length, tenses.length)
+  const effectiveCount = SENTENCE_COUNTS.find(n => n >= Math.max(count, minCount)) ?? SENTENCE_COUNTS[SENTENCE_COUNTS.length - 1]
 
   const handleStart = useCallback(() => {
     if (!canStart) return
-    // Include whatever is still in the input box
-    const seen = new Set(verbs.map(v => v.toLowerCase()))
-    const allVerbs = [...verbs, ...pendingDraft.filter(v => !seen.has(v.toLowerCase()))].slice(0, MAX_VERBS)
-    const setup = { verbs: allVerbs, tenses, count }
+    const setup = { verbs: allVerbs, tenses, count: effectiveCount }
     save(language, setup)
     onStart(setup)
-  }, [canStart, verbs, pendingDraft, tenses, count, language, onStart])
+  }, [canStart, allVerbs, tenses, effectiveCount, language, onStart])
 
   return (
     <div className="max-w-2xl mx-auto py-4 space-y-8">
@@ -169,6 +174,8 @@ export function SetupPhase({ language, level, subLevel, error, onStart }: SetupP
             value={draft}
             onChange={e => handleDraftChange(e.target.value)}
             onKeyDown={e => {
+              // Enter that confirms an IME candidate must not commit a half-typed verb
+              if (e.nativeEvent.isComposing || e.keyCode === 229) return
               if (e.key === 'Enter') {
                 e.preventDefault()
                 commitDraft()
@@ -185,7 +192,7 @@ export function SetupPhase({ language, level, subLevel, error, onStart }: SetupP
           <button
             type="button"
             onClick={commitDraft}
-            disabled={pendingDraft.length === 0 || verbs.length >= MAX_VERBS}
+            disabled={!draft.trim() || verbs.length >= MAX_VERBS}
             className="btn btn-ghost btn-sm"
             aria-label={t('games.verbDrill.addVerb')}
           >
@@ -292,15 +299,21 @@ export function SetupPhase({ language, level, subLevel, error, onStart }: SetupP
             <button
               key={n}
               type="button"
-              aria-pressed={count === n}
+              aria-pressed={effectiveCount === n}
               onClick={() => setCount(n)}
-              className={`option p-3 text-center ${count === n ? 'option-selected' : ''}`}
+              disabled={n < minCount}
+              className={`option p-3 text-center disabled:opacity-40 disabled:pointer-events-none ${effectiveCount === n ? 'option-selected' : ''}`}
             >
               <span className="display text-xl">{n}</span>
               <span className="block text-xs font-bold text-ink-2">{t('games.verbDrill.sentences')}</span>
             </button>
           ))}
         </div>
+        {minCount > SENTENCE_COUNTS[0] && (
+          <p className="mt-2 text-sm font-bold text-ink-2">
+            {t('games.verbDrill.coverageHint', { count: minCount })}
+          </p>
+        )}
       </section>
 
       <button

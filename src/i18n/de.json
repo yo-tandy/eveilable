@@ -65,6 +65,7 @@
       },
       "countHeading": "Wie viele Sätze?",
       "sentences": "Sätze",
+      "coverageHint": "Mindestens {{count}} Sätze, damit jedes Verb und jede Zeitform vorkommt.",
       "start": "Training starten",
       "needVerbAndTense": "Fügen Sie mindestens ein Verb hinzu und wählen Sie mindestens eine Zeitform.",
       "generating": "Sätze werden geschrieben...",

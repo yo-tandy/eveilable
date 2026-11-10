@@ -104,6 +104,8 @@ export function PlayingPhase({ sentences, language, onComplete }: PlayingPhasePr
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => {
+                // Enter that confirms an IME candidate must not grade a half-typed answer
+                if (e.nativeEvent.isComposing || e.keyCode === 229) return
                 if (e.key === 'Enter' && input.trim()) {
                   e.preventDefault()
                   grade(input)

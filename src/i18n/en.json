@@ -165,6 +165,7 @@
       },
       "countHeading": "How many sentences?",
       "sentences": "sentences",
+      "coverageHint": "At least {{count}} sentences, so every verb and tense comes up.",
       "start": "Start drill",
       "needVerbAndTense": "Add at least one verb and pick at least one tense.",
       "generating": "Writing your sentences...",

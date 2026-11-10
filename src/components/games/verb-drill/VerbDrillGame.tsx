@@ -46,6 +46,8 @@ export function VerbDrillGame() {
   const { user } = useAuthStore()
   const { setLanguageLevel } = useSettingsStore()
   const sessionStartRef = useRef<Timestamp | null>(null)
+  // Increments per round so a save that finishes late can't touch a newer round
+  const roundRef = useRef(0)
   const [phase, setPhase] = useState<Phase>('language-select')
   const [language, setLanguage] = useState<SupportedLanguage>('en')
   const [level, setLevel] = useState<LanguageLevel>('B1')
@@ -69,6 +71,7 @@ export function VerbDrillGame() {
   const handleStart = useCallback(async (setup: DrillSetup) => {
     setPhase('loading')
     setError(null)
+    roundRef.current += 1
     sessionStartRef.current = Timestamp.now()
     try {
       const result = await fetchVerbDrill(language, level, subLevel, setup.verbs, setup.tenses, setup.count)
@@ -82,6 +85,7 @@ export function VerbDrillGame() {
 
   const saveSession = useCallback(async (scored: ScoredItem[], score: number, feedbackText: string) => {
     if (!user) return
+    const round = roundRef.current
     try {
       const sessionsRef = collection(db, 'users', user.uid, 'sessions')
       const sessionDoc = doc(sessionsRef)
@@ -124,7 +128,10 @@ export function VerbDrillGame() {
         const result = checkLevelProgression({ cefr: level, sub: subLevel }, recentScores)
         if (result.changed) {
           setLanguageLevel(language, result.newConfig)
-          setLevelNotification({
+          // Keep the next round on the new level, not the one this game started with
+          setLevel(result.newConfig.cefr)
+          setSubLevel(result.newConfig.sub)
+          if (round === roundRef.current) setLevelNotification({
             direction: result.direction!,
             newLabel: `${result.newConfig.cefr} ${result.newConfig.sub}`,
           })
@@ -171,8 +178,9 @@ export function VerbDrillGame() {
     setItems(scored)
     setOverallScore(score)
     setFeedback(feedbackText || null)
-    await saveSession(scored, score, feedbackText)
     setPhase('results')
+    // Offline, Firestore holds the write promise until reconnect; results must not wait on it
+    void saveSession(scored, score, feedbackText)
   }, [language, level, subLevel, sentences, saveSession])
 
   const handlePlayAgain = useCallback(() => {
