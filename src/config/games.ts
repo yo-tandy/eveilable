@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
-import { Eye, Car, BookOpen, Zap, Shuffle, RefreshCw, PenLine, Focus, Languages, Layers, Type, Headphones, Puzzle } from 'lucide-react'
+import { Eye, Car, BookOpen, Zap, Shuffle, RefreshCw, PenLine, Target, Focus, Languages, Layers, Type, Headphones, Puzzle } from 'lucide-react'
 import type { GameType } from '../types/game'
 
 export type GameCategory = 'attention' | 'language' | 'puzzles'
@@ -104,6 +104,7 @@ export const GAMES: GameConfig[] = [
   { id: 'speed-summary',     key: 'speedSummary',     icon: Zap,        category: 'language',  skillLabel: 'Writing' },
   { id: 'tense-rewrite',     key: 'tenseRewrite',     icon: RefreshCw,  category: 'language',  skillLabel: 'Grammar' },
   { id: 'verb-fill',         key: 'verbFill',         icon: PenLine,    category: 'language',  skillLabel: 'Conjugation' },
+  { id: 'verb-drill',        key: 'verbDrill',        icon: Target,     category: 'language',  skillLabel: 'Conjugation' },
   { id: 'sentence-memory',   key: 'sentenceMemory',   icon: Type,       category: 'language',  skillLabel: 'Memory' },
   { id: 'oral-writing',      key: 'oralWriting',      icon: Headphones, category: 'language',  skillLabel: 'Listening' },
 ]
