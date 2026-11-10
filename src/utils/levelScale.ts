@@ -76,3 +76,15 @@ export function summaryLimits(language: string, game: 'comprehension' | 'speedSu
   }
   return game === 'comprehension' ? { min: 30, max: 60 } : { min: 10, max: 20 }
 }
+
+/**
+ * Coarse beginner / intermediate / advanced band shared by both scales.
+ * Matches levelTier() on the server.
+ */
+export function levelTier(level: LanguageLevel): 'beginner' | 'intermediate' | 'advanced' {
+  const order = levelOrderOf(level)
+  const i = order.indexOf(level)
+  if (i < order.length / 3) return 'beginner'
+  if (i < (2 * order.length) / 3) return 'intermediate'
+  return 'advanced'
+}

@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app'
-import { getAuth } from 'firebase/auth'
-import { getFirestore } from 'firebase/firestore'
+import { getAuth, connectAuthEmulator } from 'firebase/auth'
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -15,4 +15,14 @@ const app = initializeApp(firebaseConfig)
 
 export const auth = getAuth(app)
 export const db = getFirestore(app)
+
+/**
+ * Local testing against the emulator suite (see firebase.emulator.local.json
+ * and scripts/seed-emulator.mjs). Only in dev, and only when opted in.
+ */
+export const usingEmulators = import.meta.env.DEV && import.meta.env.VITE_USE_EMULATORS === 'true'
+if (usingEmulators) {
+  connectAuthEmulator(auth, `http://127.0.0.1:${import.meta.env.VITE_AUTH_EMULATOR_PORT || 9099}`, { disableWarnings: true })
+  connectFirestoreEmulator(db, '127.0.0.1', Number(import.meta.env.VITE_FIRESTORE_EMULATOR_PORT) || 8080)
+}
 export default app

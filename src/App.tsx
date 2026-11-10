@@ -63,6 +63,9 @@ const TenseRewritePage = lazyRoute(() =>
 const VerbFillPage = lazyRoute(() =>
   import('./pages/VerbFillPage').then((m) => ({ default: m.VerbFillPage }))
 )
+const VerbDrillPage = lazyRoute(() =>
+  import('./pages/VerbDrillPage').then((m) => ({ default: m.VerbDrillPage }))
+)
 const CardRecallPage = lazyRoute(() =>
   import('./pages/CardRecallPage').then((m) => ({ default: m.CardRecallPage }))
 )
@@ -188,6 +191,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <VerbFillPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/games/verb-drill"
+              element={
+                <ProtectedRoute>
+                  <VerbDrillPage />
                 </ProtectedRoute>
               }
             />

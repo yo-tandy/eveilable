@@ -6,3 +6,4 @@ export { generateTenseExercises, evaluateTenseRewrites } from './tenseRewrite.js
 export { generateVerbFillExercise, evaluateVerbFill } from './verbFill.js'
 export { generateMemorySentences } from './sentenceMemory.js'
 export { generateDictationText } from './dictation.js'
+export { suggestVerbs, generateVerbDrill, evaluateVerbDrill } from './verbDrill.js'

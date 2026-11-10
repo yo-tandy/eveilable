@@ -1,7 +1,11 @@
-import { getFunctions, httpsCallable } from 'firebase/functions'
-import app from '../config/firebase'
+import { getFunctions, httpsCallable, connectFunctionsEmulator } from 'firebase/functions'
+import app, { usingEmulators } from '../config/firebase'
 
 const functions = getFunctions(app)
+
+if (usingEmulators) {
+  connectFunctionsEmulator(functions, '127.0.0.1', Number(import.meta.env.VITE_FUNCTIONS_EMULATOR_PORT) || 5001)
+}
 
 export async function callFunction<T>(name: string, data: Record<string, unknown>): Promise<T> {
   const fn = httpsCallable<Record<string, unknown>, T>(functions, name)
